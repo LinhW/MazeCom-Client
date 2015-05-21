@@ -15,7 +15,7 @@ import jaxb.LoginMessageType;
 import jaxb.ObjectFactory;
 
 public class Main {
-	public static void main(String[] args) {
+	private void run() {
 		DataOutputStream outToServer;
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		DataInputStream inFromServer;
@@ -53,5 +53,10 @@ public class Main {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void main(String[] args) {
+		Main m = new Main();
+		m.run();
 	}
 }
