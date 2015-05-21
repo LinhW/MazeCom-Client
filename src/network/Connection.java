@@ -2,8 +2,6 @@ package network;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -13,23 +11,22 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import jaxb.LoginMessageType;
-import jaxb.ObjectFactory;
+import jaxb.MazeCom;
 
 public class Connection {
 	private boolean isConnected;
 	
 	private Socket clientSocket;
-	private DataOutputStream outToServer;
+	private UTFOutputStream outToServer;
 	private ByteArrayOutputStream byteOutToServer;
-	private DataInputStream inFromServer;
+	private UTFInputStream inFromServer;
 	private ByteArrayInputStream byteInFromServer;
 	private ServerListener serverListener;
 	
-	private ObjectFactory objectFactory;
 	private JAXBContext jaxbContext;
 	private Marshaller marshaller;
 	private Unmarshaller unmarshaller;
+	private MazeComMessageFactory messageFactory;
 	
 	public Connection() {
 		super();
@@ -50,7 +47,7 @@ public class Connection {
 			shutdown = false;
 			while (!shutdown) {
 				try {
-					byteInFromServer = new ByteArrayInputStream(inFromServer.readUTF().getBytes());
+					byteInFromServer = new ByteArrayInputStream(inFromServer.readUTF8().getBytes());
 					processMessage(unmarshaller.unmarshal(byteInFromServer));
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -66,11 +63,10 @@ public class Connection {
 	private boolean createSocket(String host, int port) {
 		try {
 			clientSocket = new Socket(host, port);
-			outToServer = new DataOutputStream(clientSocket.getOutputStream());
+			outToServer = new UTFOutputStream(clientSocket.getOutputStream());
 			byteOutToServer = new ByteArrayOutputStream();
-			inFromServer = new DataInputStream(clientSocket.getInputStream());
+			inFromServer = new UTFInputStream(clientSocket.getInputStream());
 			serverListener = new ServerListener();
-			serverListener.start();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			return false;
@@ -82,18 +78,17 @@ public class Connection {
 	}
 	
 	private boolean loginOnServer(String name) {
-		objectFactory = new ObjectFactory();
-		LoginMessageType message = objectFactory.createLoginMessageType();
-		message.setName(name);
+		messageFactory = new MazeComMessageFactory();
+		MazeCom message = messageFactory.createLoginMessage(name);
 		try {
-			jaxbContext = JAXBContext.newInstance(LoginMessageType.class);
+			jaxbContext = JAXBContext.newInstance(MazeCom.class);
 			marshaller = jaxbContext.createMarshaller();
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			unmarshaller = jaxbContext.createUnmarshaller();
 
 			byteOutToServer.reset();
 			marshaller.marshal(message, byteOutToServer);
-			outToServer.writeUTF(new String(byteOutToServer.toByteArray()));
+			outToServer.writeUTF8(new String(byteOutToServer.toByteArray()));
 		} catch (JAXBException e1) {
 			e1.printStackTrace();
 			return false;
@@ -105,16 +100,23 @@ public class Connection {
 	}
 	
 	public boolean establishConnection(String name, String host, int port) {
-		if (!createSocket(host, port)) {
-			return false;
+		boolean success = true;
+		if (isConnected) {
+			success = false;
+		}
+		else if (!createSocket(host, port)) {
+			success = false;
 		}
 		else if (!loginOnServer(name)) {
-			return false;
+			success= false;
 		}
 		else {
 			isConnected = true;
-			return true;
 		}
+		if (success) {
+			serverListener.start();
+		}
+		return success;
 	}
 	
 	public boolean isConnected() {
@@ -129,6 +131,11 @@ public class Connection {
 				e.printStackTrace();
 				return false;
 			}
+		}
+		try {
+			serverListener.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 		isConnected = false;
 		return true;
