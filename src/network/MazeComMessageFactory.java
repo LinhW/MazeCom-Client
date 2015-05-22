@@ -1,11 +1,11 @@
 package network;
 
+import model.Board;
 import jaxb.ErrorType;
 import jaxb.MazeCom;
 import jaxb.MazeComType;
 import jaxb.ObjectFactory;
 import jaxb.WinMessageType.Winner;
-import model.Board;
 
 public class MazeComMessageFactory {
 

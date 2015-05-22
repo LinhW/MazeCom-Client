@@ -12,32 +12,33 @@ public class Settings {
 	private Settings() {
 	}
 
-//	public final static int PORT = 5123;
-//	/**
-//	 * Startwert fuer die Spieleranzahl Kann aber noch veraendert werden,
-//	 * deshalb nicht final
-//	 */
-//	public static int DEFAULT_PLAYERS = 1;
-//	/**
-//	 * Die Zeit in Milisekunden, die die Animation eines Zug (die Bewegung des
-//	 * Pins) benoetigen soll
-//	 */
-//	public final static int MOVEDELAY = 10;
-//	/**
-//	 * Die Zeit in Milisekunden, die das Einschieben der Shiftcard dauern soll
-//	 */
-//	public final static int SHIFTDELAY = 10;
-//	/**
-//	 * Die Zeit in Milisekunden, nach der ein Logintimeout eintritt LOGINTIMEOUT
-//	 * = 60000 entspricht einer Minute
-//	 */
-//	public final static long LOGINTIMEOUT = 60*60000;
-//	public final static int LOGINTRIES = 3;
-//	/**
-//	 * Die maximale Anzahl der Versuche einen gueltigen Zug zu uebermitteln
-//	 */
-//	public final static int MOVETRIES = 3;
-//	public final static long SENDTIMEOUT = 1 * 60 * 1000;
+	// public final static int PORT = 5123;
+	// /**
+	// * Startwert fuer die Spieleranzahl Kann aber noch veraendert werden,
+	// * deshalb nicht final
+	// */
+	// public static int DEFAULT_PLAYERS = 1;
+	/**
+	 * Die Zeit in Milisekunden, die die Animation eines Zug (die Bewegung des
+	 * Pins) benoetigen soll
+	 */
+	public final static int MOVEDELAY = 10;
+	/**
+	 * Die Zeit in Milisekunden, die das Einschieben der Shiftcard dauern soll
+	 */
+	public final static int SHIFTDELAY = 10;
+	// /**
+	// * Die Zeit in Milisekunden, nach der ein Logintimeout eintritt
+	// LOGINTIMEOUT
+	// * = 60000 entspricht einer Minute
+	// */
+	// public final static long LOGINTIMEOUT = 60*60000;
+	// public final static int LOGINTRIES = 3;
+	// /**
+	// * Die maximale Anzahl der Versuche einen gueltigen Zug zu uebermitteln
+	// */
+	// public final static int MOVETRIES = 3;
+	// public final static long SENDTIMEOUT = 1 * 60 * 1000;
 	/**
 	 * Wenn TESTBOARD = true ist, dann ist das Spielbrett bei jedem Start
 	 * identisch (zum Debugging)

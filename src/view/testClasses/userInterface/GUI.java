@@ -14,7 +14,6 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
@@ -33,7 +32,8 @@ import jaxb.BoardType.Row;
 import jaxb.CardType;
 import jaxb.MoveMessageType;
 import tools.Debug;
-import tools.DebugLevel;
+import view.data.Context;
+import view.data.PersData;
 import view.testClasses.Board;
 import view.testClasses.Card;
 import view.testClasses.Messages;
@@ -191,78 +191,72 @@ public class GUI extends JFrame implements UI {
 		TreeMap<Integer, JLabel> treasureImages = new TreeMap<Integer, JLabel>();
 		private JScrollPane scrollPane;
 
-		// public void update(List<Player> stats, int current) {
-		// if (initiated) {
-		//				currentPlayerLabels.get(currentPlayer).setText(""); //$NON-NLS-1$
-		// currentPlayer = current;
-		//				currentPlayerLabels.get(currentPlayer).setText(">"); //$NON-NLS-1$
-		// for (Player p : stats) {
-		// statLabels.get(p.getID()).setText(String.valueOf(p.treasuresToGo()));
-		// treasureImages.get(p.getID()).setIcon(new
-		// ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
-		// }
-		//
-		// } else {
-		// // Beim ersten mal erzeugen wir die GUI.
-		// initiated = true;
-		// GridBagConstraints gc = new GridBagConstraints();
-		// gc.gridx = GridBagConstraints.RELATIVE;
-		// gc.anchor = GridBagConstraints.WEST;
-		// this.setLayout(new GridBagLayout());
-		//
-		// shiftCard = new GraphicalCardBuffered();
-		//
-		// // GridBagConstraints(gridx, gridy, gridwidth, gridheight,
-		// // weightx, weighty, anchor, fill, insets, ipadx, ipady);
-		// this.add(shiftCard,
-		// new GridBagConstraints(0, 0, 5, 1, 0.5, 0.5,
-		// GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0,
-		// 0, 0), uiboard.getPixelsPerField(),
-		// uiboard.getPixelsPerField()));
-		// // this.getComponentAt(0, 0).get
-		// for (Player p : stats) {
-		// gc.gridy = p.getID();
-		// JLabel currentPlayerLabel = new JLabel();
-		// currentPlayerLabels.put(p.getID(), currentPlayerLabel);
-		//
-		//					JLabel playerIDLabel = new JLabel(String.valueOf(p.getID()) + ".   "); //$NON-NLS-1$
-		// JLabel playerNameLabel = new JLabel(p.getName());
-		// playerNameLabel.setForeground(colorForPlayer(p.getID()));
-		//
-		// JLabel statLabel = new JLabel(String.valueOf(p.treasuresToGo()));
-		// statLabels.put(p.getID(), statLabel);
-		//
-		// JLabel treasureImage = new JLabel(new
-		// ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
-		// treasureImages.put(p.getID(), treasureImage);
-		//
-		// gc.ipadx = 5;
-		// this.add(currentPlayerLabel, gc);
-		// gc.ipadx = 0;
-		// this.add(playerIDLabel, gc);
-		// this.add(playerNameLabel, gc);
-		// this.add(treasureImage, gc);
-		// this.add(statLabel, gc);
-		// }
-		// currentPlayer = current;
-		//				currentPlayerLabels.get(currentPlayer).setText(">"); //$NON-NLS-1$
-		//
-		// scrollPane = new JScrollPane(log.getTextArea());
-		// JPanel panel = new JPanel(new BorderLayout());
-		// panel.add(scrollPane);
-		//
-		// this.add(panel,
-		// new GridBagConstraints(0, 5, 5, 1, 0.5, 0.5,
-		// GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0,
-		// 0, 0), uiboard.getPixelsPerField(),
-		// uiboard.getPixelsPerField()));
-		// }
-		// }
+		public void update(/* List<Player> stats, */int current) {
+			if (initiated) {
+				//				currentPlayerLabels.get(currentPlayer).setText(""); //$NON-NLS-1$
+				// currentPlayer = current;
+				//				currentPlayerLabels.get(currentPlayer).setText(">"); //$NON-NLS-1$
+				// for (Player p : stats) {
+				// statLabels.get(p.getID()).setText(String.valueOf(p.treasuresToGo()));
+				// treasureImages.get(p.getID()).setIcon(new
+				// ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
+				// }
+
+			} else {
+				// Beim ersten mal erzeugen wir die GUI.
+				initiated = true;
+				GridBagConstraints gc = new GridBagConstraints();
+				gc.gridx = GridBagConstraints.RELATIVE;
+				gc.anchor = GridBagConstraints.WEST;
+				this.setLayout(new GridBagLayout());
+
+				shiftCard = new GraphicalCardBuffered();
+
+				// GridBagConstraints(gridx, gridy, gridwidth, gridheight,
+				// weightx, weighty, anchor, fill, insets, ipadx, ipady);
+				this.add(shiftCard,
+						new GridBagConstraints(0, 0, 5, 1, 0.5, 0.5, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), uiboard.getPixelsPerField(),
+								uiboard.getPixelsPerField()));
+				// this.getComponentAt(0, 0).get
+				PersData p = (PersData) Context.getInstance().getValue(Context.USER);
+				gc.gridy = p.getID();
+				JLabel currentPlayerLabel = new JLabel();
+				currentPlayerLabels.put(p.getID(), currentPlayerLabel);
+
+				JLabel playerIDLabel = new JLabel(String.valueOf(p.getID()) + ".   "); //$NON-NLS-1$
+				JLabel playerNameLabel = new JLabel(p.getName());
+				playerNameLabel.setForeground(colorForPlayer(p.getID()));
+
+				JLabel statLabel = new JLabel(String.valueOf(p.treasuresToGo()));
+				statLabels.put(p.getID(), statLabel);
+
+				JLabel treasureImage = new JLabel(new ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
+				treasureImages.put(p.getID(), treasureImage);
+
+				gc.ipadx = 5;
+				this.add(currentPlayerLabel, gc);
+				gc.ipadx = 0;
+				this.add(playerIDLabel, gc);
+				this.add(playerNameLabel, gc);
+				this.add(treasureImage, gc);
+				this.add(statLabel, gc);
+				currentPlayer = current;
+				currentPlayerLabels.get(currentPlayer).setText(">"); //$NON-NLS-1$
+
+				scrollPane = new JScrollPane(log.getTextArea());
+				JPanel panel = new JPanel(new BorderLayout());
+				panel.add(scrollPane);
+
+				this.add(panel,
+						new GridBagConstraints(0, 5, 5, 1, 0.5, 0.5, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), uiboard.getPixelsPerField(),
+								uiboard.getPixelsPerField()));
+			}
+		}
 	}
 
 	public GUI() {
 		// Eigenname
-		super("Better MazeNet UI"); //$NON-NLS-1$
+		super("Das verrückte Labyrinth"); //$NON-NLS-1$
 		this.setLayout(new BorderLayout());
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, uiboard, statPanel);
