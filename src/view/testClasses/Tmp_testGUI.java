@@ -44,6 +44,7 @@ public class Tmp_testGUI {
 			}
 			((PersData) Context.getInstance().getValue(Context.USER)).setCurrentTreasure(await.getTreasure());
 			((PersData) Context.getInstance().getValue(Context.USER)).setTreasuresToFind(await.getTreasuresToGo().size());
+			ttgui.gui.init((Board) await.getBoard());
 			System.out.println("----");
 			break;
 		case DISCONNECT:
@@ -77,7 +78,6 @@ public class Tmp_testGUI {
 		Debug.addDebugger(System.out, Settings.DEBUGLEVEL);
 		Debug.print(Messages.getInstance().getString("Game.Constructor"), DebugLevel.DEBUG); //$NON-NLS-1$
 		gui = Settings.USERINTERFACE;
-		gui.init(new Board());
 	}
 
 	public static String first() {
