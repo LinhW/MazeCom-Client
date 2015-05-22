@@ -11,8 +11,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import view.testClasses.Tmp_testGUI;
 import jaxb.MazeCom;
+import control.Controller;
+import control.Controller.NotificationType;
 
 public class Connection {
 	private boolean isConnected;
@@ -23,14 +24,16 @@ public class Connection {
 	private UTFInputStream inFromServer;
 	private ByteArrayInputStream byteInFromServer;
 	private ServerListener serverListener;
+	private Controller controller;
 
 	private JAXBContext jaxbContext;
 	private Marshaller marshaller;
 	private Unmarshaller unmarshaller;
 	private MazeComMessageFactory messageFactory;
 
-	public Connection() {
+	public Connection(Controller controller) {
 		super();
+		this.controller = controller;
 	}
 
 	private class ServerListener extends Thread {
@@ -40,9 +43,37 @@ public class Connection {
 			shutdown = true;
 		}
 
-		public void processMessage(MazeCom Message) {
+		public void processMessage(MazeCom message) {
 			// TODO einfach auskommentieren wenn cih es vergessen habe
-			Tmp_testGUI.receiveServerMessage(Message);
+			//Tmp_testGUI.receiveServerMessage(Message);
+			
+			String type = message.getMcType().name();
+			Controller.NotificationType notification;
+			if (type.equals("LOGIN")) {
+				notification = NotificationType.NOTIFY_UNKNOWN;
+			}
+			else if (type.equals("LOGINREPLY")) {
+				notification = NotificationType.NOTIFY_WAIT;
+			}
+			else if (type.equals("AWAITMOVE")) {
+				notification = NotificationType.NOTIFY_YOUR_MOVE;
+			}
+			else if (type.equals("MOVE")) {
+				notification = NotificationType.NOTIFY_MOVE;
+			}
+			else if (type.equals("ACCEPT")) {
+				notification = NotificationType.NOTIFY_WAIT;
+			}
+			else if (type.equals("WIN")) {
+				notification = NotificationType.NOTIFY_WIN;
+			}
+			else if (type.equals("DISCONNECT")) {
+				notification = NotificationType.NOTIFY_DISCONNECT;
+			}
+			else {
+				notification = NotificationType.NOTIFY_UNKNOWN;
+			}
+			controller.notifyWindow(notification);
 		}
 
 		public void run() {
