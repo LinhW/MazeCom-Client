@@ -11,6 +11,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import view.testClasses.Tmp_testGUI;
 import jaxb.MazeCom;
 
 public class Connection {
@@ -41,7 +42,7 @@ public class Connection {
 
 		public void processMessage(MazeCom Message) {
 			// TODO einfach auskommentieren wenn cih es vergessen habe
-			// Tmp_testGUI.receiveServerMessage(Message);
+			Tmp_testGUI.receiveServerMessage(Message);
 		}
 
 		public void run() {

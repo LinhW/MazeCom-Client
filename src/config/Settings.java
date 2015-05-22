@@ -3,6 +3,8 @@ package config;
 import java.util.Locale;
 
 import tools.DebugLevel;
+import view.testClasses.userInterface.GUI;
+import view.testClasses.userInterface.UI;
 
 //import server.userInterface.*;
 
@@ -45,15 +47,15 @@ public class Settings {
 	 * Hiermit lassen sich die Testfaelle anpassen (Pseudozufallszahlen)
 	 */
 	public final static long TESTBOARD_SEED = 0;
-//	/**
-//	 * USERINTERFACE definiert die zu verwendende GUI Gueltige Werte:
-//	 * BetterUI(), GraphicalUI()
-//	 */
-//	public final static UI USERINTERFACE = new BetterUI();
+	/**
+	 * USERINTERFACE definiert die zu verwendende GUI Gueltige Werte:
+	 * BetterUI(), GraphicalUI()
+	 */
+	public final static UI USERINTERFACE = new GUI();
 	/**
 	 * Auf das angehaengte / achten
 	 */
-	public final static String IMAGEPATH = "src/view/resources/"; //$NON-NLS-1$
+	public final static String IMAGEPATH = "/view/resources/"; //$NON-NLS-1$
 	public final static String IMAGEFILEEXTENSION = ".png"; //$NON-NLS-1$
 	public final static Locale LOCALE = new Locale("de"); //$NON-NLS-1$
 	/**

@@ -1,6 +1,5 @@
 package view.testClasses;
 
-import view.testClasses.userInterface.GraphicalUI;
 import jaxb.AcceptMessageType;
 import jaxb.AwaitMoveMessageType;
 import jaxb.DisconnectMessageType;
@@ -11,11 +10,15 @@ import jaxb.MoveMessageType;
 import jaxb.TreasureType;
 import jaxb.TreasuresToGoType;
 import jaxb.WinMessageType;
+import tools.Debug;
+import tools.DebugLevel;
+import view.testClasses.userInterface.UI;
+import config.Settings;
 
 public class Tmp_testGUI {
 
 	public static void receiveServerMessage(MazeCom message) {
-		GraphicalUI gui = new GraphicalUI();
+		init();
 		System.out.println("receive Message: " + message.getId() + " " + message.getMcType());
 		switch (message.getMcType()) {
 		case ACCEPT:
@@ -55,5 +58,12 @@ public class Tmp_testGUI {
 			break;
 		}
 
+	}
+
+	private static void init() {
+		Debug.addDebugger(System.out, Settings.DEBUGLEVEL);
+		Debug.print(Messages.getInstance().getString("Game.Constructor"), DebugLevel.DEBUG); //$NON-NLS-1$
+		UI gui = Settings.USERINTERFACE;
+		gui.init(new Board());
 	}
 }

@@ -85,6 +85,7 @@ public class GraphicalCardBuffered extends JPanel implements ComponentListener {
 			showMessageWithTimer("Test", Settings.IMAGEPATH + "Start01.png", 1, 10000, false);
 			URL url = GraphicalCardBuffered.class.getResource(Settings.IMAGEPATH + cs.toString() + co.value() + Settings.IMAGEFILEEXTENSION);
 			System.out.println(url);
+			System.out.println(cs + " " + co);
 			Debug.print(Messages.getInstance().getString("GraphicalCardBuffered.Load") + url.toString(), DebugLevel.DEBUG); //$NON-NLS-1$
 			shape = ImageIO.read(url);
 
