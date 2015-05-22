@@ -40,7 +40,7 @@ public class Connection {
 			shutdown = true;
 		}
 
-		public void processMessage(Object Message) {
+		public void processMessage(MazeCom Message) {
 			// TODO
 			Tmp_testGUI.receiveServerMessage(Message);
 		}
@@ -50,7 +50,7 @@ public class Connection {
 			while (!shutdown) {
 				try {
 					byteInFromServer = new ByteArrayInputStream(inFromServer.readUTF8().getBytes());
-					processMessage(unmarshaller.unmarshal(byteInFromServer));
+					processMessage((MazeCom) unmarshaller.unmarshal(byteInFromServer));
 				} catch (IOException e) {
 					e.printStackTrace();
 					shutdown();
