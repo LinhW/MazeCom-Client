@@ -11,38 +11,40 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import view.Tmp_testGUI;
 import jaxb.MazeCom;
 
 public class Connection {
 	private boolean isConnected;
-	
+
 	private Socket clientSocket;
 	private UTFOutputStream outToServer;
 	private ByteArrayOutputStream byteOutToServer;
 	private UTFInputStream inFromServer;
 	private ByteArrayInputStream byteInFromServer;
 	private ServerListener serverListener;
-	
+
 	private JAXBContext jaxbContext;
 	private Marshaller marshaller;
 	private Unmarshaller unmarshaller;
 	private MazeComMessageFactory messageFactory;
-	
+
 	public Connection() {
 		super();
 	}
-	
+
 	private class ServerListener extends Thread {
 		private boolean shutdown;
-		
+
 		public void shutdown() {
 			shutdown = true;
 		}
-		
+
 		public void processMessage(Object Message) {
-			
+			// TODO
+			Tmp_testGUI.receiveServerMessage(Message);
 		}
-		
+
 		public void run() {
 			shutdown = false;
 			while (!shutdown) {
@@ -59,7 +61,7 @@ public class Connection {
 			}
 		}
 	}
-	
+
 	private boolean createSocket(String host, int port) {
 		try {
 			clientSocket = new Socket(host, port);
@@ -76,7 +78,7 @@ public class Connection {
 		}
 		return true;
 	}
-	
+
 	private boolean loginOnServer(String name) {
 		messageFactory = new MazeComMessageFactory();
 		MazeCom message = messageFactory.createLoginMessage(name);
@@ -98,19 +100,16 @@ public class Connection {
 		}
 		return true;
 	}
-	
+
 	public boolean establishConnection(String name, String host, int port) {
 		boolean success = true;
 		if (isConnected) {
 			success = false;
-		}
-		else if (!createSocket(host, port)) {
+		} else if (!createSocket(host, port)) {
 			success = false;
-		}
-		else if (!loginOnServer(name)) {
-			success= false;
-		}
-		else {
+		} else if (!loginOnServer(name)) {
+			success = false;
+		} else {
 			isConnected = true;
 		}
 		if (success) {
@@ -118,11 +117,11 @@ public class Connection {
 		}
 		return success;
 	}
-	
+
 	public boolean isConnected() {
 		return isConnected;
 	}
-	
+
 	public boolean closeConnection() {
 		if (isConnected) {
 			try {
