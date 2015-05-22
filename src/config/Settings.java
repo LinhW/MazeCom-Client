@@ -11,11 +11,11 @@ public class Settings {
 	}
 
 //	public final static int PORT = 5123;
-	/**
-	 * Startwert fuer die Spieleranzahl Kann aber noch veraendert werden,
-	 * deshalb nicht final
-	 */
-	public static int DEFAULT_PLAYERS = 1;
+//	/**
+//	 * Startwert fuer die Spieleranzahl Kann aber noch veraendert werden,
+//	 * deshalb nicht final
+//	 */
+//	public static int DEFAULT_PLAYERS = 1;
 //	/**
 //	 * Die Zeit in Milisekunden, die die Animation eines Zug (die Bewegung des
 //	 * Pins) benoetigen soll
@@ -36,15 +36,15 @@ public class Settings {
 //	 */
 //	public final static int MOVETRIES = 3;
 //	public final static long SENDTIMEOUT = 1 * 60 * 1000;
-//	/**
-//	 * Wenn TESTBOARD = true ist, dann ist das Spielbrett bei jedem Start
-//	 * identisch (zum Debugging)
-//	 */
-//	public final static boolean TESTBOARD = true;
-//	/**
-//	 * Hiermit lassen sich die Testfaelle anpassen (Pseudozufallszahlen)
-//	 */
-//	public final static long TESTBOARD_SEED = 0;
+	/**
+	 * Wenn TESTBOARD = true ist, dann ist das Spielbrett bei jedem Start
+	 * identisch (zum Debugging)
+	 */
+	public final static boolean TESTBOARD = true;
+	/**
+	 * Hiermit lassen sich die Testfaelle anpassen (Pseudozufallszahlen)
+	 */
+	public final static long TESTBOARD_SEED = 0;
 //	/**
 //	 * USERINTERFACE definiert die zu verwendende GUI Gueltige Werte:
 //	 * BetterUI(), GraphicalUI()
@@ -53,7 +53,7 @@ public class Settings {
 	/**
 	 * Auf das angehaengte / achten
 	 */
-	public final static String IMAGEPATH = "/view/testClasses/userInterface/resources/"; //$NON-NLS-1$
+	public final static String IMAGEPATH = "src/view/resources/"; //$NON-NLS-1$
 	public final static String IMAGEFILEEXTENSION = ".png"; //$NON-NLS-1$
 	public final static Locale LOCALE = new Locale("de"); //$NON-NLS-1$
 	/**
