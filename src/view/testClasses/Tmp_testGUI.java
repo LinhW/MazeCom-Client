@@ -1,8 +1,12 @@
 package view.testClasses;
 
+import java.util.List;
+
 import jaxb.AcceptMessageType;
 import jaxb.AwaitMoveMessageType;
 import jaxb.BoardType;
+import jaxb.BoardType.Row;
+import jaxb.CardType;
 import jaxb.DisconnectMessageType;
 import jaxb.LoginMessageType;
 import jaxb.LoginReplyMessageType;
@@ -17,6 +21,7 @@ import view.data.Context;
 import view.data.PersData;
 import view.testClasses.userInterface.UI;
 import config.Settings;
+
 import javax.swing.JOptionPane;
 
 public class Tmp_testGUI {
@@ -37,14 +42,15 @@ public class Tmp_testGUI {
 			TreasureType t = await.getTreasure();
 			String n = t.name();
 			System.out.println("----");
+			System.out.println(t + " " + n);
 			System.out.println(await + " " + await.getBoard().getShiftCard() + " " + n);
-			Context.getInstance().setValue(Context.BOARD, await.getBoard());
+			Context.getInstance().setValue(Context.BOARD, new Board(await.getBoard()));
 			for (TreasuresToGoType tt : await.getTreasuresToGo()) {
 				System.out.println(tt);
 			}
 			((PersData) Context.getInstance().getValue(Context.USER)).setCurrentTreasure(await.getTreasure());
 			((PersData) Context.getInstance().getValue(Context.USER)).setTreasuresToFind(await.getTreasuresToGo().size());
-			ttgui.gui.init((Board) await.getBoard());
+			ttgui.gui.init(new Board(await.getBoard()));
 			System.out.println("----");
 			break;
 		case DISCONNECT:
