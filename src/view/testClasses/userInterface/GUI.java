@@ -192,14 +192,14 @@ public class GUI extends JFrame implements UI {
 		private JScrollPane scrollPane;
 
 		public void update(/* List<Player> stats, */int current) {
+			PersData p = (PersData) Context.getInstance().getValue(Context.USER);
 			if (initiated) {
-				//				currentPlayerLabels.get(currentPlayer).setText(""); //$NON-NLS-1$
-				// currentPlayer = current;
-				//				currentPlayerLabels.get(currentPlayer).setText(">"); //$NON-NLS-1$
+				currentPlayerLabels.get(currentPlayer).setText(""); //$NON-NLS-1$
+				currentPlayer = current;
+				currentPlayerLabels.get(currentPlayer).setText(">"); //$NON-NLS-1$
 				// for (Player p : stats) {
-				// statLabels.get(p.getID()).setText(String.valueOf(p.treasuresToGo()));
-				// treasureImages.get(p.getID()).setIcon(new
-				// ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
+				statLabels.get(p.getID()).setText(String.valueOf(p.treasuresToGo()));
+				treasureImages.get(p.getID()).setIcon(new ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
 				// }
 
 			} else {
@@ -218,7 +218,6 @@ public class GUI extends JFrame implements UI {
 						new GridBagConstraints(0, 0, 5, 1, 0.5, 0.5, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), uiboard.getPixelsPerField(),
 								uiboard.getPixelsPerField()));
 				// this.getComponentAt(0, 0).get
-				PersData p = (PersData) Context.getInstance().getValue(Context.USER);
 				gc.gridy = p.getID();
 				JLabel currentPlayerLabel = new JLabel();
 				currentPlayerLabels.put(p.getID(), currentPlayerLabel);
@@ -230,15 +229,16 @@ public class GUI extends JFrame implements UI {
 				JLabel statLabel = new JLabel(String.valueOf(p.treasuresToGo()));
 				statLabels.put(p.getID(), statLabel);
 
-				JLabel treasureImage = new JLabel(new ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
+				JLabel treasureImage = new JLabel(new ImageIcon(Settings.IMAGEPATH + p.getCurrentTreasure().name()));
 				treasureImages.put(p.getID(), treasureImage);
 
 				gc.ipadx = 5;
 				this.add(currentPlayerLabel, gc);
 				gc.ipadx = 0;
+				System.out.println("hooo");
 				this.add(playerIDLabel, gc);
 				this.add(playerNameLabel, gc);
-				this.add(treasureImage, gc);
+				this.add(treasureImage);
 				this.add(statLabel, gc);
 				currentPlayer = current;
 				currentPlayerLabels.get(currentPlayer).setText(">"); //$NON-NLS-1$
@@ -468,13 +468,15 @@ public class GUI extends JFrame implements UI {
 		}
 	}
 
-	// public void updatePlayerStatistics(List<Player> stats, Integer current) {
-	// statPanel.update(stats, current);
-	// }
+	public void updatePlayerStatistics(Integer current) {
+		statPanel.update(current);
+	}
+
 	@Override
 	public void init(Board b) {
 		uiboard.setBoard(b);
 		uiboard.repaint();
+		updatePlayerStatistics(1);
 		this.setVisible(true);
 	}
 
