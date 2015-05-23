@@ -4,47 +4,35 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import jaxb.BoardType.Row;
 import jaxb.CardType;
 import jaxb.MoveMessageType;
-import tools.Debug;
-import view.data.Context;
-import view.data.PersData;
 import view.testClasses.Board;
 import view.testClasses.Card;
 import view.testClasses.Messages;
 import view.testClasses.Position;
 import config.Settings;
+import java.awt.Dimension;
 
 @SuppressWarnings("serial")
 public class GUI extends JFrame implements UI {
 
 	UIBoard uiboard = new UIBoard();
-	StatsPanel statPanel = new StatsPanel();
 	private static final boolean animateMove = true;
 	private static final boolean animateShift = true;
 	private static final int animationFrames = 10;
@@ -52,9 +40,9 @@ public class GUI extends JFrame implements UI {
 	Object animationFinished = new Object();
 	Timer animationTimer;
 	AnimationProperties animationProperties = null;
-	JSplitPane splitPane;
 	public GraphicalCardBuffered shiftCard;
-	private StreamToTextArea log;
+	private JLabel l_shiftCard;
+	private JLabel l_treasure;
 
 	private static class ImageRessources {
 		private static HashMap<String, Image> images = new HashMap<String, Image>();
@@ -183,92 +171,28 @@ public class GUI extends JFrame implements UI {
 
 	}
 
-	private class StatsPanel extends JPanel {
-		boolean initiated = false;
-		TreeMap<Integer, JLabel> statLabels = new TreeMap<Integer, JLabel>();
-		TreeMap<Integer, JLabel> currentPlayerLabels = new TreeMap<Integer, JLabel>();
-		TreeMap<Integer, JLabel> treasureImages = new TreeMap<Integer, JLabel>();
-		private JScrollPane scrollPane;
+	private void initialise() {
+		getContentPane().setLayout(new BorderLayout());
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		JPanel splitPanel_right = new JPanel();
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, uiboard, splitPanel_right);
+		splitPane.setDividerLocation(500);
+		getContentPane().add(splitPane, BorderLayout.CENTER);
 
-		public void update() {
-			PersData p = (PersData) Context.getInstance().getValue(Context.USER);
-			if (initiated) {
-				currentPlayerLabels.get(1).setText(">"); //$NON-NLS-1$
-				statLabels.get(p.getID()).setText(String.valueOf(p.treasuresToGo()));
-//				System.out.println(p.getCurrentTreasure());
-				treasureImages.get(p.getID()).setIcon(new ImageIcon(Settings.IMAGEPATH + p.getCurrentTreasure()));
-			} else {
-				// Beim ersten mal erzeugen wir die GUI.
-				initiated = true;
-				GridBagConstraints gc = new GridBagConstraints();
-				gc.gridx = GridBagConstraints.RELATIVE;
-				gc.anchor = GridBagConstraints.WEST;
-				this.setLayout(new GridBagLayout());
-
-				shiftCard = new GraphicalCardBuffered();
-
-				// GridBagConstraints(gridx, gridy, gridwidth, gridheight,
-				// weightx, weighty, anchor, fill, insets, ipadx, ipady);
-				this.add(shiftCard,
-						new GridBagConstraints(0, 0, 5, 1, 0.5, 0.5, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), uiboard.getPixelsPerField(),
-								uiboard.getPixelsPerField()));
-				// this.getComponentAt(0, 0).get
-				gc.gridy = p.getID();
-				JLabel currentPlayerLabel = new JLabel();
-				currentPlayerLabels.put(p.getID(), currentPlayerLabel);
-
-				JLabel playerIDLabel = new JLabel(String.valueOf(p.getID()) + ".   "); //$NON-NLS-1$
-				JLabel playerNameLabel = new JLabel(p.getName());
-				playerNameLabel.setForeground(colorForPlayer(p.getID()));
-
-				JLabel statLabel = new JLabel(String.valueOf(p.treasuresToGo()));
-				statLabels.put(p.getID(), statLabel);
-
-				JLabel treasureImage = new JLabel(new ImageIcon(Settings.IMAGEPATH + p.getCurrentTreasure().name()));
-				System.out.println(p.getCurrentTreasure());
-				treasureImages.put(p.getID(), treasureImage);
-
-				gc.ipadx = 5;
-				this.add(currentPlayerLabel, gc);
-				gc.ipadx = 0;
-				System.out.println("hooo");
-				this.add(playerIDLabel, gc);
-				this.add(playerNameLabel, gc);
-				this.add(treasureImage, gc);
-				this.add(statLabel, gc);
-
-				scrollPane = new JScrollPane(log.getTextArea());
-				JPanel panel = new JPanel(new BorderLayout());
-				panel.add(scrollPane);
-
-				this.add(panel,
-						new GridBagConstraints(0, 5, 5, 1, 0.5, 0.5, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), uiboard.getPixelsPerField(),
-								uiboard.getPixelsPerField()));
-			}
-		}
+		// TODO own gui right of splitpane
+		l_shiftCard = new JLabel("shiftCard");
+		l_treasure = new JLabel("treasure");
+		splitPanel_right.setLayout(new BorderLayout(0, 0));
+		splitPanel_right.add(l_shiftCard, BorderLayout.NORTH);
+		splitPanel_right.add(l_treasure, BorderLayout.EAST);
 	}
 
 	public GUI() {
 		// Eigenname
 		super("Das verrückte Labyrinth"); //$NON-NLS-1$
-		getContentPane().setLayout(new BorderLayout());
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, uiboard, statPanel);
-		getContentPane().add(splitPane, BorderLayout.CENTER);
-		this.pack();
-		this.setSize(539, 375);
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				// hatte ohne InvokeLater keinen Effekt
-				splitPane.setDividerLocation(0.8);
-				log = new StreamToTextArea(new JTextArea());
-				log.getTextArea().setEditable(false);
-				log.getTextArea().add(new JScrollBar());
-				Debug.addDebugger(log, Settings.DEBUGLEVEL);
-			}
-		});
-
+		setSize(new Dimension(1000, 500));
+		setPreferredSize(new Dimension(2000, 1000));
+		initialise();
 	}
 
 	protected static String[] arguments;
@@ -462,15 +386,10 @@ public class GUI extends JFrame implements UI {
 		}
 	}
 
-	public void updatePlayerStatistics() {
-		statPanel.update();
-	}
-
 	@Override
 	public void init(Board b) {
 		uiboard.setBoard(b);
 		uiboard.repaint();
-		updatePlayerStatistics();
 		this.setVisible(true);
 	}
 
