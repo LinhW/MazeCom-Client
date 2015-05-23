@@ -43,6 +43,7 @@ import config.Settings;
 @SuppressWarnings("serial")
 public class GUI extends JFrame implements UI {
 
+	int currentPlayer;
 	UIBoard uiboard = new UIBoard();
 	StatsPanel statPanel = new StatsPanel();
 	private static final boolean animateMove = true;
@@ -190,13 +191,17 @@ public class GUI extends JFrame implements UI {
 		TreeMap<Integer, JLabel> treasureImages = new TreeMap<Integer, JLabel>();
 		private JScrollPane scrollPane;
 
-		public void update() {
+		public void update(/* List<Player> stats, */int current) {
 			PersData p = (PersData) Context.getInstance().getValue(Context.USER);
 			if (initiated) {
-				currentPlayerLabels.get(1).setText(">"); //$NON-NLS-1$
+				currentPlayerLabels.get(currentPlayer).setText(""); //$NON-NLS-1$
+				currentPlayer = current;
+				currentPlayerLabels.get(currentPlayer).setText(">"); //$NON-NLS-1$
+				// for (Player p : stats) {
 				statLabels.get(p.getID()).setText(String.valueOf(p.treasuresToGo()));
-//				System.out.println(p.getCurrentTreasure());
-				treasureImages.get(p.getID()).setIcon(new ImageIcon(Settings.IMAGEPATH + p.getCurrentTreasure()));
+				treasureImages.get(p.getID()).setIcon(new ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
+				// }
+
 			} else {
 				// Beim ersten mal erzeugen wir die GUI.
 				initiated = true;
@@ -225,7 +230,6 @@ public class GUI extends JFrame implements UI {
 				statLabels.put(p.getID(), statLabel);
 
 				JLabel treasureImage = new JLabel(new ImageIcon(Settings.IMAGEPATH + p.getCurrentTreasure().name()));
-				System.out.println(p.getCurrentTreasure());
 				treasureImages.put(p.getID(), treasureImage);
 
 				gc.ipadx = 5;
@@ -234,8 +238,10 @@ public class GUI extends JFrame implements UI {
 				System.out.println("hooo");
 				this.add(playerIDLabel, gc);
 				this.add(playerNameLabel, gc);
-				this.add(treasureImage, gc);
+				this.add(treasureImage);
 				this.add(statLabel, gc);
+				currentPlayer = current;
+				currentPlayerLabels.get(currentPlayer).setText(">"); //$NON-NLS-1$
 
 				scrollPane = new JScrollPane(log.getTextArea());
 				JPanel panel = new JPanel(new BorderLayout());
@@ -251,12 +257,12 @@ public class GUI extends JFrame implements UI {
 	public GUI() {
 		// Eigenname
 		super("Das verrückte Labyrinth"); //$NON-NLS-1$
-		getContentPane().setLayout(new BorderLayout());
+		this.setLayout(new BorderLayout());
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, uiboard, statPanel);
-		getContentPane().add(splitPane, BorderLayout.CENTER);
+		this.add(splitPane, BorderLayout.CENTER);
 		this.pack();
-		this.setSize(539, 375);
+		this.setSize(800, 700);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -390,8 +396,8 @@ public class GUI extends JFrame implements UI {
 
 		public MoveAnimationTimerOperation(Board b, Position startPos, Position endPos) {
 			points = Pathfinding.findShortestPath(b, startPos, endPos);
-			uiboard.c[endPos.getRow()][endPos.getCol()].getPin().getPlayerID().remove(new Integer(1));
-			uiboard.c[startPos.getRow()][startPos.getCol()].getPin().getPlayerID().add(new Integer(1));
+			uiboard.c[endPos.getRow()][endPos.getCol()].getPin().getPlayerID().remove(new Integer(currentPlayer));
+			uiboard.c[startPos.getRow()][startPos.getCol()].getPin().getPlayerID().add(new Integer(currentPlayer));
 		}
 
 		int i = 0;
@@ -406,9 +412,9 @@ public class GUI extends JFrame implements UI {
 				}
 				return;
 			}
-			uiboard.c[points[i][1]][points[i][0]].getPin().getPlayerID().remove(new Integer(1));
+			uiboard.c[points[i][1]][points[i][0]].getPin().getPlayerID().remove(new Integer(currentPlayer));
 			i++;
-			uiboard.c[points[i][1]][points[i][0]].getPin().getPlayerID().add(new Integer(1));
+			uiboard.c[points[i][1]][points[i][0]].getPin().getPlayerID().add(new Integer(currentPlayer));
 			uiboard.repaint();
 
 		}
@@ -432,7 +438,7 @@ public class GUI extends JFrame implements UI {
 				}
 			}
 		}
-		Position oldPlayerPos = new Position(uiboard.board.findPlayer(1));
+		Position oldPlayerPos = new Position(uiboard.board.findPlayer(currentPlayer));
 		uiboard.setBoard(b);
 		// XXX: Von Matthias (alte Karten waren vorher noch sichtbar)
 		uiboard.repaint();
@@ -462,15 +468,15 @@ public class GUI extends JFrame implements UI {
 		}
 	}
 
-	public void updatePlayerStatistics() {
-		statPanel.update();
+	public void updatePlayerStatistics(Integer current) {
+		statPanel.update(current);
 	}
 
 	@Override
 	public void init(Board b) {
 		uiboard.setBoard(b);
 		uiboard.repaint();
-		updatePlayerStatistics();
+		updatePlayerStatistics(1);
 		this.setVisible(true);
 	}
 
