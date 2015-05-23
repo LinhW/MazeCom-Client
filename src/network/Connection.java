@@ -11,6 +11,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import view.testClasses.Tmp_testGUI;
 import jaxb.MazeCom;
 import control.Controller;
 import control.Controller.NotificationType;
@@ -45,7 +46,7 @@ public class Connection {
 
 		public void processMessage(MazeCom message) {
 			// TODO einfach auskommentieren wenn cih es vergessen habe
-			//Tmp_testGUI.receiveServerMessage(Message);
+			Tmp_testGUI.receiveServerMessage(message);
 			
 			String type = message.getMcType().name();
 			Controller.NotificationType notification;

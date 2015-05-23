@@ -1,5 +1,7 @@
 package control;
 
+import view.testClasses.Tmp_testGUI;
+
 public class Main {
 	private static final boolean debug = true;
 	
@@ -7,7 +9,7 @@ public class Main {
 	
 	private void run() {
 		//erzeugt ein Messagedialog und gibt den eingegeben namen zurueck
-		//Tmp_testGUI.first();
+		Tmp_testGUI.first();
 
 		// Create controller
 		controller = new Controller();

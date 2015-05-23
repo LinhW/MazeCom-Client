@@ -1,12 +1,9 @@
 package view.testClasses;
 
-import java.util.List;
+import javax.swing.JOptionPane;
 
 import jaxb.AcceptMessageType;
 import jaxb.AwaitMoveMessageType;
-import jaxb.BoardType;
-import jaxb.BoardType.Row;
-import jaxb.CardType;
 import jaxb.DisconnectMessageType;
 import jaxb.LoginMessageType;
 import jaxb.LoginReplyMessageType;
@@ -21,8 +18,6 @@ import view.data.Context;
 import view.data.PersData;
 import view.testClasses.userInterface.UI;
 import config.Settings;
-
-import javax.swing.JOptionPane;
 
 public class Tmp_testGUI {
 
@@ -50,8 +45,8 @@ public class Tmp_testGUI {
 			}
 			((PersData) Context.getInstance().getValue(Context.USER)).setCurrentTreasure(await.getTreasure());
 			((PersData) Context.getInstance().getValue(Context.USER)).setTreasuresToFind(await.getTreasuresToGo().size());
-			ttgui.gui.init(new Board(await.getBoard()));
 			System.out.println("----");
+			ttgui.gui.init(new Board(await.getBoard()));
 			break;
 		case DISCONNECT:
 			DisconnectMessageType disconnect = message.getDisconnectMessage();
@@ -63,6 +58,7 @@ public class Tmp_testGUI {
 			break;
 		case LOGINREPLY:
 			LoginReplyMessageType lr = message.getLoginReplyMessage();
+			JOptionPane.showConfirmDialog(null, "Bitte warten", "Warten auf Mitspieler", JOptionPane.OK_OPTION);
 			((PersData) Context.getInstance().getValue(Context.USER)).setID(lr.getNewID());
 			System.out.println(lr + " " + lr.getNewID());
 			break;
