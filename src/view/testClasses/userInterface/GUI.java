@@ -179,14 +179,30 @@ public class GUI extends JFrame implements IView {
 				}
 			}
 
-			// TODO
-			if (model.getCol() == 0) {
-				System.out.println("print " + (pixelsPerField * model.getRow() + pixelsPerField / 2 - 10));
-				g.drawImage(ImageRessources.getImage("Red_Arrow_Up"), 0, pixelsPerField * model.getRow() + pixelsPerField / 2 - 10, 20, 20, null);
-			} else {
-				System.out.println("printSpalte " + (pixelsPerField * model.getCol() + pixelsPerField / 2 - 10));
-				g.drawImage(ImageRessources.getImage("Red_Arrow_Up"), pixelsPerField * model.getCol() + pixelsPerField / 2 - 10, 0, 20, 20, null);
+			int x = 0;
+			int y = 0;
+			switch (model.getCol()) {
+			case 0:
+				x = 0;
+				break;
+			case 6:
+				x = 6;
+				break;
+			default:
+				x = pixelsPerField * model.getCol() + pixelsPerField / 2 - 10;
 			}
+
+			switch (model.getRow()) {
+			case 0:
+				y = 0;
+				break;
+			case 6:
+				y = 6;
+				break;
+			default:
+				y = pixelsPerField * model.getRow() + pixelsPerField / 2 - 10;
+			}
+			g.drawImage(ImageRessources.getImage("Red_Arrow_Up"), x, y, 20, 20, null);
 			// Zeichnen der eingeschobenen karte in der animation
 			if (animationProperties != null) {
 				int topLeftY = pixelsPerField * (animationProperties.shiftPosition.getRow() - (animationProperties.vertikal ? animationProperties.direction : 0));
@@ -771,16 +787,18 @@ public class GUI extends JFrame implements IView {
 				}
 				if (model.getRow() == 0) {
 					model.setRow(6);
-				} else if (model.getRow() == 1) {
-					model.setRow(0);
-					if (model.getCol() == 0) {
-						model.setCol(1);
-					}
-					if (model.getCol() == 6) {
-						model.setCol(5);
-					}
 				} else {
-					model.setRow(model.getRow() - 2);
+					if (model.getRow() == 1) {
+						model.setRow(0);
+						if (model.getCol() == 0) {
+							model.setCol(1);
+						}
+						if (model.getCol() == 6) {
+							model.setCol(5);
+						}
+					} else {
+						model.setRow(model.getRow() - 2);
+					}
 				}
 				System.out.println(model.getRow() + " " + model.getCol());
 				uiboard.repaint();
@@ -791,16 +809,18 @@ public class GUI extends JFrame implements IView {
 				}
 				if (model.getRow() == 6) {
 					model.setRow(0);
-				} else if (model.getRow() == 5) {
-					model.setRow(6);
-					if (model.getCol() == 0) {
-						model.setCol(1);
-					}
-					if (model.getCol() == 6) {
-						model.setCol(5);
-					}
 				} else {
-					model.setRow(model.getRow() + 2);
+					if (model.getRow() == 5) {
+						model.setRow(6);
+						if (model.getCol() == 0) {
+							model.setCol(1);
+						}
+						if (model.getCol() == 6) {
+							model.setCol(5);
+						}
+					} else {
+						model.setRow(model.getRow() + 2);
+					}
 				}
 				System.out.println(model.getRow() + " " + model.getCol());
 				uiboard.repaint();
@@ -811,16 +831,18 @@ public class GUI extends JFrame implements IView {
 				}
 				if (model.getCol() == 0) {
 					model.setCol(6);
-				} else if (model.getCol() == 1) {
-					model.setCol(0);
-					if (model.getRow() == 0) {
-						model.setRow(1);
-					}
-					if (model.getRow() == 6) {
-						model.setRow(5);
-					}
 				} else {
-					model.setCol(model.getCol() - 2);
+					if (model.getCol() == 1) {
+						model.setCol(0);
+						if (model.getRow() == 0) {
+							model.setRow(1);
+						}
+						if (model.getRow() == 6) {
+							model.setRow(5);
+						}
+					} else {
+						model.setCol(model.getCol() - 2);
+					}
 				}
 				System.out.println(model.getRow() + " " + model.getCol());
 				uiboard.repaint();
