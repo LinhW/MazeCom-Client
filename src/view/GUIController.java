@@ -1,16 +1,24 @@
 package view;
 
-import jaxb.WinMessageType.Winner;
+import javax.swing.JOptionPane;
+
+import view.testClasses.userInterface.UI;
+import config.Settings;
 
 public class GUIController {
+	private UI gui;
+
+	public GUIController() {
+		gui = Settings.USERINTERFACE;
+	}
 
 	public void update() {
 
 	}
 
 	public void close() {
-		// TODO Auto-generated method stub
-
+		// FIXME
+		System.out.println("too close");
 	}
 
 	public void displayMove(boolean accept) {
@@ -18,8 +26,8 @@ public class GUIController {
 
 	}
 
-	public void endGame(Winner winner) {
-		// TODO Auto-generated method stub
-
+	public void endGame(int player, String name) {
+		JOptionPane.showMessageDialog(null, "Player " + player + " " + name + " wins!");
+		close();
 	}
 }

@@ -61,8 +61,10 @@ public class Tmp_testGUI {
 		case LOGINREPLY:
 			LoginReplyMessageType lr = message.getLoginReplyMessage();
 			JOptionPane.showConfirmDialog(null, "Bitte warten", "Warten auf Mitspieler", JOptionPane.OK_OPTION);
+			System.out.println(((PersData) Context.getInstance().getValue(Context.USER)).getName());
 			((PersData) Context.getInstance().getValue(Context.USER)).setID(lr.getNewID());
 			System.out.println(lr + " " + lr.getNewID());
+//			ttgui.init();
 			break;
 		case MOVE:
 			MoveMessageType move = message.getMoveMessage();
@@ -83,8 +85,8 @@ public class Tmp_testGUI {
 	}
 
 	public static String first() {
-		Debug.addDebugger(System.out, Settings.DEBUGLEVEL);
-		Debug.print(Messages.getInstance().getString("Game.Constructor"), DebugLevel.DEBUG); //$NON-NLS-1$
+		// Debug.addDebugger(System.out, Settings.DEBUGLEVEL);
+		//		Debug.print(Messages.getInstance().getString("Game.Constructor"), DebugLevel.DEBUG); //$NON-NLS-1$
 		String name = JOptionPane.showInputDialog("Nickname");
 		Context.getInstance().setValue(Context.USER, new PersData(name));
 		return name;

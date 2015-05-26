@@ -49,6 +49,7 @@ public class GUI extends JFrame implements UI {
 	public GraphicalCardBuffered shiftCard;
 	private JLabel l_shiftCard;
 	private JLabel lb_treasure_pic;
+	private JLabel lb_statistic;
 
 	private static class ImageRessources {
 		private static HashMap<String, Image> images = new HashMap<String, Image>();
@@ -178,7 +179,6 @@ public class GUI extends JFrame implements UI {
 	}
 
 	private void initialise() {
-		PersData p = (PersData) Context.getInstance().getValue(Context.USER);
 		getContentPane().setLayout(new BorderLayout());
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		JPanel splitPanel_right = new JPanel();
@@ -190,8 +190,7 @@ public class GUI extends JFrame implements UI {
 			JPanel sp_top = new JPanel();
 			{
 				sp_top.setLayout(new BorderLayout());
-				Card c = new Card(((Board) Context.getInstance().getValue(Context.BOARD)).getShiftCard());
-				l_shiftCard = new JLabel(new ImageIcon(ImageRessources.getImage(c.value())));
+				l_shiftCard = new JLabel();
 				sp_top.add(l_shiftCard, BorderLayout.CENTER);
 			}
 
@@ -199,18 +198,18 @@ public class GUI extends JFrame implements UI {
 			{
 				sp_bottom.setLayout(new BorderLayout());
 
-				lb_treasure_pic = new JLabel(new ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
+				lb_treasure_pic = new JLabel();
 				sp_bottom.add(lb_treasure_pic, BorderLayout.CENTER);
 
 				JLabel lb_treasure = new JLabel("Treasure");
 				lb_treasure.setBorder(new EmptyBorder(5, 5, 5, 5));
 				sp_bottom.add(lb_treasure, BorderLayout.WEST);
 
-				JLabel lb_player = new JLabel(p.getName());
+				JLabel lb_player = new JLabel(((PersData) Context.getInstance().getValue(Context.USER)).getName());
 				lb_player.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new EmptyBorder(7, 10, 7, 5)));
 				sp_bottom.add(lb_player, BorderLayout.NORTH);
 
-				JLabel lb_statistic = new JLabel("Treasures to go: " + p.getTreasuresToFind());
+				lb_statistic = new JLabel();
 				lb_statistic.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.LOWERED), new EmptyBorder(5, 5, 5, 5)));
 				sp_bottom.add(lb_statistic, BorderLayout.SOUTH);
 			}
@@ -228,11 +227,20 @@ public class GUI extends JFrame implements UI {
 
 	}
 
+	public void update() {
+		PersData p = (PersData) Context.getInstance().getValue(Context.USER);
+		Card c = new Card(((Board) Context.getInstance().getValue(Context.BOARD)).getShiftCard());
+		l_shiftCard.setIcon(new ImageIcon(ImageRessources.getImage(c.value())));
+		lb_treasure_pic.setIcon(new ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
+		lb_statistic.setText("Treasures to go: " + p.getTreasuresToFind());
+	}
+
 	public GUI() {
 		// Eigenname
 		super("Das verrückte Labyrinth"); //$NON-NLS-1$
 		setSize(new Dimension(750, 500));
 		setPreferredSize(new Dimension(2000, 1000));
+		this.initialise();
 	}
 
 	protected static String[] arguments;
@@ -428,9 +436,9 @@ public class GUI extends JFrame implements UI {
 
 	@Override
 	public void init(Board b) {
-		initialise();
 		uiboard.setBoard(b);
 		uiboard.repaint();
+		update();
 		this.setVisible(true);
 	}
 

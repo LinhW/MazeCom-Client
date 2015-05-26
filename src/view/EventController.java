@@ -53,7 +53,7 @@ public class EventController {
 	}
 
 	public void receiveWinMessage(WinMessageType message) {
-		ctrl_gui.endGame(message.getWinner());
+		ctrl_gui.endGame(message.getWinner().getId(), message.getWinner().getValue());
 	}
 
 	public void receiveAcceptMessage(AcceptMessageType message) {
