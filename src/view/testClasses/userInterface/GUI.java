@@ -3,6 +3,8 @@ package view.testClasses.userInterface;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -17,6 +19,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
+import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
@@ -27,20 +30,24 @@ import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import jaxb.BoardType.Row;
 import jaxb.CardType;
 import jaxb.MoveMessageType;
-import jaxb.TreasureType;
 import jaxb.TreasuresToGoType;
 import view.GUIController;
 import view.data.Context;
@@ -69,10 +76,13 @@ public class GUI extends JFrame implements IView {
 	private JLabel lb_treasure_pic;
 	private JLabel lb_statistic;
 	private boolean hasFocus;
+	private boolean hasFocus_dialog;
 	private KeyboardFocusManager manager;
 	private MyDispatcher dispatcher;
 	private GUIController myController;
 	private GUIModel model;
+	private JList<String> list_right;
+	private JList<String> list_left;
 
 	private static class ImageRessources {
 		private static HashMap<String, Image> images = new HashMap<String, Image>();
@@ -229,9 +239,18 @@ public class GUI extends JFrame implements IView {
 				lb_treasure.setBorder(new EmptyBorder(5, 5, 5, 5));
 				sp_bottom.add(lb_treasure, BorderLayout.WEST);
 
-				JLabel lb_player = new JLabel(((PersData) Context.getInstance().getValue(Context.USER)).getName());
-				lb_player.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new EmptyBorder(7, 10, 7, 5)));
-				sp_bottom.add(lb_player, BorderLayout.NORTH);
+				JPanel panel_bot = new JPanel();
+				{
+					sp_bottom.add(panel_bot, BorderLayout.NORTH);
+					panel_bot.setLayout(new BorderLayout());
+					panel_bot.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new EmptyBorder(7, 10, 7, 5)));
+
+					JLabel lb_name = new JLabel(((PersData) Context.getInstance().getValue(Context.USER)).getName());
+					panel_bot.add(lb_name, BorderLayout.WEST);
+
+					JLabel lb_player = new JLabel("Player " + ((PersData) Context.getInstance().getValue(Context.USER)).getID());
+					panel_bot.add(lb_player, BorderLayout.EAST);
+				}
 
 				lb_statistic = new JLabel();
 				lb_statistic.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.LOWERED), new EmptyBorder(5, 5, 5, 5)));
@@ -267,11 +286,106 @@ public class GUI extends JFrame implements IView {
 
 	private void showPreferences() {
 		// TODO Auto-generated method stub
-		JDialog dialog = new JDialog(this, true);
-		dialog.setTitle("Preferences");
-		JPanel panel = new JPanel();
-		dialog.add(panel);
+		JDialog dialog = new JDialog();
+		dialog.addWindowFocusListener(new WindowFocusListener() {
 
+			@Override
+			public void windowLostFocus(WindowEvent e) {
+				// TODO Auto-generated method stub
+				hasFocus_dialog = false;
+			}
+
+			@Override
+			public void windowGainedFocus(WindowEvent e) {
+				// TODO Auto-generated method stub
+				hasFocus_dialog = true;
+			}
+		});
+		{
+			dialog.setSize(new Dimension(559, 342));
+			dialog.setResizable(false);
+			dialog.setTitle("Preferences");
+			dialog.setModal(true);
+			dialog.getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+
+			JPanel panel = new JPanel();
+			{
+				dialog.getContentPane().add(panel);
+				panel.setLayout(new BorderLayout(0, 0));
+
+				JLabel lb_preferences = new JLabel("Preferences");
+				{
+					lb_preferences.setHorizontalAlignment(SwingConstants.CENTER);
+					lb_preferences.setFont(new Font("Dialog", Font.BOLD, 15));
+					panel.add(lb_preferences, BorderLayout.NORTH);
+				}
+
+				JPanel panel_content = new JPanel();
+				{
+					panel.add(panel_content, BorderLayout.SOUTH);
+
+					JPanel panel_left = new JPanel();
+					{
+						panel_content.add(panel_left);
+						panel_left.setLayout(new BorderLayout(0, 0));
+
+						list_left = new JList<>(model.getKeys().toArray(new String[model.getKeyEvents().size()]));
+						list_left.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+						list_left.addListSelectionListener(new ListSelectionListener() {
+
+							@Override
+							public void valueChanged(ListSelectionEvent e) {
+								list_right.setSelectedIndex(list_left.getSelectedIndex());
+							}
+
+						});
+						panel_left.add(list_left, BorderLayout.CENTER);
+
+						JLabel lb_left = new JLabel("Action");
+						panel_left.add(lb_left, BorderLayout.NORTH);
+					}
+
+					JPanel panel_right = new JPanel();
+					{
+						panel_content.add(panel_right);
+						panel_right.setLayout(new BorderLayout(0, 0));
+						Integer[] tmp = new Integer[model.getKeyEvents().size()];
+						model.getKeyEvents().toArray(tmp);
+						String[] data = new String[tmp.length];
+						for (int i = 0; i < tmp.length; i++) {
+							data[i] = KeyEvent.getKeyText(tmp[i]);
+						}
+						list_right = new JList<String>(data);
+						list_right.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+						list_right.addListSelectionListener(new ListSelectionListener() {
+
+							@Override
+							public void valueChanged(ListSelectionEvent e) {
+								list_left.setSelectedIndex(list_right.getSelectedIndex());
+							}
+
+						});
+						panel_right.add(list_right, BorderLayout.CENTER);
+
+						JLabel lb_right = new JLabel("Key");
+						panel_right.add(lb_right, BorderLayout.NORTH);
+					}
+				}
+			}
+		}
+		dialog.setVisible(true);
+
+	}
+
+	private void updateDialog() {
+		Integer[] tmp = new Integer[model.getKeyEvents().size()];
+		model.getKeyEvents().toArray(tmp);
+		String[] data = new String[tmp.length];
+		for (int i = 0; i < tmp.length; i++) {
+			data[i] = KeyEvent.getKeyText(tmp[i]);
+		}
+		list_right.setListData(data);
+		list_left.setListData(model.getKeys().toArray(new String[model.getKeys().size()]));
 	}
 
 	private void update_own() {
@@ -283,7 +397,7 @@ public class GUI extends JFrame implements IView {
 		@SuppressWarnings("unchecked")
 		List<TreasuresToGoType> l = (List<TreasuresToGoType>) Context.getInstance().getValue(Context.TREASURELIST);
 		for (TreasuresToGoType tt : l) {
-			stat += (tt.getPlayer() + ": " + tt.getTreasures() + "   ");
+			stat += ("Player " + tt.getPlayer() + ": " + tt.getTreasures() + "   ");
 		}
 		lb_statistic.setText(stat.trim());
 	}
@@ -325,6 +439,7 @@ public class GUI extends JFrame implements IView {
 				myController.onClose();
 			}
 		});
+
 	}
 
 	public void removeListener() {
@@ -559,7 +674,6 @@ public class GUI extends JFrame implements IView {
 			rot += 180;
 		}
 		int orient = (model.getCardOrientation() + rot) % 360;
-		System.out.println("" + model.getCardType() + orient);
 		lb_shiftCard.setIcon(new ImageIcon(ImageRessources.getImage("" + model.getCardType() + orient)));
 		myController.rotated(orient);
 	}
@@ -599,6 +713,14 @@ public class GUI extends JFrame implements IView {
 					key_released(e);
 					break;
 				}
+			} else {
+				if (hasFocus_dialog) {
+					if (!list_right.isSelectionEmpty()) {
+						System.out.println("pressed");
+						model.setKeyEvent(list_left.getSelectedValue(), e.getKeyCode());
+						updateDialog();
+					}
+				}
 			}
 			return false;
 		}
@@ -616,7 +738,7 @@ public class GUI extends JFrame implements IView {
 		 * handling when a key is typed
 		 * 
 		 * @param e
-		 *            (KeyEvent)
+		 *            (KeyEvent)F
 		 */
 		private void key_typed(KeyEvent e) {
 		}
@@ -628,30 +750,19 @@ public class GUI extends JFrame implements IView {
 		 *            (KeyEvent)
 		 */
 		private void key_pressed(KeyEvent e) {
-			switch (e.getKeyCode()) {
-			case KeyEvent.VK_L:
-				System.out.println("press L");
+			int action = e.getKeyCode();
+			if (action == model.getKeyEvent(Context.ROTATE_LEFT)) {
 				rotate(true);
-				break;
-			case KeyEvent.VK_R:
-				System.out.println("press R");
+			} else if (action == model.getKeyEvent(Context.ROTATE_RIGHT)) {
 				rotate(false);
-				break;
-			case KeyEvent.VK_ENTER:
-				// TODO
-				break;
-			case KeyEvent.VK_DOWN:
-				// TODO
-				break;
-			case KeyEvent.VK_UP:
-				// TODO
-				break;
-			case KeyEvent.VK_LEFT:
-				// TODO
-				break;
-			case KeyEvent.VK_RIGHT:
-				// TODO
-				break;
+			} else if (action == model.getKeyEvent(Context.UP)) {
+
+			} else if (action == model.getKeyEvent(Context.DOWN)) {
+
+			} else if (action == model.getKeyEvent(Context.LEFT)) {
+
+			} else if (action == model.getKeyEvent(Context.RIGHT)) {
+
 			}
 		}
 	}

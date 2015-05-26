@@ -1,5 +1,9 @@
 package view;
 
+import java.awt.event.KeyEvent;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.swing.JOptionPane;
 
 import view.data.Context;
@@ -12,8 +16,19 @@ public class GUIController {
 	private GUI gui;
 	private GUIModel model;
 
+	@SuppressWarnings("unchecked")
 	public GUIController() {
 		model = new GUIModel();
+
+		Map<String, Integer> map = new HashMap<>();
+		map.put(Context.ROTATE_LEFT, KeyEvent.VK_L);
+		map.put(Context.ROTATE_RIGHT, KeyEvent.VK_R);
+		map.put(Context.UP, KeyEvent.VK_UP);
+		map.put(Context.DOWN, KeyEvent.VK_DOWN);
+		map.put(Context.LEFT, KeyEvent.VK_LEFT);
+		map.put(Context.RIGHT, KeyEvent.VK_RIGHT);
+		Context.getInstance().setValue(Context.KEYEVENTS, map);
+		model.setKeyEventMap((Map<String, Integer>) Context.getInstance().getValue(Context.KEYEVENTS));
 	}
 
 	public void start() {
