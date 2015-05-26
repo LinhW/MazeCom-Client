@@ -3,8 +3,6 @@ package config;
 import java.util.Locale;
 
 import tools.DebugLevel;
-import view.testClasses.userInterface.GUI;
-import view.testClasses.userInterface.UI;
 
 public class Settings {
 	private Settings() {
@@ -28,11 +26,6 @@ public class Settings {
 	 * Hiermit lassen sich die Testfaelle anpassen (Pseudozufallszahlen)
 	 */
 	public final static long TESTBOARD_SEED = 0;
-	/**
-	 * USERINTERFACE definiert die zu verwendende GUI Gueltige Werte:
-	 * BetterUI(), GraphicalUI()
-	 */
-	public final static UI USERINTERFACE = new GUI();
 	/**
 	 * Auf das angehaengte / achten
 	 */

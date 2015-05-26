@@ -2,38 +2,42 @@ package view.testClasses.userInterface;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Image;
-import java.awt.Insets;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 
 import jaxb.BoardType.Row;
 import jaxb.CardType;
 import jaxb.MoveMessageType;
-import tools.Debug;
+import view.GUIController;
 import view.data.Context;
+import view.data.GUIModel;
 import view.data.PersData;
+import view.interfaces.IView;
 import view.testClasses.Board;
 import view.testClasses.Card;
 import view.testClasses.Messages;
@@ -41,11 +45,9 @@ import view.testClasses.Position;
 import config.Settings;
 
 @SuppressWarnings("serial")
-public class GUI extends JFrame implements UI {
+public class GUI extends JFrame implements IView {
 
-	int currentPlayer;
 	UIBoard uiboard = new UIBoard();
-	StatsPanel statPanel = new StatsPanel();
 	private static final boolean animateMove = true;
 	private static final boolean animateShift = true;
 	private static final int animationFrames = 10;
@@ -53,9 +55,15 @@ public class GUI extends JFrame implements UI {
 	Object animationFinished = new Object();
 	Timer animationTimer;
 	AnimationProperties animationProperties = null;
-	JSplitPane splitPane;
 	public GraphicalCardBuffered shiftCard;
-	private StreamToTextArea log;
+	private JLabel lb_shiftCard;
+	private JLabel lb_treasure_pic;
+	private JLabel lb_statistic;
+	private boolean hasFocus;
+	private KeyboardFocusManager manager;
+	private MyDispatcher dispatcher;
+	private GUIController myController;
+	private GUIModel model;
 
 	private static class ImageRessources {
 		private static HashMap<String, Image> images = new HashMap<String, Image>();
@@ -184,97 +192,101 @@ public class GUI extends JFrame implements UI {
 
 	}
 
-	private class StatsPanel extends JPanel {
-		boolean initiated = false;
-		TreeMap<Integer, JLabel> statLabels = new TreeMap<Integer, JLabel>();
-		TreeMap<Integer, JLabel> currentPlayerLabels = new TreeMap<Integer, JLabel>();
-		TreeMap<Integer, JLabel> treasureImages = new TreeMap<Integer, JLabel>();
-		private JScrollPane scrollPane;
+	private void createView() {
+		getContentPane().setLayout(new BorderLayout());
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		JPanel splitPanel_right = new JPanel();
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, uiboard, splitPanel_right);
+		splitPane.setDividerLocation(470);
+		getContentPane().add(splitPane, BorderLayout.CENTER);
 
-		public void update(/* List<Player> stats, */int current) {
-			PersData p = (PersData) Context.getInstance().getValue(Context.USER);
-			if (initiated) {
-				currentPlayerLabels.get(currentPlayer).setText(""); //$NON-NLS-1$
-				currentPlayer = current;
-				currentPlayerLabels.get(currentPlayer).setText(">"); //$NON-NLS-1$
-				// for (Player p : stats) {
-				statLabels.get(p.getID()).setText(String.valueOf(p.treasuresToGo()));
-				treasureImages.get(p.getID()).setIcon(new ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
-				// }
-
-			} else {
-				// Beim ersten mal erzeugen wir die GUI.
-				initiated = true;
-				GridBagConstraints gc = new GridBagConstraints();
-				gc.gridx = GridBagConstraints.RELATIVE;
-				gc.anchor = GridBagConstraints.WEST;
-				this.setLayout(new GridBagLayout());
-
-				shiftCard = new GraphicalCardBuffered();
-
-				// GridBagConstraints(gridx, gridy, gridwidth, gridheight,
-				// weightx, weighty, anchor, fill, insets, ipadx, ipady);
-				this.add(shiftCard,
-						new GridBagConstraints(0, 0, 5, 1, 0.5, 0.5, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), uiboard.getPixelsPerField(),
-								uiboard.getPixelsPerField()));
-				// this.getComponentAt(0, 0).get
-				gc.gridy = p.getID();
-				JLabel currentPlayerLabel = new JLabel();
-				currentPlayerLabels.put(p.getID(), currentPlayerLabel);
-
-				JLabel playerIDLabel = new JLabel(String.valueOf(p.getID()) + ".   "); //$NON-NLS-1$
-				JLabel playerNameLabel = new JLabel(p.getName());
-				playerNameLabel.setForeground(colorForPlayer(p.getID()));
-
-				JLabel statLabel = new JLabel(String.valueOf(p.treasuresToGo()));
-				statLabels.put(p.getID(), statLabel);
-
-				JLabel treasureImage = new JLabel(new ImageIcon(Settings.IMAGEPATH + p.getCurrentTreasure().name()));
-				treasureImages.put(p.getID(), treasureImage);
-
-				gc.ipadx = 5;
-				this.add(currentPlayerLabel, gc);
-				gc.ipadx = 0;
-				System.out.println("hooo");
-				this.add(playerIDLabel, gc);
-				this.add(playerNameLabel, gc);
-				this.add(treasureImage);
-				this.add(statLabel, gc);
-				currentPlayer = current;
-				currentPlayerLabels.get(currentPlayer).setText(">"); //$NON-NLS-1$
-
-				scrollPane = new JScrollPane(log.getTextArea());
-				JPanel panel = new JPanel(new BorderLayout());
-				panel.add(scrollPane);
-
-				this.add(panel,
-						new GridBagConstraints(0, 5, 5, 1, 0.5, 0.5, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), uiboard.getPixelsPerField(),
-								uiboard.getPixelsPerField()));
+		{
+			JPanel sp_top = new JPanel();
+			{
+				sp_top.setLayout(new BorderLayout());
+				lb_shiftCard = new JLabel();
+				sp_top.add(lb_shiftCard, BorderLayout.CENTER);
 			}
+
+			JPanel sp_bottom = new JPanel();
+			{
+				sp_bottom.setLayout(new BorderLayout());
+
+				lb_treasure_pic = new JLabel();
+				sp_bottom.add(lb_treasure_pic, BorderLayout.CENTER);
+
+				JLabel lb_treasure = new JLabel("Treasure");
+				lb_treasure.setBorder(new EmptyBorder(5, 5, 5, 5));
+				sp_bottom.add(lb_treasure, BorderLayout.WEST);
+
+				JLabel lb_player = new JLabel(((PersData) Context.getInstance().getValue(Context.USER)).getName());
+				lb_player.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new EmptyBorder(7, 10, 7, 5)));
+				sp_bottom.add(lb_player, BorderLayout.NORTH);
+
+				lb_statistic = new JLabel();
+				lb_statistic.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.LOWERED), new EmptyBorder(5, 5, 5, 5)));
+				sp_bottom.add(lb_statistic, BorderLayout.SOUTH);
+			}
+
+			JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+			{
+				sp.setDividerLocation(250);
+				sp.setLeftComponent(sp_top);
+				sp.setRightComponent(sp_bottom);
+			}
+
+			splitPanel_right.setLayout(new BorderLayout(0, 0));
+			splitPanel_right.add(sp);
 		}
+
 	}
 
-	public GUI() {
+	private void update_own() {
+		PersData p = (PersData) Context.getInstance().getValue(Context.USER);
+		Card c = new Card(((Board) Context.getInstance().getValue(Context.BOARD)).getShiftCard());
+		lb_shiftCard.setIcon(new ImageIcon(ImageRessources.getImage(c.value())));
+		lb_treasure_pic.setIcon(new ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
+		lb_statistic.setText("Treasures to go: " + p.getTreasuresToFind());
+	}
+
+	public GUI(GUIController ctrl_gui, GUIModel model) {
 		// Eigenname
 		super("Das verrückte Labyrinth"); //$NON-NLS-1$
-		this.setLayout(new BorderLayout());
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, uiboard, statPanel);
-		this.add(splitPane, BorderLayout.CENTER);
-		this.pack();
-		this.setSize(800, 700);
-		SwingUtilities.invokeLater(new Runnable() {
+		myController = ctrl_gui;
+		this.model = model;
+		setSize(new Dimension(750, 500));
+		setPreferredSize(new Dimension(2000, 1000));
+		createView();
+	}
+
+	public void addListener() {
+		manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+		dispatcher = new MyDispatcher();
+		manager.addKeyEventDispatcher(dispatcher);
+
+		this.addWindowFocusListener(new WindowFocusListener() {
+
 			@Override
-			public void run() {
-				// hatte ohne InvokeLater keinen Effekt
-				splitPane.setDividerLocation(0.8);
-				log = new StreamToTextArea(new JTextArea());
-				log.getTextArea().setEditable(false);
-				log.getTextArea().add(new JScrollBar());
-				Debug.addDebugger(log, Settings.DEBUGLEVEL);
+			public void windowLostFocus(WindowEvent e) {
+				hasFocus = false;
+			}
+
+			@Override
+			public void windowGainedFocus(WindowEvent e) {
+				hasFocus = true;
 			}
 		});
 
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				myController.onClose();
+			}
+		});
+	}
+
+	public void removeListener() {
+		manager.removeKeyEventDispatcher(dispatcher);
 	}
 
 	protected static String[] arguments;
@@ -396,8 +408,8 @@ public class GUI extends JFrame implements UI {
 
 		public MoveAnimationTimerOperation(Board b, Position startPos, Position endPos) {
 			points = Pathfinding.findShortestPath(b, startPos, endPos);
-			uiboard.c[endPos.getRow()][endPos.getCol()].getPin().getPlayerID().remove(new Integer(currentPlayer));
-			uiboard.c[startPos.getRow()][startPos.getCol()].getPin().getPlayerID().add(new Integer(currentPlayer));
+			uiboard.c[endPos.getRow()][endPos.getCol()].getPin().getPlayerID().remove(new Integer(1));
+			uiboard.c[startPos.getRow()][startPos.getCol()].getPin().getPlayerID().add(new Integer(1));
 		}
 
 		int i = 0;
@@ -412,9 +424,9 @@ public class GUI extends JFrame implements UI {
 				}
 				return;
 			}
-			uiboard.c[points[i][1]][points[i][0]].getPin().getPlayerID().remove(new Integer(currentPlayer));
+			uiboard.c[points[i][1]][points[i][0]].getPin().getPlayerID().remove(new Integer(1));
 			i++;
-			uiboard.c[points[i][1]][points[i][0]].getPin().getPlayerID().add(new Integer(currentPlayer));
+			uiboard.c[points[i][1]][points[i][0]].getPin().getPlayerID().add(new Integer(1));
 			uiboard.repaint();
 
 		}
@@ -438,7 +450,7 @@ public class GUI extends JFrame implements UI {
 				}
 			}
 		}
-		Position oldPlayerPos = new Position(uiboard.board.findPlayer(currentPlayer));
+		Position oldPlayerPos = new Position(uiboard.board.findPlayer(1));
 		uiboard.setBoard(b);
 		// XXX: Von Matthias (alte Karten waren vorher noch sichtbar)
 		uiboard.repaint();
@@ -468,16 +480,17 @@ public class GUI extends JFrame implements UI {
 		}
 	}
 
-	public void updatePlayerStatistics(Integer current) {
-		statPanel.update(current);
-	}
-
-	@Override
-	public void init(Board b) {
+	public void update() {
+		Board b = (Board) Context.getInstance().getValue(Context.BOARD);
 		uiboard.setBoard(b);
 		uiboard.repaint();
-		updatePlayerStatistics(1);
-		this.setVisible(true);
+		update_own();
+	}
+
+	public void close() {
+		// TODO
+		removeListener();
+		this.dispose();
 	}
 
 	private static Color colorForPlayer(int playerID) {
@@ -497,10 +510,21 @@ public class GUI extends JFrame implements UI {
 		}
 	}
 
+	public void rotate(boolean rotateLeft) {
+		// TODO
+		int rot = 90;
+		if (rotateLeft) {
+			rot *= -1;
+		}
+		int orient = (model.getCardOrientation() + rot) % 360;
+		System.out.println("" + model.getCardType() + orient);
+		lb_shiftCard.setIcon(new ImageIcon(ImageRessources.getImage("" + model.getCardType() + orient)));
+		myController.rotated(orient);
+	}
+
 	// public void setGame(Game g) {
 	// this.g = g;
 	// }
-	@Override
 	public void gameEnded(int winner) {
 		System.out.println("game ended");
 		// if (winner != null) {
@@ -509,5 +533,82 @@ public class GUI extends JFrame implements UI {
 		// }
 		// // MIStart.setEnabled(true);
 		// // MIStop.setEnabled(false);
+	}
+
+	/**
+	 * Handle KeyEvents (independent from the focused object)
+	 * 
+	 * @author lgewuerz
+	 *
+	 */
+	private class MyDispatcher implements KeyEventDispatcher {
+
+		@Override
+		public boolean dispatchKeyEvent(KeyEvent e) {
+			if (hasFocus) {
+				switch (e.getID()) {
+				case KeyEvent.KEY_PRESSED:
+					key_pressed(e);
+					break;
+				case KeyEvent.KEY_TYPED:
+					key_typed(e);
+					break;
+				case KeyEvent.KEY_RELEASED:
+					key_released(e);
+					break;
+				}
+			}
+			return false;
+		}
+
+		/**
+		 * handling when a key is released
+		 * 
+		 * @param e
+		 *            (KeyEvent)
+		 */
+		private void key_released(KeyEvent e) {
+		}
+
+		/**
+		 * handling when a key is typed
+		 * 
+		 * @param e
+		 *            (KeyEvent)
+		 */
+		private void key_typed(KeyEvent e) {
+		}
+
+		/**
+		 * handling when a key is pressed
+		 * 
+		 * @param e
+		 *            (KeyEvent)
+		 */
+		private void key_pressed(KeyEvent e) {
+			switch (e.getKeyCode()) {
+			case KeyEvent.VK_L:
+				rotate(true);
+				break;
+			case KeyEvent.VK_R:
+				rotate(false);
+				break;
+			case KeyEvent.VK_ENTER:
+				// TODO
+				break;
+			case KeyEvent.VK_DOWN:
+				// TODO
+				break;
+			case KeyEvent.VK_UP:
+				// TODO
+				break;
+			case KeyEvent.VK_LEFT:
+				// TODO
+				break;
+			case KeyEvent.VK_RIGHT:
+				// TODO
+				break;
+			}
+		}
 	}
 }

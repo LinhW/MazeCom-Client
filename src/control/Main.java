@@ -6,12 +6,9 @@ public class Main {
 	private Controller controller;
 	
 	private void run() {
-		//erzeugt ein Messagedialog und gibt den eingegeben namen zurueck
-		//Tmp_testGUI.first();
-
 		// Create controller
 		controller = new Controller();
-		// der controller sollte wahrscheinlich ganz oben sitzen, dann kann man über den die
+		// der controller sollte wahrscheinlich ganz oben sitzen, dann kann man ï¿½ber den die
 		// notifications zwischen fenster und verbindung schicken
 		controller.createWindow();
 		
