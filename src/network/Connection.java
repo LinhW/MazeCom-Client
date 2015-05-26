@@ -12,6 +12,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import jaxb.MazeCom;
+import view.EventController;
 import control.Controller;
 import control.Controller.NotificationType;
 
@@ -31,9 +32,13 @@ public class Connection {
 	private Unmarshaller unmarshaller;
 	private MazeComMessageFactory messageFactory;
 
+	private EventController ctrl_event;
+
 	public Connection(Controller controller) {
 		super();
 		this.controller = controller;
+		ctrl_event = new EventController();
+		ctrl_event.login();
 	}
 
 	private class ServerListener extends Thread {
@@ -45,35 +50,51 @@ public class Connection {
 
 		public void processMessage(MazeCom message) {
 			// TODO einfach auskommentieren wenn ich es vergessen habe
-//			Tmp_testGUI.receiveServerMessage(message);
-			
+			// Tmp_testGUI.receiveServerMessage(message);
+
 			String type = message.getMcType().name();
 			Controller.NotificationType notification;
 			if (type.equals("LOGIN")) {
 				notification = NotificationType.NOTIFY_UNKNOWN;
-			}
-			else if (type.equals("LOGINREPLY")) {
+			} else if (type.equals("LOGINREPLY")) {
 				notification = NotificationType.NOTIFY_WAIT;
-			}
-			else if (type.equals("AWAITMOVE")) {
+			} else if (type.equals("AWAITMOVE")) {
 				notification = NotificationType.NOTIFY_YOUR_MOVE;
-			}
-			else if (type.equals("MOVE")) {
+			} else if (type.equals("MOVE")) {
 				notification = NotificationType.NOTIFY_MOVE;
-			}
-			else if (type.equals("ACCEPT")) {
+			} else if (type.equals("ACCEPT")) {
 				notification = NotificationType.NOTIFY_WAIT;
-			}
-			else if (type.equals("WIN")) {
+			} else if (type.equals("WIN")) {
 				notification = NotificationType.NOTIFY_WIN;
-			}
-			else if (type.equals("DISCONNECT")) {
+			} else if (type.equals("DISCONNECT")) {
 				notification = NotificationType.NOTIFY_DISCONNECT;
-			}
-			else {
+			} else {
 				notification = NotificationType.NOTIFY_UNKNOWN;
 			}
 			controller.notifyWindow(notification);
+
+			switch (message.getMcType()) {
+			case ACCEPT:
+				ctrl_event.receiveAcceptMessage(message.getAcceptMessage());
+				break;
+			case AWAITMOVE:
+				ctrl_event.receiveAwaitMoveMessage(message.getAwaitMoveMessage());
+				break;
+			case DISCONNECT:
+				ctrl_event.receiveDisconnectMessage(message.getDisconnectMessage());
+				break;
+			case LOGINREPLY:
+				ctrl_event.receiveLoginReply(message.getLoginReplyMessage());
+				break;
+			case MOVE:
+				ctrl_event.receiveMoveMessage(message.getMoveMessage());
+				break;
+			case WIN:
+				ctrl_event.receiveWinMessage(message.getWinMessage());
+				break;
+			default:
+				break;
+			}
 		}
 
 		public void run() {

@@ -13,10 +13,12 @@ import jaxb.AcceptMessageType;
 import jaxb.AwaitMoveMessageType;
 import jaxb.DisconnectMessageType;
 import jaxb.LoginReplyMessageType;
+import jaxb.MoveMessageType;
 import jaxb.WinMessageType;
 
 public class EventController {
 	private GUIController ctrl_gui;
+	private int count = 0;
 
 	public EventController() {
 		ctrl_gui = new GUIController();
@@ -41,6 +43,10 @@ public class EventController {
 	}
 
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
+		if (count == 0) {
+			ctrl_gui.start();
+			count++;
+		}
 		Context.getInstance().setValue(Context.BOARD, new Board(message.getBoard()));
 		((PersData) Context.getInstance().getValue(Context.USER)).setCurrentTreasure(message.getTreasure());
 		// TODO TreasureToFind != noch zu findenden Schaetze?
@@ -58,6 +64,11 @@ public class EventController {
 
 	public void receiveAcceptMessage(AcceptMessageType message) {
 		ctrl_gui.displayMove(message.isAccept());
+	}
+
+	public void receiveMoveMessage(MoveMessageType moveMessage) {
+		// TODO Auto-generated method stub
+		System.out.println("MOVE");
 	}
 
 }

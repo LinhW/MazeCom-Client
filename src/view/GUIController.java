@@ -14,18 +14,17 @@ public class GUIController {
 
 	public GUIController() {
 		model = new GUIModel();
-		Card c = new Card(((Board) Context.getInstance().getValue(Context.BOARD)).getShiftCard());
-		model.setCardOrientation(c.getOrientation().value());
-		model.setCardType(c.getShape().toString());
-
-		gui = new GUI(this, model);
 	}
 
 	public void start() {
+		gui = new GUI(this, model);
 		gui.setVisible(true);
 	}
 
 	public void update() {
+		Card c = new Card(((Board) Context.getInstance().getValue(Context.BOARD)).getShiftCard());
+		model.setCardOrientation(c.getOrientation().value());
+		model.setCardType(c.getShape().toString());
 		gui.update();
 	}
 

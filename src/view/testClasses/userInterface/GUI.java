@@ -256,6 +256,7 @@ public class GUI extends JFrame implements IView {
 		this.model = model;
 		setSize(new Dimension(750, 500));
 		setPreferredSize(new Dimension(2000, 1000));
+		addListener();
 		createView();
 	}
 
@@ -269,11 +270,13 @@ public class GUI extends JFrame implements IView {
 			@Override
 			public void windowLostFocus(WindowEvent e) {
 				hasFocus = false;
+				System.out.println("LostFocus");
 			}
 
 			@Override
 			public void windowGainedFocus(WindowEvent e) {
 				hasFocus = true;
+				System.out.println("hasFocus");
 			}
 		});
 
@@ -514,7 +517,7 @@ public class GUI extends JFrame implements IView {
 		// TODO
 		int rot = 90;
 		if (rotateLeft) {
-			rot *= -1;
+			rot += 180;
 		}
 		int orient = (model.getCardOrientation() + rot) % 360;
 		System.out.println("" + model.getCardType() + orient);
@@ -588,9 +591,11 @@ public class GUI extends JFrame implements IView {
 		private void key_pressed(KeyEvent e) {
 			switch (e.getKeyCode()) {
 			case KeyEvent.VK_L:
+				System.out.println("press L");
 				rotate(true);
 				break;
 			case KeyEvent.VK_R:
+				System.out.println("press R");
 				rotate(false);
 				break;
 			case KeyEvent.VK_ENTER:
