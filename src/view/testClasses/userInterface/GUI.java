@@ -2,6 +2,7 @@ package view.testClasses.userInterface;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -19,6 +20,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.Timer;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 
 import jaxb.BoardType.Row;
 import jaxb.CardType;
@@ -30,8 +34,6 @@ import view.testClasses.Card;
 import view.testClasses.Messages;
 import view.testClasses.Position;
 import config.Settings;
-
-import java.awt.Dimension;
 
 @SuppressWarnings("serial")
 public class GUI extends JFrame implements UI {
@@ -46,7 +48,7 @@ public class GUI extends JFrame implements UI {
 	AnimationProperties animationProperties = null;
 	public GraphicalCardBuffered shiftCard;
 	private JLabel l_shiftCard;
-	private JLabel l_treasure;
+	private JLabel lb_treasure_pic;
 
 	private static class ImageRessources {
 		private static HashMap<String, Image> images = new HashMap<String, Image>();
@@ -184,20 +186,52 @@ public class GUI extends JFrame implements UI {
 		splitPane.setDividerLocation(470);
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 
-		// TODO own gui right of splitpane
-		Card c = new Card(((Board) Context.getInstance().getValue(Context.BOARD)).getShiftCard());
-		l_shiftCard = new JLabel(new ImageIcon(ImageRessources.getImage(c.value())));
-		System.out.println("init " + p.getCurrentTreasure());
-		l_treasure = new JLabel(new ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
-		splitPanel_right.setLayout(new BorderLayout(0, 0));
-		splitPanel_right.add(l_shiftCard, BorderLayout.NORTH);
-		splitPanel_right.add(l_treasure, BorderLayout.EAST);
+		{
+			JPanel sp_top = new JPanel();
+			{
+				sp_top.setLayout(new BorderLayout());
+				Card c = new Card(((Board) Context.getInstance().getValue(Context.BOARD)).getShiftCard());
+				l_shiftCard = new JLabel(new ImageIcon(ImageRessources.getImage(c.value())));
+				sp_top.add(l_shiftCard, BorderLayout.CENTER);
+			}
+
+			JPanel sp_bottom = new JPanel();
+			{
+				sp_bottom.setLayout(new BorderLayout());
+
+				lb_treasure_pic = new JLabel(new ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
+				sp_bottom.add(lb_treasure_pic, BorderLayout.CENTER);
+
+				JLabel lb_treasure = new JLabel("Treasure");
+				lb_treasure.setBorder(new EmptyBorder(5, 5, 5, 5));
+				sp_bottom.add(lb_treasure, BorderLayout.WEST);
+
+				JLabel lb_player = new JLabel(p.getName());
+				lb_player.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new EmptyBorder(7, 10, 7, 5)));
+				sp_bottom.add(lb_player, BorderLayout.NORTH);
+
+				JLabel lb_statistic = new JLabel("Treasures to go: " + p.getTreasuresToFind());
+				lb_statistic.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.LOWERED), new EmptyBorder(5, 5, 5, 5)));
+				sp_bottom.add(lb_statistic, BorderLayout.SOUTH);
+			}
+
+			JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+			{
+				sp.setDividerLocation(250);
+				sp.setLeftComponent(sp_top);
+				sp.setRightComponent(sp_bottom);
+			}
+
+			splitPanel_right.setLayout(new BorderLayout(0, 0));
+			splitPanel_right.add(sp);
+		}
+
 	}
 
 	public GUI() {
 		// Eigenname
 		super("Das verrückte Labyrinth"); //$NON-NLS-1$
-		setSize(new Dimension(1000, 500));
+		setSize(new Dimension(750, 500));
 		setPreferredSize(new Dimension(2000, 1000));
 	}
 
