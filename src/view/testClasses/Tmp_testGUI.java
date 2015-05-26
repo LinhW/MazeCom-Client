@@ -11,7 +11,6 @@ import jaxb.TreasureType;
 import jaxb.TreasuresToGoType;
 import jaxb.WinMessageType;
 import view.data.Context;
-import view.data.PersData;
 
 public class Tmp_testGUI {
 
@@ -33,10 +32,8 @@ public class Tmp_testGUI {
 			System.out.println(c.getShape() + " " + c.getOrientation().value + " " + c.value());
 			Context.getInstance().setValue(Context.BOARD, new Board(await.getBoard()));
 			for (TreasuresToGoType tt : await.getTreasuresToGo()) {
-				System.out.println(tt);
+				System.out.println(tt.getPlayer() + " " + tt.getTreasures());
 			}
-			((PersData) Context.getInstance().getValue(Context.USER)).setCurrentTreasure(await.getTreasure());
-			((PersData) Context.getInstance().getValue(Context.USER)).setTreasuresToFind(await.getTreasuresToGo().size());
 			System.out.println("----");
 			break;
 		case DISCONNECT:

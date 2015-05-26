@@ -12,17 +12,24 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.Timer;
@@ -33,6 +40,8 @@ import javax.swing.border.EmptyBorder;
 import jaxb.BoardType.Row;
 import jaxb.CardType;
 import jaxb.MoveMessageType;
+import jaxb.TreasureType;
+import jaxb.TreasuresToGoType;
 import view.GUIController;
 import view.data.Context;
 import view.data.GUIModel;
@@ -193,6 +202,7 @@ public class GUI extends JFrame implements IView {
 	}
 
 	private void createView() {
+		createMenu();
 		getContentPane().setLayout(new BorderLayout());
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		JPanel splitPanel_right = new JPanel();
@@ -241,12 +251,41 @@ public class GUI extends JFrame implements IView {
 
 	}
 
+	private void createMenu() {
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		JMenu menu_Menu = new JMenu("Window");
+		menuBar.add(menu_Menu);
+		JMenuItem mItem = new JMenuItem("Preferences");
+		menu_Menu.add(mItem);
+		mItem.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				showPreferences();
+			}
+		});
+	}
+
+	private void showPreferences() {
+		// TODO Auto-generated method stub
+		JDialog dialog = new JDialog(this, true);
+		dialog.setTitle("Preferences");
+		JPanel panel = new JPanel();
+		dialog.add(panel);
+
+	}
+
 	private void update_own() {
 		PersData p = (PersData) Context.getInstance().getValue(Context.USER);
 		Card c = new Card(((Board) Context.getInstance().getValue(Context.BOARD)).getShiftCard());
 		lb_shiftCard.setIcon(new ImageIcon(ImageRessources.getImage(c.value())));
 		lb_treasure_pic.setIcon(new ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
-		lb_statistic.setText("Treasures to go: " + p.getTreasuresToFind());
+		String stat = "";
+		@SuppressWarnings("unchecked")
+		List<TreasuresToGoType> l = (List<TreasuresToGoType>) Context.getInstance().getValue(Context.TREASURELIST);
+		for (TreasuresToGoType tt : l) {
+			stat += (tt.getPlayer() + ": " + tt.getTreasures() + "   ");
+		}
+		lb_statistic.setText(stat.trim());
 	}
 
 	public GUI(GUIController ctrl_gui, GUIModel model) {

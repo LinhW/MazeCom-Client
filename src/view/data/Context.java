@@ -7,6 +7,7 @@ public class Context {
 	// define keys for map
 	public static final String USER = "user";
 	public static final String BOARD = "board";
+	public static final String TREASURELIST = "treasurelist";
 
 	private static Context instance;
 	private Map<String, Object> map;

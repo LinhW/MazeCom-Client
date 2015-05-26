@@ -13,6 +13,7 @@ import javax.xml.bind.Unmarshaller;
 
 import jaxb.MazeCom;
 import view.EventController;
+import view.testClasses.Tmp_testGUI;
 import control.Controller;
 import control.Controller.NotificationType;
 
@@ -50,7 +51,7 @@ public class Connection {
 
 		public void processMessage(MazeCom message) {
 			// TODO einfach auskommentieren wenn ich es vergessen habe
-			// Tmp_testGUI.receiveServerMessage(message);
+			 Tmp_testGUI.receiveServerMessage(message);
 
 			String type = message.getMcType().name();
 			Controller.NotificationType notification;

@@ -7,7 +7,6 @@ public class PersData {
 	private int id;
 	private int move;
 	private String name;
-	private int treasuresToFind;
 
 	private TreasureType currentTreasure;
 
@@ -33,14 +32,6 @@ public class PersData {
 
 	public int getMove() {
 		return move;
-	}
-
-	public int getTreasuresToFind() {
-		return treasuresToFind;
-	}
-
-	public void setTreasuresToFind(int treasuresToFind) {
-		this.treasuresToFind = treasuresToFind;
 	}
 
 	public void setCurrentTreasure(TreasureType currentTreasure) {

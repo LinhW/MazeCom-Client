@@ -2,19 +2,21 @@ package view;
 
 import javax.swing.JOptionPane;
 
-import config.Settings;
-import tools.Debug;
-import tools.DebugLevel;
-import view.data.Context;
-import view.data.PersData;
-import view.testClasses.Board;
-import view.testClasses.Messages;
 import jaxb.AcceptMessageType;
 import jaxb.AwaitMoveMessageType;
 import jaxb.DisconnectMessageType;
 import jaxb.LoginReplyMessageType;
 import jaxb.MoveMessageType;
 import jaxb.WinMessageType;
+import tools.Debug;
+import tools.DebugLevel;
+import view.data.Context;
+import view.data.PersData;
+import view.testClasses.Board;
+import view.testClasses.Card;
+import view.testClasses.Messages;
+import view.testClasses.Position;
+import config.Settings;
 
 public class EventController {
 	private GUIController ctrl_gui;
@@ -50,7 +52,7 @@ public class EventController {
 		Context.getInstance().setValue(Context.BOARD, new Board(message.getBoard()));
 		((PersData) Context.getInstance().getValue(Context.USER)).setCurrentTreasure(message.getTreasure());
 		// TODO TreasureToFind != noch zu findenden Schaetze?
-		((PersData) Context.getInstance().getValue(Context.USER)).setTreasuresToFind(message.getTreasuresToGo().size());
+		Context.getInstance().setValue(Context.TREASURELIST, message.getTreasuresToGo());
 		ctrl_gui.update();
 	}
 
@@ -69,6 +71,10 @@ public class EventController {
 	public void receiveMoveMessage(MoveMessageType moveMessage) {
 		// TODO Auto-generated method stub
 		System.out.println("MOVE");
+	}
+
+	public void sendMoveMessage(Card c, Position shift, Position pin) {
+
 	}
 
 }
