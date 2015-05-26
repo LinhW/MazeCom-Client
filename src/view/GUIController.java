@@ -29,6 +29,8 @@ public class GUIController {
 		map.put(Context.RIGHT, KeyEvent.VK_RIGHT);
 		Context.getInstance().setValue(Context.KEYEVENTS, map);
 		model.setKeyEventMap((Map<String, Integer>) Context.getInstance().getValue(Context.KEYEVENTS));
+		model.setRow(1);
+		model.setCol(0);
 	}
 
 	public void start() {

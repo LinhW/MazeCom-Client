@@ -19,7 +19,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
-import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
@@ -141,6 +140,7 @@ public class GUI extends JFrame implements IView {
 			width = height = Math.min(width, height);
 			width = height -= width % 7;
 			pixelsPerField = width / 7;
+			System.out.println("pixel " + pixelsPerField);
 
 			for (int y = 0; y < 7; y++) {
 				for (int x = 0; x < 7; x++) {
@@ -177,6 +177,15 @@ public class GUI extends JFrame implements IView {
 						System.out.println(String.format(Messages.getInstance().getString("BetterUI.cardIsNull"), x, y)); //$NON-NLS-1$
 					}
 				}
+			}
+
+			// TODO
+			if (model.getCol() == 0) {
+				System.out.println("print " + (pixelsPerField * model.getRow() + pixelsPerField / 2 - 10));
+				g.drawImage(ImageRessources.getImage("Red_Arrow_Up"), 0, pixelsPerField * model.getRow() + pixelsPerField / 2 - 10, 20, 20, null);
+			} else {
+				System.out.println("printSpalte " + (pixelsPerField * model.getCol() + pixelsPerField / 2 - 10));
+				g.drawImage(ImageRessources.getImage("Red_Arrow_Up"), pixelsPerField * model.getCol() + pixelsPerField / 2 - 10, 0, 20, 20, null);
 			}
 			// Zeichnen der eingeschobenen karte in der animation
 			if (animationProperties != null) {
@@ -756,13 +765,87 @@ public class GUI extends JFrame implements IView {
 			} else if (action == model.getKeyEvent(Context.ROTATE_RIGHT)) {
 				rotate(false);
 			} else if (action == model.getKeyEvent(Context.UP)) {
-
+				System.out.println("up " + model.getRow() + " " + model.getCol());
+				if (model.getRow() == 6) {
+					return;
+				}
+				if (model.getRow() == 0) {
+					model.setRow(6);
+				} else if (model.getRow() == 1) {
+					model.setRow(0);
+					if (model.getCol() == 0) {
+						model.setCol(1);
+					}
+					if (model.getCol() == 6) {
+						model.setCol(5);
+					}
+				} else {
+					model.setRow(model.getRow() - 2);
+				}
+				System.out.println(model.getRow() + " " + model.getCol());
+				uiboard.repaint();
 			} else if (action == model.getKeyEvent(Context.DOWN)) {
-
+				System.out.println("down " + model.getRow() + " " + model.getCol());
+				if (model.getRow() == 0) {
+					return;
+				}
+				if (model.getRow() == 6) {
+					model.setRow(0);
+				} else if (model.getRow() == 5) {
+					model.setRow(6);
+					if (model.getCol() == 0) {
+						model.setCol(1);
+					}
+					if (model.getCol() == 6) {
+						model.setCol(5);
+					}
+				} else {
+					model.setRow(model.getRow() + 2);
+				}
+				System.out.println(model.getRow() + " " + model.getCol());
+				uiboard.repaint();
 			} else if (action == model.getKeyEvent(Context.LEFT)) {
-
+				System.out.println("left " + model.getRow() + " " + model.getCol());
+				if (model.getCol() == 6) {
+					return;
+				}
+				if (model.getCol() == 0) {
+					model.setCol(6);
+				} else if (model.getCol() == 1) {
+					model.setCol(0);
+					if (model.getRow() == 0) {
+						model.setRow(1);
+					}
+					if (model.getRow() == 6) {
+						model.setRow(5);
+					}
+				} else {
+					model.setCol(model.getCol() - 2);
+				}
+				System.out.println(model.getRow() + " " + model.getCol());
+				uiboard.repaint();
 			} else if (action == model.getKeyEvent(Context.RIGHT)) {
-
+				System.out.println("right " + model.getRow() + " " + model.getCol());
+				if (model.getCol() == 0) {
+					return;
+				}
+				if (model.getCol() == 6) {
+					model.setCol(0);
+				} else {
+					if (model.getCol() == 5) {
+						model.setCol(6);
+						if (model.getRow() == 0) {
+							model.setRow(1);
+						}
+						if (model.getRow() == 6) {
+							model.setRow(5);
+						}
+					} else {
+						model.setCol(model.getCol() + 2);
+					}
+				}
+				System.out.println(model.getRow() + " " + model.getCol());
+				uiboard.repaint();
 			}
 		}
 	}
