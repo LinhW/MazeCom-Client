@@ -3,12 +3,18 @@ package view.testClasses.userInterface;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
@@ -50,6 +56,9 @@ public class GUI extends JFrame implements UI {
 	private JLabel l_shiftCard;
 	private JLabel lb_treasure_pic;
 	private JLabel lb_statistic;
+	private boolean hasFocus;
+	private KeyboardFocusManager manager;
+	private MyDispatcher dispatcher;
 
 	private static class ImageRessources {
 		private static HashMap<String, Image> images = new HashMap<String, Image>();
@@ -179,6 +188,15 @@ public class GUI extends JFrame implements UI {
 	}
 
 	private void initialise() {
+		createView();
+		addListener();
+	}
+
+	private void createView() {
+		manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+		dispatcher = new MyDispatcher();
+		manager.addKeyEventDispatcher(dispatcher);
+
 		getContentPane().setLayout(new BorderLayout());
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		JPanel splitPanel_right = new JPanel();
@@ -241,6 +259,21 @@ public class GUI extends JFrame implements UI {
 		setSize(new Dimension(750, 500));
 		setPreferredSize(new Dimension(2000, 1000));
 		this.initialise();
+	}
+
+	public void addListener() {
+		this.addWindowFocusListener(new WindowFocusListener() {
+
+			@Override
+			public void windowLostFocus(WindowEvent e) {
+				hasFocus = false;
+			}
+
+			@Override
+			public void windowGainedFocus(WindowEvent e) {
+				hasFocus = true;
+			}
+		});
 	}
 
 	protected static String[] arguments;
@@ -459,6 +492,10 @@ public class GUI extends JFrame implements UI {
 		}
 	}
 
+	public void rotate(boolean rotateLeft) {
+		// TODO
+	}
+
 	// public void setGame(Game g) {
 	// this.g = g;
 	// }
@@ -471,5 +508,67 @@ public class GUI extends JFrame implements UI {
 		// }
 		// // MIStart.setEnabled(true);
 		// // MIStop.setEnabled(false);
+	}
+
+	/**
+	 * Handle KeyEvents (independent from the focused object)
+	 * 
+	 * @author lgewuerz
+	 *
+	 */
+	private class MyDispatcher implements KeyEventDispatcher {
+
+		@Override
+		public boolean dispatchKeyEvent(KeyEvent e) {
+			if (hasFocus) {
+				switch (e.getID()) {
+				case KeyEvent.KEY_PRESSED:
+					key_pressed(e);
+					break;
+				case KeyEvent.KEY_TYPED:
+					key_typed(e);
+					break;
+				case KeyEvent.KEY_RELEASED:
+					key_released(e);
+					break;
+				}
+			}
+			return false;
+		}
+
+		/**
+		 * handling when a key is released
+		 * 
+		 * @param e
+		 *            (KeyEvent)
+		 */
+		private void key_released(KeyEvent e) {
+		}
+
+		/**
+		 * handling when a key is typed
+		 * 
+		 * @param e
+		 *            (KeyEvent)
+		 */
+		private void key_typed(KeyEvent e) {
+		}
+
+		/**
+		 * handling when a key is pressed
+		 * 
+		 * @param e
+		 *            (KeyEvent)
+		 */
+		private void key_pressed(KeyEvent e) {
+			switch (e.getKeyCode()) {
+			case KeyEvent.VK_L:
+				rotate(true);
+				break;
+			case KeyEvent.VK_R:
+				rotate(false);
+				break;
+			}
+		}
 	}
 }
