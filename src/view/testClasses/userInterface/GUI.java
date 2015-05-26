@@ -3,7 +3,6 @@ package view.testClasses.userInterface;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -13,6 +12,7 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.io.IOException;
@@ -33,8 +33,11 @@ import javax.swing.border.EmptyBorder;
 import jaxb.BoardType.Row;
 import jaxb.CardType;
 import jaxb.MoveMessageType;
+import view.GUIController;
 import view.data.Context;
+import view.data.GUIModel;
 import view.data.PersData;
+import view.interfaces.IView;
 import view.testClasses.Board;
 import view.testClasses.Card;
 import view.testClasses.Messages;
@@ -42,7 +45,7 @@ import view.testClasses.Position;
 import config.Settings;
 
 @SuppressWarnings("serial")
-public class GUI extends JFrame implements UI {
+public class GUI extends JFrame implements IView {
 
 	UIBoard uiboard = new UIBoard();
 	private static final boolean animateMove = true;
@@ -53,12 +56,14 @@ public class GUI extends JFrame implements UI {
 	Timer animationTimer;
 	AnimationProperties animationProperties = null;
 	public GraphicalCardBuffered shiftCard;
-	private JLabel l_shiftCard;
+	private JLabel lb_shiftCard;
 	private JLabel lb_treasure_pic;
 	private JLabel lb_statistic;
 	private boolean hasFocus;
 	private KeyboardFocusManager manager;
 	private MyDispatcher dispatcher;
+	private GUIController myController;
+	private GUIModel model;
 
 	private static class ImageRessources {
 		private static HashMap<String, Image> images = new HashMap<String, Image>();
@@ -187,16 +192,7 @@ public class GUI extends JFrame implements UI {
 
 	}
 
-	private void initialise() {
-		createView();
-		addListener();
-	}
-
 	private void createView() {
-		manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-		dispatcher = new MyDispatcher();
-		manager.addKeyEventDispatcher(dispatcher);
-
 		getContentPane().setLayout(new BorderLayout());
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		JPanel splitPanel_right = new JPanel();
@@ -208,8 +204,8 @@ public class GUI extends JFrame implements UI {
 			JPanel sp_top = new JPanel();
 			{
 				sp_top.setLayout(new BorderLayout());
-				l_shiftCard = new JLabel();
-				sp_top.add(l_shiftCard, BorderLayout.CENTER);
+				lb_shiftCard = new JLabel();
+				sp_top.add(lb_shiftCard, BorderLayout.CENTER);
 			}
 
 			JPanel sp_bottom = new JPanel();
@@ -245,23 +241,29 @@ public class GUI extends JFrame implements UI {
 
 	}
 
-	public void update() {
+	private void update_own() {
 		PersData p = (PersData) Context.getInstance().getValue(Context.USER);
 		Card c = new Card(((Board) Context.getInstance().getValue(Context.BOARD)).getShiftCard());
-		l_shiftCard.setIcon(new ImageIcon(ImageRessources.getImage(c.value())));
+		lb_shiftCard.setIcon(new ImageIcon(ImageRessources.getImage(c.value())));
 		lb_treasure_pic.setIcon(new ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
 		lb_statistic.setText("Treasures to go: " + p.getTreasuresToFind());
 	}
 
-	public GUI() {
+	public GUI(GUIController ctrl_gui, GUIModel model) {
 		// Eigenname
 		super("Das verrückte Labyrinth"); //$NON-NLS-1$
+		myController = ctrl_gui;
+		this.model = model;
 		setSize(new Dimension(750, 500));
 		setPreferredSize(new Dimension(2000, 1000));
-		this.initialise();
+		createView();
 	}
 
 	public void addListener() {
+		manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+		dispatcher = new MyDispatcher();
+		manager.addKeyEventDispatcher(dispatcher);
+
 		this.addWindowFocusListener(new WindowFocusListener() {
 
 			@Override
@@ -274,6 +276,17 @@ public class GUI extends JFrame implements UI {
 				hasFocus = true;
 			}
 		});
+
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				myController.onClose();
+			}
+		});
+	}
+
+	public void removeListener() {
+		manager.removeKeyEventDispatcher(dispatcher);
 	}
 
 	protected static String[] arguments;
@@ -467,12 +480,17 @@ public class GUI extends JFrame implements UI {
 		}
 	}
 
-	@Override
-	public void init(Board b) {
+	public void update() {
+		Board b = (Board) Context.getInstance().getValue(Context.BOARD);
 		uiboard.setBoard(b);
 		uiboard.repaint();
-		update();
-		this.setVisible(true);
+		update_own();
+	}
+
+	public void close() {
+		// TODO
+		removeListener();
+		this.dispose();
 	}
 
 	private static Color colorForPlayer(int playerID) {
@@ -494,12 +512,19 @@ public class GUI extends JFrame implements UI {
 
 	public void rotate(boolean rotateLeft) {
 		// TODO
+		int rot = 90;
+		if (rotateLeft) {
+			rot *= -1;
+		}
+		int orient = (model.getCardOrientation() + rot) % 360;
+		System.out.println("" + model.getCardType() + orient);
+		lb_shiftCard.setIcon(new ImageIcon(ImageRessources.getImage("" + model.getCardType() + orient)));
+		myController.rotated(orient);
 	}
 
 	// public void setGame(Game g) {
 	// this.g = g;
 	// }
-	@Override
 	public void gameEnded(int winner) {
 		System.out.println("game ended");
 		// if (winner != null) {
@@ -567,6 +592,21 @@ public class GUI extends JFrame implements UI {
 				break;
 			case KeyEvent.VK_R:
 				rotate(false);
+				break;
+			case KeyEvent.VK_ENTER:
+				// TODO
+				break;
+			case KeyEvent.VK_DOWN:
+				// TODO
+				break;
+			case KeyEvent.VK_UP:
+				// TODO
+				break;
+			case KeyEvent.VK_LEFT:
+				// TODO
+				break;
+			case KeyEvent.VK_RIGHT:
+				// TODO
 				break;
 			}
 		}

@@ -45,7 +45,7 @@ public class Connection {
 		}
 
 		public void processMessage(MazeCom message) {
-			// TODO einfach auskommentieren wenn cih es vergessen habe
+			// TODO einfach auskommentieren wenn ich es vergessen habe
 			Tmp_testGUI.receiveServerMessage(message);
 			
 			String type = message.getMcType().name();

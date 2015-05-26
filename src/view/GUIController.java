@@ -2,18 +2,31 @@ package view;
 
 import javax.swing.JOptionPane;
 
-import view.testClasses.userInterface.UI;
-import config.Settings;
+import view.data.Context;
+import view.data.GUIModel;
+import view.testClasses.Board;
+import view.testClasses.Card;
+import view.testClasses.userInterface.GUI;
 
 public class GUIController {
-	private UI gui;
+	private GUI gui;
+	private GUIModel model;
 
 	public GUIController() {
-		gui = Settings.USERINTERFACE;
+		model = new GUIModel();
+		Card c = new Card(((Board) Context.getInstance().getValue(Context.BOARD)).getShiftCard());
+		model.setCardOrientation(c.getOrientation().value());
+		model.setCardType(c.getShape().toString());
+
+		gui = new GUI(this, model);
+	}
+
+	public void start() {
+		gui.setVisible(true);
 	}
 
 	public void update() {
-
+		gui.update();
 	}
 
 	public void close() {
@@ -29,5 +42,13 @@ public class GUIController {
 	public void endGame(int player, String name) {
 		JOptionPane.showMessageDialog(null, "Player " + player + " " + name + " wins!");
 		close();
+	}
+
+	public void onClose() {
+		// TODO
+	}
+
+	public void rotated(int orientation) {
+		model.setCardOrientation(orientation);
 	}
 }
