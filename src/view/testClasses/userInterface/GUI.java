@@ -13,6 +13,7 @@ import java.net.URL;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -22,11 +23,14 @@ import javax.swing.Timer;
 import jaxb.BoardType.Row;
 import jaxb.CardType;
 import jaxb.MoveMessageType;
+import view.data.Context;
+import view.data.PersData;
 import view.testClasses.Board;
 import view.testClasses.Card;
 import view.testClasses.Messages;
 import view.testClasses.Position;
 import config.Settings;
+
 import java.awt.Dimension;
 
 @SuppressWarnings("serial")
@@ -172,16 +176,19 @@ public class GUI extends JFrame implements UI {
 	}
 
 	private void initialise() {
+		PersData p = (PersData) Context.getInstance().getValue(Context.USER);
 		getContentPane().setLayout(new BorderLayout());
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		JPanel splitPanel_right = new JPanel();
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, uiboard, splitPanel_right);
-		splitPane.setDividerLocation(500);
+		splitPane.setDividerLocation(470);
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 
 		// TODO own gui right of splitpane
-		l_shiftCard = new JLabel("shiftCard");
-		l_treasure = new JLabel("treasure");
+		Card c = new Card(((Board) Context.getInstance().getValue(Context.BOARD)).getShiftCard());
+		l_shiftCard = new JLabel(new ImageIcon(ImageRessources.getImage(c.value())));
+		System.out.println("init " + p.getCurrentTreasure());
+		l_treasure = new JLabel(new ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
 		splitPanel_right.setLayout(new BorderLayout(0, 0));
 		splitPanel_right.add(l_shiftCard, BorderLayout.NORTH);
 		splitPanel_right.add(l_treasure, BorderLayout.EAST);
@@ -192,7 +199,6 @@ public class GUI extends JFrame implements UI {
 		super("Das verrückte Labyrinth"); //$NON-NLS-1$
 		setSize(new Dimension(1000, 500));
 		setPreferredSize(new Dimension(2000, 1000));
-		initialise();
 	}
 
 	protected static String[] arguments;
@@ -388,6 +394,7 @@ public class GUI extends JFrame implements UI {
 
 	@Override
 	public void init(Board b) {
+		initialise();
 		uiboard.setBoard(b);
 		uiboard.repaint();
 		this.setVisible(true);

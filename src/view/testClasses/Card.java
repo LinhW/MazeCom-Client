@@ -53,6 +53,10 @@ public class Card extends CardType {
 		}
 	}
 
+	public String value() {
+		return "" + this.getShape() + this.getOrientation().value;
+	}
+
 	// TODO
 	public List<Card> getPossibleRotations() {
 		List<Card> cards = new ArrayList<Card>();

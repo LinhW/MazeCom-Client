@@ -25,7 +25,6 @@ public class Tmp_testGUI {
 
 	public static void receiveServerMessage(MazeCom message) {
 		Tmp_testGUI ttgui = new Tmp_testGUI();
-		ttgui.init();
 		System.out.println("receive Message: " + message.getId() + " " + message.getMcType());
 		switch (message.getMcType()) {
 		case ACCEPT:
@@ -33,12 +32,15 @@ public class Tmp_testGUI {
 			System.out.println(accept + " " + accept.isAccept());
 			break;
 		case AWAITMOVE:
+			ttgui.init();
 			AwaitMoveMessageType await = message.getAwaitMoveMessage();
 			TreasureType t = await.getTreasure();
 			String n = t.name();
 			System.out.println("----");
 			System.out.println(t + " " + n);
-			System.out.println(await + " " + await.getBoard().getShiftCard() + " " + n);
+			Card c = new Card(await.getBoard().getShiftCard());
+			System.out.println(await + " " + await.getBoard().getShiftCard());
+			System.out.println(c.getShape() + " " + c.getOrientation().value + " " + c.value());
 			Context.getInstance().setValue(Context.BOARD, new Board(await.getBoard()));
 			for (TreasuresToGoType tt : await.getTreasuresToGo()) {
 				System.out.println(tt);
@@ -77,12 +79,12 @@ public class Tmp_testGUI {
 	}
 
 	private void init() {
-		Debug.addDebugger(System.out, Settings.DEBUGLEVEL);
-		Debug.print(Messages.getInstance().getString("Game.Constructor"), DebugLevel.DEBUG); //$NON-NLS-1$
 		gui = Settings.USERINTERFACE;
 	}
 
 	public static String first() {
+		Debug.addDebugger(System.out, Settings.DEBUGLEVEL);
+		Debug.print(Messages.getInstance().getString("Game.Constructor"), DebugLevel.DEBUG); //$NON-NLS-1$
 		String name = JOptionPane.showInputDialog("Nickname");
 		Context.getInstance().setValue(Context.USER, new PersData(name));
 		return name;
