@@ -32,7 +32,7 @@ public class Tmp_testGUI {
 			System.out.println(accept + " " + accept.isAccept());
 			break;
 		case AWAITMOVE:
-			ttgui.init();
+			 ttgui.init();
 			AwaitMoveMessageType await = message.getAwaitMoveMessage();
 			TreasureType t = await.getTreasure();
 			String n = t.name();
@@ -48,6 +48,8 @@ public class Tmp_testGUI {
 			((PersData) Context.getInstance().getValue(Context.USER)).setCurrentTreasure(await.getTreasure());
 			((PersData) Context.getInstance().getValue(Context.USER)).setTreasuresToFind(await.getTreasuresToGo().size());
 			System.out.println("----");
+			System.out.println(ttgui.gui);
+			System.out.println(await.getBoard());
 			ttgui.gui.init(new Board(await.getBoard()));
 			break;
 		case DISCONNECT:
@@ -64,7 +66,7 @@ public class Tmp_testGUI {
 			System.out.println(((PersData) Context.getInstance().getValue(Context.USER)).getName());
 			((PersData) Context.getInstance().getValue(Context.USER)).setID(lr.getNewID());
 			System.out.println(lr + " " + lr.getNewID());
-//			ttgui.init();
+			ttgui.init();
 			break;
 		case MOVE:
 			MoveMessageType move = message.getMoveMessage();
