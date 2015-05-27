@@ -18,7 +18,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import jaxb.MazeCom;
-import control.EventController;
+import control.Player;
 
 public class Connection {
 	private boolean isConnected;
@@ -35,11 +35,18 @@ public class Connection {
 	private Unmarshaller unmarshaller;
 	private MazeComMessageFactory messageFactory;
 
-	private EventController ctrl_event;
+	private Player ctrl_event;
+	
+	private boolean hasPlayer;
 
 	public Connection() {
 		super();
-		ctrl_event = new EventController(this);
+		hasPlayer = false;
+	}
+	
+	public void setPlayer(Player p) {
+		hasPlayer = true;
+		this.ctrl_event = p;
 	}
 
 	private class ServerListener extends Thread {
