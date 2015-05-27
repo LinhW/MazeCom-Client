@@ -4,28 +4,37 @@ import gui.view.AISelector;
 
 import javax.swing.JOptionPane;
 
+import network.Connection;
 import ai.Player;
 import ai.RandomAI;
-import network.Connection;
+import ai.ava.Ava;
 
-public class Main {	
+public class Main {
 	private void run() {
-		int selection = JOptionPane.showConfirmDialog(null, "Do you want to start an artificial intelligence?",
-				"AI selection", JOptionPane.YES_NO_OPTION);
+		int selection = JOptionPane.showConfirmDialog(null, "Do you want to start an artificial intelligence?", "AI selection", JOptionPane.YES_NO_OPTION);
 		Connection connection = new Connection();
 		Player player;
 		if (selection == JOptionPane.YES_OPTION) {
 			AISelector selector = new AISelector();
 			selection = selector.showDialog();
-			player = new RandomAI(connection);
-		}
-		else {
+			switch (selection) {
+			case 0:
+				player = new RandomAI(connection);
+				break;
+			case 1:
+				player = new Ava(connection);
+				break;
+			default:
+				player = new RandomAI(connection);
+			}
+
+		} else {
 			player = new EventController(connection);
 		}
 		connection.setPlayer(player);
 		connection.establishConnection("localhost", 5123);
 	}
-	
+
 	public static void main(String[] args) {
 		Main m = new Main();
 		m.run();

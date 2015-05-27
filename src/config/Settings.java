@@ -37,5 +37,5 @@ public class Settings {
 	 */
 	public final static DebugLevel DEBUGLEVEL = DebugLevel.DEFAULT;
 	
-	public final static String[] AIList = {"Random AI"};
+	public final static String[] AIList = {"Random AI", "Ava"};
 }
