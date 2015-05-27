@@ -1,9 +1,9 @@
 package ai;
 
-import gui.data.Card;
 import gui.data.Position;
 import jaxb.AcceptMessageType;
 import jaxb.AwaitMoveMessageType;
+import jaxb.CardType;
 import jaxb.DisconnectMessageType;
 import jaxb.LoginReplyMessageType;
 import jaxb.MoveMessageType;
@@ -24,5 +24,5 @@ public interface Player {
 
 	public void receiveMoveMessage(MoveMessageType moveMessage);
 
-	public void sendMoveMessage(int PlayerID, Card c, Position shift, Position pin);
+	public void sendMoveMessage(int PlayerID, CardType c, Position shift, Position pin);
 }
