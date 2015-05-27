@@ -5,7 +5,7 @@ import java.util.ResourceBundle;
 
 public class Messages {
 	private static Messages instance;
-	private static final String BUNDLE_NAME = "view.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "gui.data.messages"; //$NON-NLS-1$
 
 	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 
