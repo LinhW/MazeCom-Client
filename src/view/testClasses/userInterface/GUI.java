@@ -181,12 +181,13 @@ public class GUI extends JFrame implements IView {
 
 			int x = 0;
 			int y = 0;
+			System.out.println(model.getRow() + " " + model.getCol());
 			switch (model.getCol()) {
 			case 0:
 				x = 0;
 				break;
 			case 6:
-				x = 6;
+				x = 7 * pixelsPerField - 20;
 				break;
 			default:
 				x = pixelsPerField * model.getCol() + pixelsPerField / 2 - 10;
@@ -197,11 +198,13 @@ public class GUI extends JFrame implements IView {
 				y = 0;
 				break;
 			case 6:
-				y = 6;
+				y = 7 * pixelsPerField - 20;
 				break;
 			default:
 				y = pixelsPerField * model.getRow() + pixelsPerField / 2 - 10;
 			}
+
+			System.out.println(x + " " + y);
 			g.drawImage(ImageRessources.getImage("Red_Arrow_Up"), x, y, 20, 20, null);
 			// Zeichnen der eingeschobenen karte in der animation
 			if (animationProperties != null) {
