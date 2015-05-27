@@ -85,7 +85,7 @@ public class Connection {
 		}
 
 		public void run() {
-			shutdown = false;
+			shutdown = !hasPlayer;
 			while (!shutdown) {
 				try {
 					byteInFromServer = new ByteArrayInputStream(inFromServer.readUTF8().getBytes());
@@ -102,6 +102,9 @@ public class Connection {
 	}
 
 	private boolean createSocket(String host, int port) {
+		if (!hasPlayer) {
+			return false;
+		}
 		try {
 			clientSocket = new Socket(host, port);
 			outToServer = new UTFOutputStream(clientSocket.getOutputStream());
@@ -122,6 +125,9 @@ public class Connection {
 	}
 	
 	public void sendMoveMessage(int PlayerID, Card c, Position shift, Position pin) {
+		if (!hasPlayer) {
+			return;
+		}
 		MazeCom message = messageFactory.createMoveMessage(PlayerID, c, shift, pin);
 		try {
 			byteOutToServer.reset();
@@ -135,6 +141,9 @@ public class Connection {
 	}
 
 	private boolean loginOnServer() {
+		if (!hasPlayer) {
+			return false;
+		}
 		messageFactory = new MazeComMessageFactory();
 		MazeCom message = messageFactory.createLoginMessage(ctrl_event.login());
 		try {
@@ -157,6 +166,9 @@ public class Connection {
 	}
 
 	public boolean establishConnection(String host, int port) {
+		if (!hasPlayer) {
+			return false;
+		}
 		boolean success = true;
 		if (isConnected) {
 			success = false;

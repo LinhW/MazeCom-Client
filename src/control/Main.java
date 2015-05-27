@@ -1,15 +1,26 @@
 package control;
 
+import gui.view.AISelector;
+
 import javax.swing.JOptionPane;
 
 import network.Connection;
 
 public class Main {	
 	private void run() {
-		JOptionPane.showConfirmDialog(null, "Do you want to start an artificial intelligence",
+		int selection = JOptionPane.showConfirmDialog(null, "Do you want to start an artificial intelligence?",
 				"AI selection", JOptionPane.YES_NO_OPTION);
 		Connection connection = new Connection();
 		Player player;
+		if (selection == JOptionPane.YES_OPTION) {
+			AISelector selector = new AISelector();
+			selection = selector.showDialog();
+			player = new RandomAI(connection);
+		}
+		else {
+			player = new EventController(connection);
+		}
+		connection.setPlayer(player);
 		connection.establishConnection("localhost", 5123);
 	}
 	

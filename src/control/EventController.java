@@ -21,7 +21,7 @@ import tools.Debug;
 import tools.DebugLevel;
 import config.Settings;
 
-public class EventController {
+public class EventController implements Player {
 	private GUIController ctrl_gui;
 	private Connection connection;
 	private int count = 0;
