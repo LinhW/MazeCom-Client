@@ -4,6 +4,8 @@ import gui.view.AISelector;
 
 import javax.swing.JOptionPane;
 
+import ai.Player;
+import ai.RandomAI;
 import network.Connection;
 
 public class Main {	

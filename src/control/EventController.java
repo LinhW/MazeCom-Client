@@ -10,6 +10,7 @@ import gui.data.Position;
 
 import javax.swing.JOptionPane;
 
+import ai.Player;
 import jaxb.AcceptMessageType;
 import jaxb.AwaitMoveMessageType;
 import jaxb.DisconnectMessageType;

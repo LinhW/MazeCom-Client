@@ -1,4 +1,4 @@
-package control;
+package ai;
 
 import gui.data.Card;
 import gui.data.Position;

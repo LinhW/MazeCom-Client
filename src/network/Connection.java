@@ -17,8 +17,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import ai.Player;
 import jaxb.MazeCom;
-import control.Player;
 
 public class Connection {
 	private boolean isConnected;

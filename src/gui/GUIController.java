@@ -38,10 +38,10 @@ public class GUIController {
 		model.setKeyEventMap((Map<String, Integer>) Context.getInstance().getValue(Context.KEYEVENTS));
 		model.setRow(1);
 		model.setCol(0);
-		model.setPlayerID(((PersData) Context.getInstance().getValue(Context.USER)).getID());
 	}
 
 	public void start() {
+		model.setPlayerID(((PersData) Context.getInstance().getValue(Context.USER)).getID());
 		gui = new GUI(this, model);
 		gui.setVisible(true);
 	}
