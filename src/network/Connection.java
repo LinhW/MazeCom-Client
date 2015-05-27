@@ -7,16 +7,17 @@ import gui.testClasses.Tmp_testGUI;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import jaxb.MazeCom;
-import control.Controller;
 import control.EventController;
 
 public class Connection {
@@ -28,7 +29,6 @@ public class Connection {
 	private UTFInputStream inFromServer;
 	private ByteArrayInputStream byteInFromServer;
 	private ServerListener serverListener;
-//	private Controller controller;
 
 	private JAXBContext jaxbContext;
 	private Marshaller marshaller;
@@ -37,11 +37,9 @@ public class Connection {
 
 	private EventController ctrl_event;
 
-	public Connection(Controller controller) {
+	public Connection() {
 		super();
-//		this.controller = controller;
 		ctrl_event = new EventController(this);
-		ctrl_event.login();
 	}
 
 	private class ServerListener extends Thread {
@@ -53,28 +51,7 @@ public class Connection {
 
 		public void processMessage(MazeCom message) {
 			// TODO einfach auskommentieren wenn ich es vergessen habe
-			 Tmp_testGUI.receiveServerMessage(message);
-//
-//			String type = message.getMcType().name();
-//			Controller.NotificationType notification;
-//			if (type.equals("LOGIN")) {
-//				notification = NotificationType.NOTIFY_UNKNOWN;
-//			} else if (type.equals("LOGINREPLY")) {
-//				notification = NotificationType.NOTIFY_WAIT;
-//			} else if (type.equals("AWAITMOVE")) {
-//				notification = NotificationType.NOTIFY_YOUR_MOVE;
-//			} else if (type.equals("MOVE")) {
-//				notification = NotificationType.NOTIFY_MOVE;
-//			} else if (type.equals("ACCEPT")) {
-//				notification = NotificationType.NOTIFY_WAIT;
-//			} else if (type.equals("WIN")) {
-//				notification = NotificationType.NOTIFY_WIN;
-//			} else if (type.equals("DISCONNECT")) {
-//				notification = NotificationType.NOTIFY_DISCONNECT;
-//			} else {
-//				notification = NotificationType.NOTIFY_UNKNOWN;
-//			}
-//			controller.notifyWindow(notification);
+			Tmp_testGUI.receiveServerMessage(message);
 
 			switch (message.getMcType()) {
 			case ACCEPT:
@@ -127,6 +104,9 @@ public class Connection {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			return false;
+		} catch (ConnectException e) {
+			JOptionPane.showMessageDialog(null, "There is currently no server running.", "Server error!", JOptionPane.ERROR_MESSAGE);
+			return false;
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
@@ -147,9 +127,9 @@ public class Connection {
 		}
 	}
 
-	private boolean loginOnServer(String name) {
+	private boolean loginOnServer() {
 		messageFactory = new MazeComMessageFactory();
-		MazeCom message = messageFactory.createLoginMessage(name);
+		MazeCom message = messageFactory.createLoginMessage(ctrl_event.login());
 		try {
 			jaxbContext = JAXBContext.newInstance(MazeCom.class);
 			marshaller = jaxbContext.createMarshaller();
@@ -169,13 +149,13 @@ public class Connection {
 		return true;
 	}
 
-	public boolean establishConnection(String name, String host, int port) {
+	public boolean establishConnection(String host, int port) {
 		boolean success = true;
 		if (isConnected) {
 			success = false;
 		} else if (!createSocket(host, port)) {
 			success = false;
-		} else if (!loginOnServer(name)) {
+		} else if (!loginOnServer()) {
 			success = false;
 		} else {
 			isConnected = true;
