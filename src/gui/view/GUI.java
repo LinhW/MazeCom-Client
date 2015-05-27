@@ -141,8 +141,7 @@ public class GUI extends JFrame {
 			width = height = Math.min(width, height);
 			width = height -= width % 7;
 			pixelsPerField = width / 7;
-			System.out.println("pixel " + pixelsPerField);
-
+			
 			for (int y = 0; y < 7; y++) {
 				for (int x = 0; x < 7; x++) {
 					int topLeftY = pixelsPerField * y;
@@ -182,7 +181,6 @@ public class GUI extends JFrame {
 
 			int x = 0;
 			int y = 0;
-			System.out.println(model.getRow() + " " + model.getCol());
 			switch (model.getCol()) {
 			case 0:
 				x = 0;
@@ -205,7 +203,6 @@ public class GUI extends JFrame {
 				y = pixelsPerField * model.getRow() + pixelsPerField / 2 - 10;
 			}
 
-			System.out.println(x + " " + y);
 			g.drawImage(ImageRessources.getImage("Red_Arrow_Up"), x, y, 20, 20, null);
 			// Zeichnen der eingeschobenen karte in der animation
 			if (animationProperties != null) {
@@ -452,13 +449,11 @@ public class GUI extends JFrame {
 			@Override
 			public void windowLostFocus(WindowEvent e) {
 				hasFocus = false;
-				System.out.println("LostFocus");
 			}
 
 			@Override
 			public void windowGainedFocus(WindowEvent e) {
 				hasFocus = true;
-				System.out.println("hasFocus");
 			}
 		});
 

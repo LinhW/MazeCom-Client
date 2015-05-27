@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javax.swing.JOptionPane;
 
+import jaxb.AcceptMessageType;
 import control.EventController;
 
 public class GUIController {
@@ -58,7 +59,7 @@ public class GUIController {
 		System.out.println("too close");
 	}
 
-	public void displayMove(boolean accept) {
+	public void displayMove(AcceptMessageType message) {
 		// TODO Auto-generated method stub
 
 	}
