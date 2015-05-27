@@ -23,21 +23,24 @@ public class Ava implements Player {
 
 	@Override
 	public String login() {
+		Context.getInstance().setValue(Context.USER, new PersData("Ava"));
 		return "Ava";
 	}
 
 	@Override
 	public void receiveLoginReply(LoginReplyMessageType message) {
+		System.out.println("Ava receives a login reply");
 		((PersData) Context.getInstance().getValue(Context.USER)).setID(message.getNewID());
 	}
 
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
+		System.out.println("Ava receives a await move message");
 		Board b = new Board(message.getBoard());
 		int[][] weg = Pathfinding.findShortestPath(b, new Position(b.findPlayer(((PersData) Context.getInstance().getValue(Context.USER)).getID())),
 				new Position(b.findTreasure(b.getTreasure())));
 		for (int i = 0; i < weg.length; i++) {
-			for (int j = 0; j < weg[0].length; i++) {
+			for (int j = 0; j < weg[0].length; j++) {
 				System.out.println(weg[i][j]);
 			}
 			System.out.println();

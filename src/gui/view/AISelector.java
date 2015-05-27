@@ -23,6 +23,7 @@ public class AISelector extends JDialog implements ActionListener {
 
 	public AISelector() {
 		this.value = -1;
+		this.setModal(true);
 		initWindow();
 	}
 
@@ -59,6 +60,7 @@ public class AISelector extends JDialog implements ActionListener {
 		switch (e.getActionCommand()) {
 		case "accept":
 			value = ls_ais.getSelectedIndex();
+			this.dispose();
 			break;
 		}
 	}

@@ -27,8 +27,8 @@ public class Main {
 			default:
 				player = new RandomAI(connection);
 			}
-
 		} else {
+			System.out.println("start");
 			player = new EventController(connection);
 		}
 		connection.setPlayer(player);
