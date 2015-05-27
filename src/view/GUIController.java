@@ -8,16 +8,20 @@ import javax.swing.JOptionPane;
 
 import view.data.Context;
 import view.data.GUIModel;
+import view.data.PersData;
 import view.testClasses.Board;
 import view.testClasses.Card;
+import view.testClasses.Position;
 import view.testClasses.userInterface.GUI;
 
 public class GUIController {
 	private GUI gui;
 	private GUIModel model;
+	private EventController ctrl_event;
 
 	@SuppressWarnings("unchecked")
-	public GUIController() {
+	public GUIController(EventController ctrl_event) {
+		this.ctrl_event = ctrl_event;
 		model = new GUIModel();
 
 		Map<String, Integer> map = new HashMap<>();
@@ -39,9 +43,11 @@ public class GUIController {
 	}
 
 	public void update() {
+
 		Card c = new Card(((Board) Context.getInstance().getValue(Context.BOARD)).getShiftCard());
-		model.setCardOrientation(c.getOrientation().value());
-		model.setCardType(c.getShape().toString());
+		model.setCardOrientation(c.getOrientation());
+		model.setCardShape(c.getShape());
+		model.setCardTreasure(c.getTreasure());
 		gui.update();
 	}
 
@@ -64,7 +70,10 @@ public class GUIController {
 		// TODO
 	}
 
-	public void rotated(int orientation) {
-		model.setCardOrientation(orientation);
+	public void sendMove() {
+		Card c = new Card(model.getCardShape(), model.getCardOrientation(), model.getCardTreasure());
+		Position shift = new Position(model.getRow(), model.getCol());
+		Position pin = new Position(((Board) Context.getInstance().getValue(Context.BOARD)).findPlayer(((PersData) Context.getInstance().getValue(Context.USER)).getID()));
+		ctrl_event.sendMoveMessage(c, shift, pin);
 	}
 }

@@ -23,7 +23,7 @@ public class EventController {
 	private int count = 0;
 
 	public EventController() {
-		ctrl_gui = new GUIController();
+		ctrl_gui = new GUIController(this);
 		Debug.addDebugger(System.out, Settings.DEBUGLEVEL);
 		Debug.print(Messages.getInstance().getString("Game.Constructor"), DebugLevel.DEBUG); //$NON-NLS-1$
 	}
@@ -74,7 +74,7 @@ public class EventController {
 	}
 
 	public void sendMoveMessage(Card c, Position shift, Position pin) {
-
+		System.out.println("Jetzt muss gesendet werden");
 	}
 
 }

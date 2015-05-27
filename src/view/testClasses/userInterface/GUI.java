@@ -21,6 +21,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -701,9 +702,9 @@ public class GUI extends JFrame implements IView {
 		if (rotateLeft) {
 			rot += 180;
 		}
-		int orient = (model.getCardOrientation() + rot) % 360;
-		lb_shiftCard.setIcon(new ImageIcon(ImageRessources.getImage("" + model.getCardType() + orient)));
-		myController.rotated(orient);
+		int orient = (model.getOrientation() + rot) % 360;
+		lb_shiftCard.setIcon(new ImageIcon(ImageRessources.getImage("" + model.getCardShape() + orient)));
+		model.setCardOrientation(orient);
 	}
 
 	// public void setGame(Game g) {
@@ -717,6 +718,10 @@ public class GUI extends JFrame implements IView {
 		// }
 		// // MIStart.setEnabled(true);
 		// // MIStop.setEnabled(false);
+	}
+
+	public void sendMove() {
+		myController.sendMove();
 	}
 
 	/**
@@ -743,10 +748,12 @@ public class GUI extends JFrame implements IView {
 				}
 			} else {
 				if (hasFocus_dialog) {
-					if (!list_right.isSelectionEmpty()) {
-						System.out.println("pressed");
-						model.setKeyEvent(list_left.getSelectedValue(), e.getKeyCode());
-						updateDialog();
+					if (!list_right.isSelectionEmpty() && e.getKeyCode() != KeyEvent.VK_ENTER) {
+						Collection<Integer> push = model.getKeyEvents();
+						if (!push.contains(e.getKeyCode())) {
+							model.setKeyEvent(list_left.getSelectedValue(), e.getKeyCode());
+							updateDialog();
+						}
 					}
 				}
 			}
@@ -779,12 +786,17 @@ public class GUI extends JFrame implements IView {
 		 */
 		private void key_pressed(KeyEvent e) {
 			int action = e.getKeyCode();
+			switch (action) {
+			case KeyEvent.VK_ENTER:
+				System.out.println("pressed Enter");
+				sendMove();
+				return;
+			}
 			if (action == model.getKeyEvent(Context.ROTATE_LEFT)) {
 				rotate(true);
 			} else if (action == model.getKeyEvent(Context.ROTATE_RIGHT)) {
 				rotate(false);
 			} else if (action == model.getKeyEvent(Context.UP)) {
-				System.out.println("up " + model.getRow() + " " + model.getCol());
 				if (model.getRow() == 6) {
 					return;
 				}
@@ -803,10 +815,8 @@ public class GUI extends JFrame implements IView {
 						model.setRow(model.getRow() - 2);
 					}
 				}
-				System.out.println(model.getRow() + " " + model.getCol());
 				uiboard.repaint();
 			} else if (action == model.getKeyEvent(Context.DOWN)) {
-				System.out.println("down " + model.getRow() + " " + model.getCol());
 				if (model.getRow() == 0) {
 					return;
 				}
@@ -825,10 +835,8 @@ public class GUI extends JFrame implements IView {
 						model.setRow(model.getRow() + 2);
 					}
 				}
-				System.out.println(model.getRow() + " " + model.getCol());
 				uiboard.repaint();
 			} else if (action == model.getKeyEvent(Context.LEFT)) {
-				System.out.println("left " + model.getRow() + " " + model.getCol());
 				if (model.getCol() == 6) {
 					return;
 				}
@@ -847,10 +855,8 @@ public class GUI extends JFrame implements IView {
 						model.setCol(model.getCol() - 2);
 					}
 				}
-				System.out.println(model.getRow() + " " + model.getCol());
 				uiboard.repaint();
 			} else if (action == model.getKeyEvent(Context.RIGHT)) {
-				System.out.println("right " + model.getRow() + " " + model.getCol());
 				if (model.getCol() == 0) {
 					return;
 				}
@@ -869,7 +875,6 @@ public class GUI extends JFrame implements IView {
 						model.setCol(model.getCol() + 2);
 					}
 				}
-				System.out.println(model.getRow() + " " + model.getCol());
 				uiboard.repaint();
 			}
 		}
