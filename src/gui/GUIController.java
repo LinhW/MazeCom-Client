@@ -15,6 +15,7 @@ import java.util.Map;
 import javax.swing.JOptionPane;
 
 import jaxb.AcceptMessageType;
+import config.Settings;
 import control.EventController;
 
 public class GUIController {
@@ -46,11 +47,13 @@ public class GUIController {
 	}
 
 	public void update() {
-
-		Card c = new Card(((Board) Context.getInstance().getValue(Context.BOARD)).getShiftCard());
+		model.setBoard((Board) Context.getInstance().getValue(Context.BOARD));
+		Card c = new Card(model.getBoard().getShiftCard());
+		model.setShiftCard(c);
 		model.setCardOrientation(c.getOrientation());
 		model.setCardShape(c.getShape());
 		model.setCardTreasure(c.getTreasure());
+		model.setPinPos(new Position(model.getBoard().findPlayer(((PersData)Context.getInstance().getValue(Context.USER)).getID())));
 		gui.update();
 	}
 
@@ -59,8 +62,13 @@ public class GUIController {
 		System.out.println("too close");
 	}
 
-	public void displayMove(AcceptMessageType message) {
+	public void displayMove(boolean accept) {
 		// TODO Auto-generated method stub
+		if (accept) {
+			gui.displayMove(Settings.MOVEDELAY, Settings.SHIFTDELAY);
+		} else {
+			JOptionPane.showMessageDialog(null, "Zug ist ungueltig");
+		}
 
 	}
 

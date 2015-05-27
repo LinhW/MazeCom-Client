@@ -12,12 +12,15 @@ import jaxb.TreasureType;
 
 public class GUIModel {
 
+	private Board board;
+	private Card shiftCard;
 	private Orientation cardOrientation;
 	private CardShape cardShape;
 	private TreasureType cardTreasure;
 	private Map<String, Integer> map;
 	private int row;
 	private int col;
+	private Position pinPos;
 
 	public int getRow() {
 		return row;
@@ -105,6 +108,30 @@ public class GUIModel {
 
 	public Set<String> getKeys() {
 		return map.keySet();
+	}
+
+	public Board getBoard() {
+		return board;
+	}
+
+	public void setBoard(Board board) {
+		this.board = board;
+	}
+
+	public Card getShiftCard() {
+		return shiftCard;
+	}
+
+	public void setShiftCard(Card shiftCard) {
+		this.shiftCard = shiftCard;
+	}
+
+	public Position getPinPos() {
+		return pinPos;
+	}
+
+	public void setPinPos(Position pinPos) {
+		this.pinPos = pinPos;
 	}
 
 }
