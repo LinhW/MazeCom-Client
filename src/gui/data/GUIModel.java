@@ -21,6 +21,7 @@ public class GUIModel {
 	private int row;
 	private int col;
 	private Position pinPos;
+	private int id;
 
 	public int getRow() {
 		return row;
@@ -132,6 +133,14 @@ public class GUIModel {
 
 	public void setPinPos(Position pinPos) {
 		this.pinPos = pinPos;
+	}
+	
+	public void setPlayerID(int id){
+		this.id = id;
+	}
+	
+	public int getPlayerID(){
+		return id;
 	}
 
 }

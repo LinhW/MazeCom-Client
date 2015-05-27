@@ -25,6 +25,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
@@ -56,7 +57,6 @@ import javax.swing.event.ListSelectionListener;
 
 import jaxb.BoardType.Row;
 import jaxb.CardType;
-import jaxb.MoveMessageType;
 import jaxb.TreasuresToGoType;
 import config.Settings;
 
@@ -239,6 +239,7 @@ public class GUI extends JFrame {
 
 	private void createView() {
 		createMenu();
+		shiftCard = new GraphicalCardBuffered();
 		getContentPane().setLayout(new BorderLayout());
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		JPanel splitPanel_right = new JPanel();
@@ -463,6 +464,39 @@ public class GUI extends JFrame {
 				myController.onClose();
 			}
 		});
+		
+		this.addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				System.out.println("pressed");
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// TODO Auto-generated method stub
+				System.out.println("Clicked");
+			}
+		});
 
 	}
 
@@ -617,6 +651,7 @@ public class GUI extends JFrame {
 		// Die Dauer von shiftDelay bezieht sich auf den kompletten Shift und
 		// nicht auf einen einzelnen Frame
 		shiftDelay /= animationFrames;
+		System.out.println(model.getShiftCard());
 		shiftCard.setCard(model.getShiftCard());
 		if (animateShift) {
 			uiboard.board.setShiftCard(model.getShiftCard());
@@ -631,7 +666,7 @@ public class GUI extends JFrame {
 				}
 			}
 		}
-		Position oldPlayerPos = new Position(uiboard.board.findPlayer(1));
+		Position oldPlayerPos = new Position(uiboard.board.findPlayer(model.getPlayerID()));
 		uiboard.setBoard(model.getBoard());
 		// XXX: Von Matthias (alte Karten waren vorher noch sichtbar)
 		uiboard.repaint();

@@ -17,14 +17,16 @@ import jaxb.LoginReplyMessageType;
 import jaxb.MoveMessageType;
 import jaxb.WinMessageType;
 import network.Connection;
+import network.MazeComMessageFactory;
 import tools.Debug;
 import tools.DebugLevel;
 import config.Settings;
 
-public class EventController {
+public class EventController implements Player {
 	private GUIController ctrl_gui;
 	private Connection connection;
 	private int count = 0;
+	private MoveMessageType move;
 
 	public EventController(Connection connection) {
 		this.connection = connection;
@@ -70,7 +72,7 @@ public class EventController {
 	}
 
 	public void receiveAcceptMessage(AcceptMessageType message) {
-			ctrl_gui.displayMove(message.isAccept());
+		ctrl_gui.displayMove(message.isAccept(), move);
 	}
 
 	public void receiveMoveMessage(MoveMessageType moveMessage) {
@@ -78,8 +80,9 @@ public class EventController {
 		System.out.println("MOVE");
 	}
 
-	public void sendMoveMessage(Card c, Position shift, Position pin) {
-		connection.sendMoveMessage(((PersData) Context.getInstance().getValue(Context.USER)).getID(), c, shift, pin);
+	public void sendMoveMessage(int PlayerID, Card c, Position shift, Position pin) {
+		connection.sendMoveMessage(PlayerID, c, shift, pin);
+		move = new MazeComMessageFactory().createMoveMessage(PlayerID, c, shift, pin).getMoveMessage();
 	}
 
 }

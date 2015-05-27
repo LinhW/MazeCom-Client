@@ -14,8 +14,7 @@ import java.util.Map;
 
 import javax.swing.JOptionPane;
 
-import jaxb.AcceptMessageType;
-import config.Settings;
+import jaxb.MoveMessageType;
 import control.EventController;
 
 public class GUIController {
@@ -39,6 +38,7 @@ public class GUIController {
 		model.setKeyEventMap((Map<String, Integer>) Context.getInstance().getValue(Context.KEYEVENTS));
 		model.setRow(1);
 		model.setCol(0);
+		model.setPlayerID(((PersData) Context.getInstance().getValue(Context.USER)).getID());
 	}
 
 	public void start() {
@@ -50,10 +50,11 @@ public class GUIController {
 		model.setBoard((Board) Context.getInstance().getValue(Context.BOARD));
 		Card c = new Card(model.getBoard().getShiftCard());
 		model.setShiftCard(c);
+		System.out.println("shiftcard gesendet");
 		model.setCardOrientation(c.getOrientation());
 		model.setCardShape(c.getShape());
 		model.setCardTreasure(c.getTreasure());
-		model.setPinPos(new Position(model.getBoard().findPlayer(((PersData)Context.getInstance().getValue(Context.USER)).getID())));
+		model.setPinPos(new Position(model.getBoard().findPlayer(((PersData) Context.getInstance().getValue(Context.USER)).getID())));
 		gui.update();
 	}
 
@@ -62,10 +63,12 @@ public class GUIController {
 		System.out.println("too close");
 	}
 
-	public void displayMove(boolean accept) {
+	public void displayMove(boolean accept, MoveMessageType move) {
 		// TODO Auto-generated method stub
 		if (accept) {
-			gui.displayMove(Settings.MOVEDELAY, Settings.SHIFTDELAY);
+			
+			model.getBoard().validateTransition(move, model.getPlayerID());
+//			gui.displayMove(Settings.MOVEDELAY, Settings.SHIFTDELAY);
 		} else {
 			JOptionPane.showMessageDialog(null, "Zug ist ungueltig");
 		}
@@ -85,6 +88,6 @@ public class GUIController {
 		Card c = new Card(model.getCardShape(), model.getCardOrientation(), model.getCardTreasure());
 		Position shift = new Position(model.getRow(), model.getCol());
 		Position pin = new Position(((Board) Context.getInstance().getValue(Context.BOARD)).findPlayer(((PersData) Context.getInstance().getValue(Context.USER)).getID()));
-		ctrl_event.sendMoveMessage(c, shift, pin);
+		ctrl_event.sendMoveMessage(model.getPlayerID(), c, shift, pin);
 	}
 }

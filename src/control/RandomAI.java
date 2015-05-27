@@ -59,7 +59,7 @@ public class RandomAI implements Player {
 	}
 
 	@Override
-	public void sendMoveMessage(Card c, Position shift, Position pin) {
+	public void sendMoveMessage(int PlayerID, Card c, Position shift, Position pin) {
 		// TODO Auto-generated method stub
 		
 	}
