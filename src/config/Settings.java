@@ -36,4 +36,6 @@ public class Settings {
 	 * Den Detailgrad der Ausgaben festlegen
 	 */
 	public final static DebugLevel DEBUGLEVEL = DebugLevel.DEFAULT;
+	
+	public final static String[] AIList = {"Random AI"};
 }

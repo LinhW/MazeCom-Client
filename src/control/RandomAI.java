@@ -11,10 +11,17 @@ import jaxb.DisconnectMessageType;
 import jaxb.LoginReplyMessageType;
 import jaxb.MoveMessageType;
 import jaxb.WinMessageType;
+import network.Connection;
 
 public class RandomAI implements Player {
 	private String name;
 	private int player_id;
+	private Connection connection;
+	
+	public RandomAI(Connection connection) {
+		this.connection = connection;
+	}
+	
 	@Override
 	public String login() {
 		String name = JOptionPane.showInputDialog("Nickname");
