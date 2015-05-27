@@ -16,15 +16,18 @@ import jaxb.DisconnectMessageType;
 import jaxb.LoginReplyMessageType;
 import jaxb.MoveMessageType;
 import jaxb.WinMessageType;
+import network.Connection;
 import tools.Debug;
 import tools.DebugLevel;
 import config.Settings;
 
 public class EventController {
 	private GUIController ctrl_gui;
+	private Connection connection;
 	private int count = 0;
 
-	public EventController() {
+	public EventController(Connection connection) {
+		this.connection = connection;
 		ctrl_gui = new GUIController(this);
 		Debug.addDebugger(System.out, Settings.DEBUGLEVEL);
 		Debug.print(Messages.getInstance().getString("Game.Constructor"), DebugLevel.DEBUG); //$NON-NLS-1$
@@ -76,7 +79,7 @@ public class EventController {
 	}
 
 	public void sendMoveMessage(Card c, Position shift, Position pin) {
-		System.out.println("Jetzt muss gesendet werden");
+		connection.sendMoveMessage(((PersData) Context.getInstance().getValue(Context.USER)).getID(), c, shift, pin);
 	}
 
 }

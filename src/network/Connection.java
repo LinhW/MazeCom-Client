@@ -1,5 +1,7 @@
 package network;
 
+import gui.data.Card;
+import gui.data.Position;
 import gui.testClasses.Tmp_testGUI;
 
 import java.io.ByteArrayInputStream;
@@ -16,7 +18,6 @@ import javax.xml.bind.Unmarshaller;
 import jaxb.MazeCom;
 import control.Controller;
 import control.EventController;
-import control.Controller.NotificationType;
 
 public class Connection {
 	private boolean isConnected;
@@ -27,7 +28,7 @@ public class Connection {
 	private UTFInputStream inFromServer;
 	private ByteArrayInputStream byteInFromServer;
 	private ServerListener serverListener;
-	private Controller controller;
+//	private Controller controller;
 
 	private JAXBContext jaxbContext;
 	private Marshaller marshaller;
@@ -38,8 +39,8 @@ public class Connection {
 
 	public Connection(Controller controller) {
 		super();
-		this.controller = controller;
-		ctrl_event = new EventController();
+//		this.controller = controller;
+		ctrl_event = new EventController(this);
 		ctrl_event.login();
 	}
 
@@ -53,27 +54,27 @@ public class Connection {
 		public void processMessage(MazeCom message) {
 			// TODO einfach auskommentieren wenn ich es vergessen habe
 			 Tmp_testGUI.receiveServerMessage(message);
-
-			String type = message.getMcType().name();
-			Controller.NotificationType notification;
-			if (type.equals("LOGIN")) {
-				notification = NotificationType.NOTIFY_UNKNOWN;
-			} else if (type.equals("LOGINREPLY")) {
-				notification = NotificationType.NOTIFY_WAIT;
-			} else if (type.equals("AWAITMOVE")) {
-				notification = NotificationType.NOTIFY_YOUR_MOVE;
-			} else if (type.equals("MOVE")) {
-				notification = NotificationType.NOTIFY_MOVE;
-			} else if (type.equals("ACCEPT")) {
-				notification = NotificationType.NOTIFY_WAIT;
-			} else if (type.equals("WIN")) {
-				notification = NotificationType.NOTIFY_WIN;
-			} else if (type.equals("DISCONNECT")) {
-				notification = NotificationType.NOTIFY_DISCONNECT;
-			} else {
-				notification = NotificationType.NOTIFY_UNKNOWN;
-			}
-			controller.notifyWindow(notification);
+//
+//			String type = message.getMcType().name();
+//			Controller.NotificationType notification;
+//			if (type.equals("LOGIN")) {
+//				notification = NotificationType.NOTIFY_UNKNOWN;
+//			} else if (type.equals("LOGINREPLY")) {
+//				notification = NotificationType.NOTIFY_WAIT;
+//			} else if (type.equals("AWAITMOVE")) {
+//				notification = NotificationType.NOTIFY_YOUR_MOVE;
+//			} else if (type.equals("MOVE")) {
+//				notification = NotificationType.NOTIFY_MOVE;
+//			} else if (type.equals("ACCEPT")) {
+//				notification = NotificationType.NOTIFY_WAIT;
+//			} else if (type.equals("WIN")) {
+//				notification = NotificationType.NOTIFY_WIN;
+//			} else if (type.equals("DISCONNECT")) {
+//				notification = NotificationType.NOTIFY_DISCONNECT;
+//			} else {
+//				notification = NotificationType.NOTIFY_UNKNOWN;
+//			}
+//			controller.notifyWindow(notification);
 
 			switch (message.getMcType()) {
 			case ACCEPT:
@@ -131,6 +132,19 @@ public class Connection {
 			return false;
 		}
 		return true;
+	}
+	
+	public void sendMoveMessage(int PlayerID, Card c, Position shift, Position pin) {
+		MazeCom message = messageFactory.createMoveMessage(PlayerID, c, shift, pin);
+		try {
+			byteOutToServer.reset();
+			marshaller.marshal(message, byteOutToServer);
+			outToServer.writeUTF8(new String(byteOutToServer.toByteArray()));
+		} catch (JAXBException e1) {
+			e1.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private boolean loginOnServer(String name) {
