@@ -141,7 +141,7 @@ public class GUI extends JFrame {
 			width = height = Math.min(width, height);
 			width = height -= width % 7;
 			pixelsPerField = width / 7;
-			
+
 			for (int y = 0; y < 7; y++) {
 				for (int x = 0; x < 7; x++) {
 					int topLeftY = pixelsPerField * y;
@@ -613,15 +613,15 @@ public class GUI extends JFrame {
 		}
 	}
 
-	public void displayMove(MoveMessageType mm, Board b, long moveDelay, long shiftDelay) {
+	public void displayMove(long moveDelay, long shiftDelay) {
 		// Die Dauer von shiftDelay bezieht sich auf den kompletten Shift und
 		// nicht auf einen einzelnen Frame
 		shiftDelay /= animationFrames;
-		shiftCard.setCard(new Card(mm.getShiftCard()));
+		shiftCard.setCard(model.getShiftCard());
 		if (animateShift) {
-			uiboard.board.setShiftCard(mm.getShiftCard());
+			uiboard.board.setShiftCard(model.getShiftCard());
 			animationTimer = new Timer((int) shiftDelay, new ShiftAnimationTimerOperation());
-			animationProperties = new AnimationProperties(new Position(mm.getShiftPosition()));
+			animationProperties = new AnimationProperties(new Position(model.getRow(), model.getCol()));
 			synchronized (animationFinished) {
 				animationTimer.start();
 				try {
@@ -632,12 +632,12 @@ public class GUI extends JFrame {
 			}
 		}
 		Position oldPlayerPos = new Position(uiboard.board.findPlayer(1));
-		uiboard.setBoard(b);
+		uiboard.setBoard(model.getBoard());
 		// XXX: Von Matthias (alte Karten waren vorher noch sichtbar)
 		uiboard.repaint();
 		if (animateMove) {
 			// Falls unser Spieler sich selbst verschoben hat.
-			AnimationProperties props = new AnimationProperties(new Position(mm.getShiftPosition()));
+			AnimationProperties props = new AnimationProperties(new Position(model.getRow(), model.getCol()));
 			if (props.vertikal) {
 				if (oldPlayerPos.getCol() == props.shiftPosition.getCol()) {
 					oldPlayerPos.setRow((7 + oldPlayerPos.getRow() + props.direction) % 7);
@@ -647,7 +647,7 @@ public class GUI extends JFrame {
 					oldPlayerPos.setCol((7 + oldPlayerPos.getCol() + props.direction) % 7);
 				}
 			}
-			animationTimer = new Timer((int) moveDelay, new MoveAnimationTimerOperation(uiboard.board, oldPlayerPos, new Position(mm.getNewPinPos())));
+			animationTimer = new Timer((int) moveDelay, new MoveAnimationTimerOperation(uiboard.board, oldPlayerPos, new Position(model.getPinPos())));
 			synchronized (animationFinished) {
 				animationTimer.start();
 				try {

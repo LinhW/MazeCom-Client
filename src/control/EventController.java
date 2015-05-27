@@ -70,7 +70,7 @@ public class EventController {
 	}
 
 	public void receiveAcceptMessage(AcceptMessageType message) {
-		ctrl_gui.displayMove(message);
+			ctrl_gui.displayMove(message.isAccept());
 	}
 
 	public void receiveMoveMessage(MoveMessageType moveMessage) {
