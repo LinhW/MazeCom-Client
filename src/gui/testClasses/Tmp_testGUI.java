@@ -1,5 +1,8 @@
-package view.testClasses;
+package gui.testClasses;
 
+import gui.data.Board;
+import gui.data.Card;
+import gui.data.Context;
 import jaxb.AcceptMessageType;
 import jaxb.AwaitMoveMessageType;
 import jaxb.DisconnectMessageType;
@@ -10,7 +13,6 @@ import jaxb.MoveMessageType;
 import jaxb.TreasureType;
 import jaxb.TreasuresToGoType;
 import jaxb.WinMessageType;
-import view.data.Context;
 
 public class Tmp_testGUI {
 
@@ -29,7 +31,7 @@ public class Tmp_testGUI {
 			System.out.println(t + " " + n);
 			Card c = new Card(await.getBoard().getShiftCard());
 			System.out.println(await + " " + await.getBoard().getShiftCard());
-			System.out.println(c.getShape() + " " + c.getOrientation().value + " " + c.value());
+//			System.out.println(c.getShape() + " " + c.getOrientation().value + " " + c.value());
 			Context.getInstance().setValue(Context.BOARD, new Board(await.getBoard()));
 			for (TreasuresToGoType tt : await.getTreasuresToGo()) {
 				System.out.println(tt.getPlayer() + " " + tt.getTreasures());

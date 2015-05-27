@@ -1,4 +1,7 @@
-package view.testClasses;
+package gui.data;
+
+import gui.data.Card.CardShape;
+import gui.data.Card.Orientation;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,8 +17,6 @@ import jaxb.PositionType;
 import jaxb.TreasureType;
 import tools.Debug;
 import tools.DebugLevel;
-import view.testClasses.Card.CardShape;
-import view.testClasses.Card.Orientation;
 import config.Settings;
 
 public class Board extends BoardType {

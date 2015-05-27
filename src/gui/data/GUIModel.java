@@ -1,4 +1,7 @@
-package view.data;
+package gui.data;
+
+import gui.data.Card.CardShape;
+import gui.data.Card.Orientation;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -6,8 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import jaxb.TreasureType;
-import view.testClasses.Card.CardShape;
-import view.testClasses.Card.Orientation;
 
 public class GUIModel {
 

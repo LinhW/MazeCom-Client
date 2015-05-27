@@ -1,4 +1,9 @@
-package view.testClasses.userInterface;
+package gui.view;
+
+import gui.data.Card;
+import gui.data.Messages;
+import gui.data.Card.CardShape;
+import gui.data.Card.Orientation;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -28,10 +33,6 @@ import javax.swing.Timer;
 import jaxb.TreasureType;
 import tools.Debug;
 import tools.DebugLevel;
-import view.testClasses.Card;
-import view.testClasses.Card.CardShape;
-import view.testClasses.Card.Orientation;
-import view.testClasses.Messages;
 import config.Settings;
 
 public class GraphicalCardBuffered extends JPanel implements ComponentListener {

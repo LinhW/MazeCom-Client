@@ -1,4 +1,4 @@
-package view.data;
+package gui.data;
 
 import jaxb.TreasureType;
 

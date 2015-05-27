@@ -1,4 +1,4 @@
-package view.testClasses;
+package gui.data;
 
 import java.util.ArrayList;
 import java.util.List;

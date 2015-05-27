@@ -1,4 +1,13 @@
-package view.testClasses.userInterface;
+package gui.view;
+
+import gui.GUIController;
+import gui.data.Board;
+import gui.data.Card;
+import gui.data.Context;
+import gui.data.GUIModel;
+import gui.data.Messages;
+import gui.data.PersData;
+import gui.data.Position;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -49,19 +58,10 @@ import jaxb.BoardType.Row;
 import jaxb.CardType;
 import jaxb.MoveMessageType;
 import jaxb.TreasuresToGoType;
-import view.GUIController;
-import view.data.Context;
-import view.data.GUIModel;
-import view.data.PersData;
-import view.interfaces.IView;
-import view.testClasses.Board;
-import view.testClasses.Card;
-import view.testClasses.Messages;
-import view.testClasses.Position;
 import config.Settings;
 
 @SuppressWarnings("serial")
-public class GUI extends JFrame implements IView {
+public class GUI extends JFrame {
 
 	UIBoard uiboard = new UIBoard();
 	private static final boolean animateMove = true;

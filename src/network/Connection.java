@@ -1,5 +1,7 @@
 package network;
 
+import gui.testClasses.Tmp_testGUI;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,9 +14,8 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import jaxb.MazeCom;
-import view.EventController;
-import view.testClasses.Tmp_testGUI;
 import control.Controller;
+import control.EventController;
 import control.Controller.NotificationType;
 
 public class Connection {

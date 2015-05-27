@@ -1,4 +1,8 @@
-package view.testClasses.userInterface;
+package gui.view;
+
+import gui.data.Board;
+import gui.data.Card;
+import gui.data.Position;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -10,10 +14,6 @@ import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
-
-import view.testClasses.Board;
-import view.testClasses.Card;
-import view.testClasses.Position;
 
 public class GraphicalBoard extends JPanel {
 

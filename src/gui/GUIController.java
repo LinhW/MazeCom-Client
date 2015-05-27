@@ -1,4 +1,12 @@
-package view;
+package gui;
+
+import gui.data.Board;
+import gui.data.Card;
+import gui.data.Context;
+import gui.data.GUIModel;
+import gui.data.PersData;
+import gui.data.Position;
+import gui.view.GUI;
 
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
@@ -6,13 +14,7 @@ import java.util.Map;
 
 import javax.swing.JOptionPane;
 
-import view.data.Context;
-import view.data.GUIModel;
-import view.data.PersData;
-import view.testClasses.Board;
-import view.testClasses.Card;
-import view.testClasses.Position;
-import view.testClasses.userInterface.GUI;
+import control.EventController;
 
 public class GUIController {
 	private GUI gui;

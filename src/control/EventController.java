@@ -1,4 +1,12 @@
-package view;
+package control;
+
+import gui.GUIController;
+import gui.data.Board;
+import gui.data.Card;
+import gui.data.Context;
+import gui.data.Messages;
+import gui.data.PersData;
+import gui.data.Position;
 
 import javax.swing.JOptionPane;
 
@@ -10,12 +18,6 @@ import jaxb.MoveMessageType;
 import jaxb.WinMessageType;
 import tools.Debug;
 import tools.DebugLevel;
-import view.data.Context;
-import view.data.PersData;
-import view.testClasses.Board;
-import view.testClasses.Card;
-import view.testClasses.Messages;
-import view.testClasses.Position;
 import config.Settings;
 
 public class EventController {
