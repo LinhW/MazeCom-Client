@@ -2,10 +2,10 @@ package ai.ava;
 
 import gui.data.Board;
 import gui.data.Card;
-import gui.data.PersData;
 import gui.data.Position;
 import jaxb.AcceptMessageType;
 import jaxb.AwaitMoveMessageType;
+import jaxb.CardType;
 import jaxb.DisconnectMessageType;
 import jaxb.LoginReplyMessageType;
 import jaxb.MoveMessageType;
@@ -68,7 +68,7 @@ public class Ava implements Player {
 	}
 
 	@Override
-	public void sendMoveMessage(int PlayerID, Card c, Position shift, Position pin) {
+	public void sendMoveMessage(int PlayerID, CardType c, Position shift, Position pin) {
 		// TODO Auto-generated method stub
 
 	}

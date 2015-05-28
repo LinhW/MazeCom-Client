@@ -2,7 +2,6 @@ package control;
 
 import gui.GUIController;
 import gui.data.Board;
-import gui.data.Card;
 import gui.data.Context;
 import gui.data.Messages;
 import gui.data.PersData;
@@ -10,9 +9,9 @@ import gui.data.Position;
 
 import javax.swing.JOptionPane;
 
-import ai.Player;
 import jaxb.AcceptMessageType;
 import jaxb.AwaitMoveMessageType;
+import jaxb.CardType;
 import jaxb.DisconnectMessageType;
 import jaxb.LoginReplyMessageType;
 import jaxb.MoveMessageType;
@@ -21,6 +20,7 @@ import network.Connection;
 import network.MazeComMessageFactory;
 import tools.Debug;
 import tools.DebugLevel;
+import ai.Player;
 import config.Settings;
 
 public class EventController implements Player {
@@ -81,7 +81,7 @@ public class EventController implements Player {
 		System.out.println("MOVE");
 	}
 
-	public void sendMoveMessage(int PlayerID, Card c, Position shift, Position pin) {
+	public void sendMoveMessage(int PlayerID, CardType c, Position shift, Position pin) {
 		connection.sendMoveMessage(PlayerID, c, shift, pin);
 		move = new MazeComMessageFactory().createMoveMessage(PlayerID, c, shift, pin).getMoveMessage();
 	}

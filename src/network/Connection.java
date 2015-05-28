@@ -1,6 +1,5 @@
 package network;
 
-import gui.data.Card;
 import gui.data.Position;
 import gui.testClasses.Tmp_testGUI;
 
@@ -17,8 +16,10 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import ai.Player;
+import jaxb.CardType;
 import jaxb.MazeCom;
+import ai.Player;
+import jaxb.CardType;
 
 public class Connection {
 	private boolean isConnected;
@@ -124,7 +125,7 @@ public class Connection {
 		return true;
 	}
 	
-	public void sendMoveMessage(int PlayerID, Card c, Position shift, Position pin) {
+	public void sendMoveMessage(int PlayerID, CardType c, Position shift, Position pin) {
 		if (!hasPlayer) {
 			return;
 		}
