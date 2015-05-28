@@ -63,7 +63,7 @@ public class MazeComMessageFactory {
 		mc.setMcType(MazeComType.DISCONNECT);
 		mc.setId(playerID);
 		mc.setDisconnectMessage(of.createDisconnectMessageType());
-		mc.getDisconnectMessage().setErroCode(et);
+		mc.getDisconnectMessage().setErrorCode(et);
 		mc.getDisconnectMessage().setName(name);
 		return mc;
 	}

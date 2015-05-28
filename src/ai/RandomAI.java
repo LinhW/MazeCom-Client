@@ -1,5 +1,6 @@
 package ai;
 
+import gui.data.Board;
 import gui.data.Position;
 
 import java.util.Random;
@@ -8,20 +9,18 @@ import javax.swing.JOptionPane;
 
 import jaxb.AcceptMessageType;
 import jaxb.AwaitMoveMessageType;
-import jaxb.BoardType;
 import jaxb.CardType;
 import jaxb.DisconnectMessageType;
 import jaxb.LoginReplyMessageType;
 import jaxb.MoveMessageType;
 import jaxb.WinMessageType;
-import jaxb.ErrorType;
 import network.Connection;
 
 public class RandomAI implements Player {
 	private String name;
 	private int player_id;
 	private Connection connection;
-	private BoardType board;
+	private Board board;
 	private Random random;
 
 	public RandomAI(Connection connection) {
@@ -36,8 +35,8 @@ public class RandomAI implements Player {
 		return name;
 	}
 
-	private void calculateMove(BoardType b) {
-		CardType shift = b.getShiftCard();
+	private void calculateMove(Board b) {
+		CardType shift = Util.getShiftCard(b);
 		Position shiftPos = new Position();
 		Position pinPos = new Position();
 		int c = b.getForbidden().getCol();
@@ -75,7 +74,7 @@ public class RandomAI implements Player {
 
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
-		calculateMove(message.getBoard());
+		calculateMove(new Board(message.getBoard()));
 	}
 
 	@Override
