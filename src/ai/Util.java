@@ -134,6 +134,14 @@ public class Util {
 		return (row == 1 || row == 3 || row == 5) && (col == 1 || col == 3 || col == 3);
 	}
 
+	/**
+	 * returns true or false whether the player has found his treasure or not
+	 * 
+	 * @param b
+	 * @param treasure
+	 * @param PlayerId
+	 * @return
+	 */
 	public static boolean foundMyTreasure(Board b, TreasureType treasure, int PlayerId) {
 		return equals(b.findTreasure(treasure), b.findPlayer(PlayerId));
 	}
