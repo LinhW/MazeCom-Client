@@ -23,19 +23,19 @@ public class RandomAI implements Player {
 	private Connection connection;
 	private BoardType board;
 	private Random random;
-	
+
 	public RandomAI(Connection connection) {
 		this.connection = connection;
 		random = new Random();
 	}
-	
+
 	@Override
 	public String login() {
 		String name = JOptionPane.showInputDialog("Nickname");
 		this.name = name;
 		return name;
 	}
-	
+
 	private void calculateMove(BoardType b) {
 		CardType shift = b.getShiftCard();
 		Position shiftPos = new Position();

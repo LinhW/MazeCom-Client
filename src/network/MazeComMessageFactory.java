@@ -77,3 +77,4 @@ public class MazeComMessageFactory {
 		return mc;
 	}
 }
+

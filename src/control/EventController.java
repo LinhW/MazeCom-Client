@@ -8,7 +8,6 @@ import gui.data.PersData;
 import gui.data.Position;
 
 import javax.swing.JOptionPane;
-
 import jaxb.AcceptMessageType;
 import jaxb.AwaitMoveMessageType;
 import jaxb.CardType;

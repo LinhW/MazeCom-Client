@@ -19,7 +19,6 @@ import javax.xml.bind.Unmarshaller;
 import jaxb.CardType;
 import jaxb.MazeCom;
 import ai.Player;
-import jaxb.CardType;
 
 public class Connection {
 	private boolean isConnected;
@@ -37,14 +36,14 @@ public class Connection {
 	private MazeComMessageFactory messageFactory;
 
 	private Player ctrl_event;
-	
+
 	private boolean hasPlayer;
 
 	public Connection() {
 		super();
 		hasPlayer = false;
 	}
-	
+
 	public void setPlayer(Player p) {
 		hasPlayer = true;
 		this.ctrl_event = p;
@@ -124,7 +123,7 @@ public class Connection {
 		}
 		return true;
 	}
-	
+
 	public void sendMoveMessage(int PlayerID, CardType c, Position shift, Position pin) {
 		if (!hasPlayer) {
 			return;

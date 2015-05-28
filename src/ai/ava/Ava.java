@@ -1,7 +1,6 @@
 package ai.ava;
 
 import gui.data.Board;
-import gui.data.Card;
 import gui.data.Position;
 import jaxb.AcceptMessageType;
 import jaxb.AwaitMoveMessageType;
