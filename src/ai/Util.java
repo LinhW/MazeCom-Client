@@ -9,6 +9,7 @@ import gui.data.Position;
 import java.util.List;
 
 import jaxb.AwaitMoveMessageType;
+import jaxb.PositionType;
 import jaxb.TreasureType;
 import jaxb.TreasuresToGoType;
 
@@ -119,6 +120,30 @@ public class Util {
 	 */
 	public static boolean iaAlreadyFound(AwaitMoveMessageType message, TreasureType treasure) {
 		return message.getFoundTreasures().contains(treasure);
+	}
+
+	/**
+	 * Returns true or false whether it is allowed to shift the card at the
+	 * given position
+	 * 
+	 * @param row
+	 * @param col
+	 * @return
+	 */
+	public static boolean isGlued(int row, int col) {
+		return (row == 1 || row == 3 || row == 5) && (col == 1 || col == 3 || col == 3);
+	}
+
+	public static boolean foundMyTreasure(Board b, TreasureType treasure, int PlayerId) {
+		return equals(b.findTreasure(treasure), b.findPlayer(PlayerId));
+	}
+
+	public static boolean equals(Position a, Position b) {
+		return a.getCol() == b.getCol() && a.getRow() == b.getRow();
+	}
+
+	public static boolean equals(PositionType a, PositionType b) {
+		return a.getCol() == b.getCol() && a.getRow() == b.getRow();
 	}
 
 }
