@@ -1,18 +1,18 @@
 package gui.testClasses;
 
-import gui.data.Board;
-import gui.data.Card;
-import gui.data.Context;
-import jaxb.AcceptMessageType;
-import jaxb.AwaitMoveMessageType;
-import jaxb.DisconnectMessageType;
-import jaxb.LoginMessageType;
-import jaxb.LoginReplyMessageType;
-import jaxb.MazeCom;
-import jaxb.MoveMessageType;
-import jaxb.TreasureType;
-import jaxb.TreasuresToGoType;
-import jaxb.WinMessageType;
+import gui.Context;
+import model.Board;
+import model.Card;
+import model.jaxb.AcceptMessageType;
+import model.jaxb.AwaitMoveMessageType;
+import model.jaxb.DisconnectMessageType;
+import model.jaxb.LoginMessageType;
+import model.jaxb.LoginReplyMessageType;
+import model.jaxb.MazeCom;
+import model.jaxb.MoveMessageType;
+import model.jaxb.TreasureType;
+import model.jaxb.TreasuresToGoType;
+import model.jaxb.WinMessageType;
 
 public class Tmp_testGUI {
 

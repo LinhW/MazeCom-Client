@@ -9,7 +9,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
 
-import config.Settings;
+import control.Settings;
 
 public class AISelector extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1623631697132432499L;

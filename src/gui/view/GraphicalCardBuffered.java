@@ -1,10 +1,5 @@
 package gui.view;
 
-import gui.data.Card;
-import gui.data.Messages;
-import gui.data.Card.CardShape;
-import gui.data.Card.Orientation;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -30,10 +25,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import jaxb.TreasureType;
+import model.Card;
+import model.Messages;
+import model.Card.CardShape;
+import model.Card.Orientation;
+import model.jaxb.TreasureType;
 import tools.Debug;
 import tools.DebugLevel;
-import config.Settings;
+import control.Settings;
 
 public class GraphicalCardBuffered extends JPanel implements ComponentListener {
 

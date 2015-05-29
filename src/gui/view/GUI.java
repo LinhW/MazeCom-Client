@@ -1,13 +1,8 @@
 package gui.view;
 
+import gui.Context;
 import gui.GUIController;
-import gui.data.Board;
-import gui.data.Card;
-import gui.data.Context;
-import gui.data.GUIModel;
-import gui.data.Messages;
-import gui.data.PersData;
-import gui.data.Position;
+import gui.GUIModel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -55,10 +50,15 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import jaxb.BoardType.Row;
-import jaxb.CardType;
-import jaxb.TreasuresToGoType;
-import config.Settings;
+import model.Board;
+import model.Card;
+import model.Messages;
+import model.PersData;
+import model.Position;
+import model.jaxb.CardType;
+import model.jaxb.TreasuresToGoType;
+import model.jaxb.BoardType.Row;
+import control.Settings;
 
 @SuppressWarnings("serial")
 public class GUI extends JFrame {

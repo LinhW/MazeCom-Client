@@ -4,12 +4,12 @@ import gui.view.AISelector;
 
 import javax.swing.JOptionPane;
 
-import network.Connection;
-import ai.Player;
-import ai.RandomAIAdvanced;
-import ai.RandomAISimple;
-import ai.TryAndError;
-import ai.ava.Ava;
+import control.AI.Player;
+import control.AI.RandomAIAdvanced;
+import control.AI.RandomAISimple;
+import control.AI.TryAndError;
+import control.AI.ava.Ava;
+import control.network.Connection;
 
 public class Main {
 	private void run() {

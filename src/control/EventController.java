@@ -1,26 +1,26 @@
 package control;
 
+import gui.Context;
 import gui.GUIController;
-import gui.data.Board;
-import gui.data.Context;
-import gui.data.Messages;
-import gui.data.PersData;
-import gui.data.Position;
 
 import javax.swing.JOptionPane;
-import jaxb.AcceptMessageType;
-import jaxb.AwaitMoveMessageType;
-import jaxb.CardType;
-import jaxb.DisconnectMessageType;
-import jaxb.LoginReplyMessageType;
-import jaxb.MoveMessageType;
-import jaxb.WinMessageType;
-import network.Connection;
-import network.MazeComMessageFactory;
+
+import control.AI.Player;
+import control.network.Connection;
+import control.network.MazeComMessageFactory;
+import model.Board;
+import model.Messages;
+import model.PersData;
+import model.Position;
+import model.jaxb.AcceptMessageType;
+import model.jaxb.AwaitMoveMessageType;
+import model.jaxb.CardType;
+import model.jaxb.DisconnectMessageType;
+import model.jaxb.LoginReplyMessageType;
+import model.jaxb.MoveMessageType;
+import model.jaxb.WinMessageType;
 import tools.Debug;
 import tools.DebugLevel;
-import ai.Player;
-import config.Settings;
 
 public class EventController implements Player {
 	private GUIController ctrl_gui;
