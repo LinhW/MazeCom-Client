@@ -18,6 +18,9 @@ public class Main {
 			AISelector selector = new AISelector();
 			selection = selector.showDialog();
 			switch (selection) {
+			case -1:
+				JOptionPane.showMessageDialog(null, "Client will exit now.", "Exit", JOptionPane.INFORMATION_MESSAGE);
+				return;
 			case 0:
 				player = new RandomAI(connection);
 				break;

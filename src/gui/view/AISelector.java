@@ -23,7 +23,6 @@ public class AISelector extends JDialog implements ActionListener {
 
 	public AISelector() {
 		this.value = -1;
-		this.setModal(true);
 		initWindow();
 	}
 
@@ -33,7 +32,9 @@ public class AISelector extends JDialog implements ActionListener {
 	}
 
 	private void initWindow() {
+		setModal(true);
 		setModalityType(JDialog.DEFAULT_MODALITY_TYPE);
+		setLocationRelativeTo(null);
 
 		pn_main = new JPanel();
 		getContentPane().add(pn_main);
@@ -50,6 +51,8 @@ public class AISelector extends JDialog implements ActionListener {
 		pn_main.add(bt_accept);
 
 		bt_abort = new JButton("Abort");
+		bt_abort.addActionListener(this);
+		bt_abort.setActionCommand("abort");
 		pn_main.add(bt_abort);
 
 		pack();
@@ -60,6 +63,10 @@ public class AISelector extends JDialog implements ActionListener {
 		switch (e.getActionCommand()) {
 		case "accept":
 			value = ls_ais.getSelectedIndex();
+			this.dispose();
+			break;
+		case "abort":
+			value = -1;
 			this.dispose();
 			break;
 		}
