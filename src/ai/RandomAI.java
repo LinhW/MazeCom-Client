@@ -3,6 +3,7 @@ package ai;
 import gui.data.Board;
 import gui.data.Position;
 
+import java.util.List;
 import java.util.Random;
 
 import javax.swing.JOptionPane;
@@ -13,6 +14,7 @@ import jaxb.CardType;
 import jaxb.DisconnectMessageType;
 import jaxb.LoginReplyMessageType;
 import jaxb.MoveMessageType;
+import jaxb.PositionType;
 import jaxb.WinMessageType;
 import network.Connection;
 
@@ -37,11 +39,19 @@ public class RandomAI implements Player {
 
 	private void calculateMove(Board b) {
 		CardType shift = Util.getShiftCard(b);
+		MoveMessageType move = new MoveMessageType();
 		Position shiftPos = new Position();
+		List<PositionType> list;
 		Position pinPos = new Position();
-		int c = b.getForbidden().getCol();
-		int r = b.getForbidden().getRow();
-		while (c == b.getForbidden().getCol() && r == b.getForbidden().getRow()) {
+		PositionType f = b.getForbidden();
+		if (f == null) {
+			f = new PositionType();
+			f.setCol(-1);
+			f.setRow(-1);
+		}
+		int c = f.getCol();
+		int r = f.getRow();
+		while (c == f.getCol() && r == f.getRow()) {
 			switch (random.nextInt(4)) {
 			case 0:
 				c = 0;
@@ -64,7 +74,12 @@ public class RandomAI implements Player {
 				break;
 			}
 		}
-		sendMoveMessage(player_id, shift, shiftPos, pinPos);
+		move.setShiftPosition(shiftPos);
+		move.setShiftCard(shift);
+		b.proceedShift(move);
+		list = b.getAllReachablePositions(b.findPlayer(player_id));
+		pinPos = new Position(list.get(random.nextInt(list.size())));
+		sendMoveMessage(player_id, b.getShiftCard(), shiftPos, pinPos);
 	}
 
 	@Override
@@ -84,7 +99,7 @@ public class RandomAI implements Player {
 
 	@Override
 	public void receiveWinMessage(WinMessageType message) {
-		JOptionPane.showMessageDialog(null, "message", "WIN!", JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(null, "I have won!", "WIN!", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	@Override
@@ -94,15 +109,20 @@ public class RandomAI implements Player {
 		case NOERROR:
 			break;
 		case ERROR:
+			JOptionPane.showMessageDialog(null, "Common error!", "Error!", JOptionPane.ERROR_MESSAGE);
 			break;
 		case ILLEGAL_MOVE:
+			System.out.println("Illegal move!");
 			calculateMove(board);
 			break;
 		case TIMEOUT:
+			JOptionPane.showMessageDialog(null, "Timeout by client!", "Timeout!", JOptionPane.ERROR_MESSAGE);
 			break;
 		case TOO_MANY_TRIES:
+			JOptionPane.showMessageDialog(null, "Too many tries!", "Stupid AI!", JOptionPane.ERROR_MESSAGE);
 			break;
 		default:
+			JOptionPane.showMessageDialog(null, "WTF happened?", "WTF?", JOptionPane.ERROR_MESSAGE);
 			break;
 		}
 	}
