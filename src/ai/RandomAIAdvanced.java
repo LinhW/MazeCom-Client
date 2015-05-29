@@ -83,13 +83,15 @@ public class RandomAIAdvanced implements Player {
 		b.proceedShift(move);
 		target = b.findTreasure(treasure);
 		list = b.getAllReachablePositions(b.findPlayer(player_id));
-		System.out.println(target.getRow() + " " + target.getCol());
-		if (target != null && list.contains(target)) {
-			pinPos = new Position(target);
-		} else {
-			pinPos = new Position(list.get(random.nextInt(list.size())));
+		pinPos = new Position(list.get(random.nextInt(list.size())));
+		if (target != null) {
+			for (PositionType t : list) {
+				if (new Position(t).equals(target)) {
+					pinPos = new Position(target);
+					break;
+				}
+			}
 		}
-		System.out.println(pinPos.getRow() + " " + pinPos.getCol());
 		sendMoveMessage(player_id, shift, shiftPos, pinPos);
 	}
 

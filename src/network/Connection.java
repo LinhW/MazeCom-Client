@@ -58,7 +58,7 @@ public class Connection {
 
 		public void processMessage(MazeCom message) {
 			// TODO einfach auskommentieren wenn ich es vergessen habe
-			Tmp_testGUI.receiveServerMessage(message);
+//			Tmp_testGUI.receiveServerMessage(message);
 
 			switch (message.getMcType()) {
 			case ACCEPT:
