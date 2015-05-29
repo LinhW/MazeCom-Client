@@ -54,6 +54,21 @@ public class Pathfinding {
 				Util.getCard(b, n.getP1().getRow(), n.getP1().getCol() - 1);
 				Util.getCard(b, n.getP1().getRow(), n.getP2().getCol() + 1);
 				Util.getCard(b, n.getP1().getRow(), n.getP2().getCol() - 1);
+			} else {
+				if (n.sameCol()) {
+
+				} else {
+					Card shift;
+					Card glued;
+					if(Util.isGlued(n.getP1())){
+						shift = Util.getCard(b, n.getP1());
+						glued = Util.getCard(b, n.getP2());
+					}else{
+						glued = Util.getCard(b, n.getP1());
+						shift = Util.getCard(b, n.getP2());
+					}
+//					if (glued.getOpenings())
+				}
 			}
 		}
 		return l;

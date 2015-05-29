@@ -15,6 +15,10 @@ import jaxb.TreasuresToGoType;
 
 public class Util {
 
+	public static Board getBoard(AwaitMoveMessageType message) {
+		return new Board(message.getBoard());
+	}
+
 	/**
 	 * create Position
 	 * 
@@ -135,6 +139,18 @@ public class Util {
 	}
 
 	/**
+	 * Returns true or false whether it is allowed to shift the card at the
+	 * given position
+	 * 
+	 * @param row
+	 * @param col
+	 * @return
+	 */
+	public static boolean isGlued(Position p) {
+		return isGlued(p.getRow(), p.getCol());
+	}
+
+	/**
 	 * returns true or false whether the player has found his treasure or not
 	 * 
 	 * @param b
@@ -157,9 +173,29 @@ public class Util {
 	public static Card getCard(Board b, Position p) {
 		return new Card(b.getCard(p.getRow(), p.getCol()));
 	}
-	
-	public static Card getCard(Board b, int row, int col){
+
+	public static Card getCard(Board b, int row, int col) {
 		return new Card(b.getCard(row, col));
+	}
+
+	public static Position containsInList(PositionType pt, List<PositionType> l) {
+		for (PositionType p : l) {
+			if (new Position(p).equals(pt)) {
+				return new Position(pt);
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * clockwise, just 90, 180, 270 as values
+	 * 
+	 * @param celsius
+	 * @return
+	 */
+	public static Card rotateCard(Card c, int celsius) {
+		return new Card(c.getShape(), Orientation.fromValue(((c.getOrientation().value() + celsius) % 360)), c.getTreasure());
 	}
 
 }
