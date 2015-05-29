@@ -45,24 +45,24 @@ public class TryAndError implements Player {
 	}
 
 	private void calcMove(Board b, TreasureType t) {
-		Board board = b;
-		Position oldPinPos = Util.getPinPos(b, PlayerID);
-		List<PositionType> l = b.getAllReachablePositions(oldPinPos);
-		Position pt = Util.getTreasurePos(b, t);
-		Card shift = Util.getShiftCard(b);
+		Board board = (Board) b.clone();
+		Position oldPinPos = Util.getPinPos(board, PlayerID);
+		List<PositionType> l = board.getAllReachablePositions(oldPinPos);
+		Position pt = Util.getTreasurePos(board, t);
+		Card shift = Util.getShiftCard(board);
 		Position shiftPos;
 		MoveMessageType message = new MoveMessageType();
 		for (int i = 1; i < 6; i += 2) {
 			for (int j = 0; j < 4; j++) {
 				Card c = Util.rotateCard(shift, j * 90);
 				for (int k = 0; k < 7; k += 6) {
-					b = board;
-					b.setShiftCard(c);
+					board = (Board) b.clone();
+					board.setShiftCard(c);
 					shiftPos = new Position(k, i);
 					message.setShiftPosition(shiftPos);
 					message.setShiftCard(shift);
-					b.proceedShift(message);
-					l = b.getAllReachablePositions(oldPinPos);
+					board.proceedShift(message);
+					l = board.getAllReachablePositions(oldPinPos);
 					if (Util.containsInList(pt, l) != null) {
 						sendMoveMessage(PlayerID, c, shiftPos, pt);
 						return;

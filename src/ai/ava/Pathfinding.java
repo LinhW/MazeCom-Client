@@ -7,8 +7,10 @@ import gui.data.Position;
 import java.util.ArrayList;
 import java.util.List;
 
+import jaxb.MoveMessageType;
+import jaxb.PositionType;
+import jaxb.TreasureType;
 import ai.Util;
-import ai.ava.Path.Neighbour;
 
 public class Pathfinding {
 
@@ -17,11 +19,9 @@ public class Pathfinding {
 	private static Board b;
 	private static final int MARKER1 = 1;
 	private static final int MARKER2 = 2;
+	private static int PlayerID;
 
-	public static int[][] findPath(Board board, Position start, Position end) {
-		b = board;
-		x = b.getRow().size();
-		y = b.getRow().get(0).getCol().size();
+	private static int[][] findPath(Position start, Position end) {
 		int[][] reachable = new int[x][y];
 		for (int i = 0; i < x; i++) {
 			for (int j = 0; j < y; j++) {
@@ -33,7 +33,6 @@ public class Pathfinding {
 			reachable[end.getRow()][end.getCol()] = MARKER2;
 			tilTheEnd(reachable, end, start, MARKER2);
 			Path p = new Path(reachable);
-			simpleSolution(p.getNeighbours(MARKER1, MARKER2));
 
 			// card is glued? -> false : shift to the other side?
 		} else {
@@ -46,32 +45,89 @@ public class Pathfinding {
 		return reachable;
 	}
 
-	private static List<Position> simpleSolution(List<Neighbour> neighbours) {
-		List<Position> l = new ArrayList<>();
-		for (Neighbour n : neighbours) {
-			if (n.sameRow()) {
-				Util.getCard(b, n.getP1().getRow(), n.getP1().getCol() + 1);
-				Util.getCard(b, n.getP1().getRow(), n.getP1().getCol() - 1);
-				Util.getCard(b, n.getP1().getRow(), n.getP2().getCol() + 1);
-				Util.getCard(b, n.getP1().getRow(), n.getP2().getCol() - 1);
-			} else {
-				if (n.sameCol()) {
+	private static List<Position> getPossiblePositions(Position start, Position end) {
+		// TODO
+		List<Position> l = new ArrayList<Position>();
+		int[][] reachable = new int[x][y];
+		for (int i = 0; i < x; i++) {
+			for (int j = 0; j < y; j++) {
+				reachable[i][j] = 0;
+			}
+		}
+		reachable[start.getRow()][start.getCol()] = MARKER1;
+		if (!tilTheEnd(reachable, start, end, MARKER1)) {
+			reachable[end.getRow()][end.getCol()] = MARKER2;
+			tilTheEnd(reachable, end, start, MARKER2);
+			Path p = new Path(reachable);
 
-				} else {
-					Card shift;
-					Card glued;
-					if(Util.isGlued(n.getP1())){
-						shift = Util.getCard(b, n.getP1());
-						glued = Util.getCard(b, n.getP2());
-					}else{
-						glued = Util.getCard(b, n.getP1());
-						shift = Util.getCard(b, n.getP2());
+			// card is glued? -> false : shift to the other side?
+		} else {
+			// TODO
+			// find possible position for shifting Card without destroying the
+			// calculated path
+			// 0: find alternative
+			// 1: block other player if possible
+		}
+		return l;
+	}
+
+	public static CardHelp calcMove(Board board, Position start, TreasureType t, int PlayerID) {
+		Pathfinding pf = new Pathfinding();
+		Pathfinding.PlayerID = PlayerID;
+		b = board;
+		x = b.getRow().size();
+		y = b.getRow().get(0).getCol().size();
+		return pf.simpleSolution(Util.getTreasurePos(b, t), b);
+	}
+
+	private CardHelp simpleSolution(Position pt, Board bo) {
+		Board board = (Board) bo.clone();
+		Position oldPinPos = Util.getPinPos(bo, PlayerID);
+		List<PositionType> l = board.getAllReachablePositions(oldPinPos);
+		Card shift = Util.getShiftCard(bo);
+		Position shiftPos;
+		MoveMessageType message = new MoveMessageType();
+		for (int i = 1; i < 6; i += 2) {
+			for (int j = 0; j < 4; j++) {
+				Card c = Util.rotateCard(shift, j * 90);
+				for (int k = 0; k < 7; k += 6) {
+					board = (Board) bo.clone();
+					board.setShiftCard(c);
+					shiftPos = new Position(k, i);
+					message.setShiftPosition(shiftPos);
+					message.setShiftCard(shift);
+					board.proceedShift(message);
+					l = board.getAllReachablePositions(oldPinPos);
+					if (Util.containsInList(pt, l) != null) {
+						return new CardHelp(c, shiftPos);
 					}
-//					if (glued.getOpenings())
 				}
 			}
 		}
-		return l;
+		return advancedSolution();
+	}
+
+	private static CardHelp advancedSolution() {
+		return null;
+	}
+
+	public class CardHelp {
+		private Card c;
+		private Position p;
+
+		public CardHelp(Card c, Position p) {
+			this.c = c;
+			this.p = p;
+		}
+
+		public Card getC() {
+			return c;
+		}
+
+		public Position getP() {
+			return p;
+		}
+
 	}
 
 	private static boolean tilTheEnd(int[][] reachable, Position start, Position end, int marker) {
@@ -84,7 +140,7 @@ public class Pathfinding {
 		if (col_start < x - 1) {
 			if (b.getCard(row_start, col_start + 1).getOpenings().isLeft() && c.getOpenings().isRight() && 0 == reachable[row_start][col_start + 1]) {
 				if (row_start == row_end && col_start + 1 == col_end) {
-					System.out.println(row_start + "/" + col_start + 1);
+					System.out.println(row_start + "/" + (col_start + 1));
 					return true;
 				}
 				reachable[row_start][col_start + 1] = marker;

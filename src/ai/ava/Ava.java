@@ -39,7 +39,7 @@ public class Ava implements Player {
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
 		System.out.println("Ava receives an await move message");
 		Board b = new Board(message.getBoard());
-		Pathfinding.findPath(b, new Position(b.findPlayer(id)), new Position(b.findTreasure(b.getTreasure())));
+//		Pathfinding.findPath(b, new Position(b.findPlayer(id)), new Position(b.findTreasure(b.getTreasure())));
 	}
 
 	@Override
