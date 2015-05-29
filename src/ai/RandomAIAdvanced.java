@@ -15,17 +15,18 @@ import jaxb.DisconnectMessageType;
 import jaxb.LoginReplyMessageType;
 import jaxb.MoveMessageType;
 import jaxb.PositionType;
+import jaxb.TreasureType;
 import jaxb.WinMessageType;
 import network.Connection;
 
-public class RandomAI implements Player {
+public class RandomAIAdvanced implements Player {
 	private String name;
 	private int player_id;
 	private Connection connection;
 	private Board board;
 	private Random random;
 
-	public RandomAI(Connection connection) {
+	public RandomAIAdvanced(Connection connection) {
 		this.connection = connection;
 		random = new Random();
 	}
@@ -37,12 +38,13 @@ public class RandomAI implements Player {
 		return name;
 	}
 
-	private void calculateMove(Board b) {
+	private void calculateMove(Board b, TreasureType treasure) {
 		CardType shift = Util.getShiftCard(b);
 		MoveMessageType move = new MoveMessageType();
 		Position shiftPos = new Position();
 		List<PositionType> list;
 		Position pinPos = new Position();
+		PositionType target;
 		PositionType f = b.getForbidden();
 		if (f == null) {
 			f = new PositionType();
@@ -78,12 +80,17 @@ public class RandomAI implements Player {
 		shiftPos.setRow(r);
 		move.setShiftPosition(shiftPos);
 		move.setShiftCard(shift);
-		System.out.println("(r/c): " + r + "/" + c);
 		b.proceedShift(move);
+		target = b.findTreasure(treasure);
 		list = b.getAllReachablePositions(b.findPlayer(player_id));
-		pinPos = new Position(list.get(random.nextInt(list.size())));
-		System.out.println("(r/c): " + pinPos.getRow() + "/" + pinPos.getCol());
-		sendMoveMessage(player_id, b.getShiftCard(), shiftPos, pinPos);
+		System.out.println(target.getRow() + " " + target.getCol());
+		if (target != null && list.contains(target)) {
+			pinPos = new Position(target);
+		} else {
+			pinPos = new Position(list.get(random.nextInt(list.size())));
+		}
+		System.out.println(pinPos.getRow() + " " + pinPos.getCol());
+		sendMoveMessage(player_id, shift, shiftPos, pinPos);
 	}
 
 	@Override
@@ -94,7 +101,7 @@ public class RandomAI implements Player {
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
 		board = new Board(message.getBoard());
-		calculateMove(board);
+		calculateMove(board, message.getTreasure());
 	}
 
 	@Override
