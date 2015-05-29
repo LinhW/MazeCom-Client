@@ -1,11 +1,5 @@
 package gui;
 
-import gui.data.Board;
-import gui.data.Card;
-import gui.data.Context;
-import gui.data.GUIModel;
-import gui.data.PersData;
-import gui.data.Position;
 import gui.view.GUI;
 
 import java.awt.event.KeyEvent;
@@ -14,7 +8,11 @@ import java.util.Map;
 
 import javax.swing.JOptionPane;
 
-import jaxb.MoveMessageType;
+import model.Board;
+import model.Card;
+import model.PersData;
+import model.Position;
+import model.jaxb.MoveMessageType;
 import control.EventController;
 
 public class GUIController {

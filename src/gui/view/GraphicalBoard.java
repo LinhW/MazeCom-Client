@@ -1,9 +1,5 @@
 package gui.view;
 
-import gui.data.Board;
-import gui.data.Card;
-import gui.data.Position;
-
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -14,6 +10,10 @@ import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
+
+import model.Board;
+import model.Card;
+import model.Position;
 
 public class GraphicalBoard extends JPanel {
 
