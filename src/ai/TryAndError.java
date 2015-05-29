@@ -1,7 +1,6 @@
 package ai;
 
 import gui.data.Board;
-import gui.data.Card;
 import gui.data.Position;
 
 import java.util.List;
@@ -19,6 +18,8 @@ import jaxb.PositionType;
 import jaxb.TreasureType;
 import jaxb.WinMessageType;
 import network.Connection;
+import ai.ava.Pathfinding;
+import ai.ava.Pathfinding.CardHelp;
 
 public class TryAndError implements Player {
 	private Connection con;
@@ -45,34 +46,17 @@ public class TryAndError implements Player {
 	}
 
 	private void calcMove(Board b, TreasureType t) {
-		Board board = (Board) b.clone();
-		Position oldPinPos = Util.getPinPos(board, PlayerID);
-		List<PositionType> l = board.getAllReachablePositions(oldPinPos);
-		Position pt = Util.getTreasurePos(board, t);
-		Card shift = Util.getShiftCard(board);
-		Position shiftPos;
-		MoveMessageType message = new MoveMessageType();
-		for (int i = 1; i < 6; i += 2) {
-			for (int j = 0; j < 4; j++) {
-				Card c = Util.rotateCard(shift, j * 90);
-				for (int k = 0; k < 7; k += 6) {
-					board = (Board) b.clone();
-					board.setShiftCard(c);
-					shiftPos = new Position(k, i);
-					message.setShiftPosition(shiftPos);
-					message.setShiftCard(shift);
-					board.proceedShift(message);
-					l = board.getAllReachablePositions(oldPinPos);
-					if (Util.containsInList(pt, l) != null) {
-						sendMoveMessage(PlayerID, c, shiftPos, pt);
-						return;
-					}
-				}
-			}
+		CardHelp ch = Pathfinding.calcMove(b, Util.getPinPos(b, PlayerID), t, PlayerID);
+		if (ch == null) {
+			random(b);
+		} else {
+			sendMessage(ch, Util.getTreasurePos(b, t));
 		}
 
-		random(board);
+	}
 
+	private void sendMessage(CardHelp ch, Position tPos) {
+		sendMoveMessage(PlayerID, ch.getC(), ch.getP(), tPos);
 	}
 
 	private void random(Board b) {

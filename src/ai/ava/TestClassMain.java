@@ -38,13 +38,6 @@ public class TestClassMain {
 		// System.out.println(n);
 		// }
 		// System.out.println();
-		//
-		// for (int i = 0; i < 7; i++) {
-		// for (int j = 0; j < 7; j++) {
-		// System.out.print(p.get(i, j));
-		// }
-		// System.out.println();
-		// }
 
 		myPinPos = new Position(6, 6);
 		myTreasurePos = new Position(3, 3);
