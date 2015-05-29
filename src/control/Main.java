@@ -8,6 +8,7 @@ import network.Connection;
 import ai.Player;
 import ai.RandomAIAdvanced;
 import ai.RandomAISimple;
+import ai.TryAndError;
 import ai.ava.Ava;
 
 public class Main {
@@ -31,6 +32,8 @@ public class Main {
 			case 2:
 				player = new RandomAIAdvanced(connection);
 				break;
+			case 3:
+				player = new TryAndError(connection);
 			default:
 				player = new RandomAISimple(connection);
 			}
