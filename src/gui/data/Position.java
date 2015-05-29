@@ -90,7 +90,7 @@ public class Position extends PositionType {
 
 	@Override
 	public String toString() {
-		return "(" + col + "," + row + ")"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+		return "(" + row + "," + col + ")"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 	}
 
 }

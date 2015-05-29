@@ -154,4 +154,12 @@ public class Util {
 		return a.getCol() == b.getCol() && a.getRow() == b.getRow();
 	}
 
+	public static Card getCard(Board b, Position p) {
+		return new Card(b.getCard(p.getRow(), p.getCol()));
+	}
+	
+	public static Card getCard(Board b, int row, int col){
+		return new Card(b.getCard(row, col));
+	}
+
 }

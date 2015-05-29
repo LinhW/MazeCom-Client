@@ -2,6 +2,7 @@ package ai.ava;
 
 import gui.data.Board;
 import gui.data.Position;
+import ai.ava.Path.Neighbour;
 
 public class TestClassMain {
 	private static final int playerID = 1;
@@ -13,23 +14,19 @@ public class TestClassMain {
 		Position myPinPos = new Position(b.findPlayer(playerID));
 		Position myTreasurePos = new Position(6, 4);
 
-		System.out.println(b.getRow().size() + "/" + b.getRow().get(0).getCol().size());
-
-		// int[][] weg = Pathfinding.findShortestPath(b, myPinPos,
-		// myTreasurePos);
-		//
-		// for (int i = 0; i < weg.length; i++) {
-		// for (int j = 0; j < weg[0].length; j++) {
-		// System.out.print(weg[i][j]);
-		// }
-		// System.out.println();
-		// }
-
 		System.out.println("PinPos: " + myPinPos + "  TreasurePos: " + myTreasurePos);
 		path = Pathfinding.findPath(b, myPinPos, myTreasurePos);
-		for (int i = 0; i < path.length; i++) {
-			for (int j = 0; j < path[0].length; j++) {
-				System.out.print(path[i][j]);
+
+		Path p = new Path(path);
+		System.out.println(p);
+		for (Neighbour n : p.getNeighbours(1, 2)) {
+			System.out.println(n);
+		}
+		System.out.println();
+		
+		for (int i = 0; i < 7; i++) {
+			for (int j = 0; j < 7; j++) {
+				System.out.print(p.get(i, j));
 			}
 			System.out.println();
 		}
@@ -38,11 +35,11 @@ public class TestClassMain {
 		myTreasurePos = new Position(3, 3);
 		System.out.println("PinPos: " + myPinPos + "  TreasurePos: " + myTreasurePos);
 		path = Pathfinding.findPath(b, myPinPos, myTreasurePos);
-		for (int i = 0; i < path.length; i++) {
-			for (int j = 0; j < path[0].length; j++) {
-				System.out.print(path[i][j]);
-			}
-			System.out.println();
+
+		p = new Path(path);
+		System.out.println(p);
+		for (Neighbour n : p.getNeighbours(1, 2)) {
+			System.out.println(n);
 		}
 	}
 

@@ -4,11 +4,19 @@ import gui.data.Board;
 import gui.data.Card;
 import gui.data.Position;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import ai.Util;
+import ai.ava.Path.Neighbour;
+
 public class Pathfinding {
 
 	private static int x;
 	private static int y;
 	private static Board b;
+	private static final int MARKER1 = 1;
+	private static final int MARKER2 = 2;
 
 	public static int[][] findPath(Board board, Position start, Position end) {
 		b = board;
@@ -20,14 +28,35 @@ public class Pathfinding {
 				reachable[i][j] = 0;
 			}
 		}
-		reachable[start.getRow()][start.getCol()] = 1;
-		if (!tilTheEnd(reachable, start, end, 1)) {
-			reachable[end.getRow()][end.getCol()] = 2;
-			tilTheEnd(reachable, end, start, 2);
-		}else{
-			
+		reachable[start.getRow()][start.getCol()] = MARKER1;
+		if (!tilTheEnd(reachable, start, end, MARKER1)) {
+			reachable[end.getRow()][end.getCol()] = MARKER2;
+			tilTheEnd(reachable, end, start, MARKER2);
+			Path p = new Path(reachable);
+			simpleSolution(p.getNeighbours(MARKER1, MARKER2));
+
+			// card is glued? -> false : shift to the other side?
+		} else {
+			// TODO
+			// find possible position for shifting Card without destroying the
+			// calculated path
+			// 0: find alternative
+			// 1: block other player if possible
 		}
 		return reachable;
+	}
+
+	private static List<Position> simpleSolution(List<Neighbour> neighbours) {
+		List<Position> l = new ArrayList<>();
+		for (Neighbour n : neighbours) {
+			if (n.sameRow()) {
+				Util.getCard(b, n.getP1().getRow(), n.getP1().getCol() + 1);
+				Util.getCard(b, n.getP1().getRow(), n.getP1().getCol() - 1);
+				Util.getCard(b, n.getP1().getRow(), n.getP2().getCol() + 1);
+				Util.getCard(b, n.getP1().getRow(), n.getP2().getCol() - 1);
+			}
+		}
+		return l;
 	}
 
 	private static boolean tilTheEnd(int[][] reachable, Position start, Position end, int marker) {
