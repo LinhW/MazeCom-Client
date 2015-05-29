@@ -74,11 +74,15 @@ public class RandomAI implements Player {
 				break;
 			}
 		}
+		shiftPos.setCol(c);
+		shiftPos.setRow(r);
 		move.setShiftPosition(shiftPos);
 		move.setShiftCard(shift);
+		System.out.println("(r/c): " + r + "/" + c);
 		b.proceedShift(move);
 		list = b.getAllReachablePositions(b.findPlayer(player_id));
 		pinPos = new Position(list.get(random.nextInt(list.size())));
+		System.out.println("(r/c): " + pinPos.getRow() + "/" + pinPos.getCol());
 		sendMoveMessage(player_id, b.getShiftCard(), shiftPos, pinPos);
 	}
 
@@ -89,7 +93,8 @@ public class RandomAI implements Player {
 
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
-		calculateMove(new Board(message.getBoard()));
+		board = new Board(message.getBoard());
+		calculateMove(board);
 	}
 
 	@Override
@@ -112,8 +117,6 @@ public class RandomAI implements Player {
 			JOptionPane.showMessageDialog(null, "Common error!", "Error!", JOptionPane.ERROR_MESSAGE);
 			break;
 		case ILLEGAL_MOVE:
-			System.out.println("Illegal move!");
-			calculateMove(board);
 			break;
 		case TIMEOUT:
 			JOptionPane.showMessageDialog(null, "Timeout by client!", "Timeout!", JOptionPane.ERROR_MESSAGE);

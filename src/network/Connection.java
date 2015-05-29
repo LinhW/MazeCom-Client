@@ -69,6 +69,7 @@ public class Connection {
 				break;
 			case DISCONNECT:
 				ctrl_event.receiveDisconnectMessage(message.getDisconnectMessage());
+				shutdown();
 				break;
 			case LOGINREPLY:
 				ctrl_event.receiveLoginReply(message.getLoginReplyMessage());

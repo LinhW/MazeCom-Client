@@ -17,7 +17,8 @@ import jaxb.WinMessageType;
 public class Tmp_testGUI {
 
 	public static void receiveServerMessage(MazeCom message) {
-		System.out.println("receive Message: " + message.getId() + " " + message.getMcType());
+		System.out.println("___________________________________________________\n" + 
+							"receive Message: " + message.getId() + " " + message.getMcType());
 		switch (message.getMcType()) {
 		case ACCEPT:
 			AcceptMessageType accept = message.getAcceptMessage();
@@ -27,16 +28,14 @@ public class Tmp_testGUI {
 			AwaitMoveMessageType await = message.getAwaitMoveMessage();
 			TreasureType t = await.getTreasure();
 			String n = t.name();
-			System.out.println("----");
-			System.out.println(t + " " + n);
+			System.out.println("Treasure: " + t + " " + n);
 			Card c = new Card(await.getBoard().getShiftCard());
 			System.out.println(await + " " + await.getBoard().getShiftCard());
-			System.out.println(c.getShape() + " " + c.getOrientation().value() + " " + c.value());
+			System.out.println("Card: " + c.getShape() + " " + c.getOrientation().value() + " " + c.value());
 			Context.getInstance().setValue(Context.BOARD, new Board(await.getBoard()));
 			for (TreasuresToGoType tt : await.getTreasuresToGo()) {
-				System.out.println(tt.getPlayer() + " " + tt.getTreasures());
+				System.out.println("TreasToGo: " + tt.getPlayer() + " " + tt.getTreasures());
 			}
-			System.out.println("----");
 			break;
 		case DISCONNECT:
 			DisconnectMessageType disconnect = message.getDisconnectMessage();
