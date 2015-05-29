@@ -6,7 +6,8 @@ import javax.swing.JOptionPane;
 
 import network.Connection;
 import ai.Player;
-import ai.RandomAI;
+import ai.RandomAIAdvanced;
+import ai.RandomAISimple;
 import ai.ava.Ava;
 
 public class Main {
@@ -22,13 +23,16 @@ public class Main {
 				JOptionPane.showMessageDialog(null, "Client will exit now.", "Exit", JOptionPane.INFORMATION_MESSAGE);
 				return;
 			case 0:
-				player = new RandomAI(connection);
+				player = new RandomAISimple(connection);
 				break;
 			case 1:
 				player = new Ava(connection);
 				break;
+			case 2:
+				player = new RandomAIAdvanced(connection);
+				break;
 			default:
-				player = new RandomAI(connection);
+				player = new RandomAISimple(connection);
 			}
 		} else {
 			System.out.println("start");
