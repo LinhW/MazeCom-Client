@@ -62,6 +62,7 @@ public class TryAndError implements Player {
 					message.setShiftCard(shift);
 					board.proceedShift(message);
 					l = board.getAllReachablePositions(oldPinPos);
+					sysList(l);
 					if (Util.containsInList(pt, l) != null) {
 						sendMoveMessage(PlayerID, c, shiftPos, pt);
 						return;
@@ -72,6 +73,12 @@ public class TryAndError implements Player {
 
 		random(board);
 
+	}
+
+	private void sysList(List<PositionType> l) {
+		for (PositionType p : l) {
+			System.out.println("pos " + new Position(p));
+		}
 	}
 
 	private void random(Board b) {
