@@ -19,7 +19,6 @@ import jaxb.WinMessageType;
 import network.Connection;
 
 public class RandomAISimple implements Player {
-	private String name;
 	private int player_id;
 	private Connection connection;
 	private Board board;
@@ -33,8 +32,7 @@ public class RandomAISimple implements Player {
 	@Override
 	public String login() {
 		String name = JOptionPane.showInputDialog("Nickname");
-		this.name = name;
-		return name;
+		return name + " (Random AI Simple)";
 	}
 
 	private void calculateMove(Board b) {
@@ -97,7 +95,7 @@ public class RandomAISimple implements Player {
 
 	@Override
 	public void receiveDisconnectMessage(DisconnectMessageType message) {
-		JOptionPane.showMessageDialog(null, name + " has been disconnected", "Disconnected", JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(null, "You have been disconnected", "Disconnected", JOptionPane.ERROR_MESSAGE);
 	}
 
 	@Override
