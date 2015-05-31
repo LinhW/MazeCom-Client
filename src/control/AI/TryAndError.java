@@ -5,7 +5,6 @@ import java.util.Random;
 
 import javax.swing.JOptionPane;
 
-import control.network.Connection;
 import model.Board;
 import model.Card;
 import model.Position;
@@ -13,11 +12,13 @@ import model.jaxb.AcceptMessageType;
 import model.jaxb.AwaitMoveMessageType;
 import model.jaxb.CardType;
 import model.jaxb.DisconnectMessageType;
+import model.jaxb.ErrorType;
 import model.jaxb.LoginReplyMessageType;
 import model.jaxb.MoveMessageType;
 import model.jaxb.PositionType;
 import model.jaxb.TreasureType;
 import model.jaxb.WinMessageType;
+import control.network.Connection;
 
 public class TryAndError implements Player {
 	private Connection con;
@@ -30,6 +31,8 @@ public class TryAndError implements Player {
 
 	@Override
 	public String login() {
+		System.out.println("Try and Error AI");
+		random = new Random();
 		return "Doofus";
 	}
 
@@ -62,8 +65,8 @@ public class TryAndError implements Player {
 					message.setShiftCard(shift);
 					board.proceedShift(message);
 					l = board.getAllReachablePositions(oldPinPos);
-					sysList(l);
 					if (Util.containsInList(pt, l) != null) {
+						System.out.println("found it");
 						sendMoveMessage(PlayerID, c, shiftPos, pt);
 						return;
 					}
@@ -71,17 +74,12 @@ public class TryAndError implements Player {
 			}
 		}
 
-		random(board);
+		random(b);
 
-	}
-
-	private void sysList(List<PositionType> l) {
-		for (PositionType p : l) {
-			System.out.println("pos " + new Position(p));
-		}
 	}
 
 	private void random(Board b) {
+		System.out.println("random");
 		CardType shift = Util.getShiftCard(b);
 		MoveMessageType move = new MoveMessageType();
 		Position shiftPos = new Position();
@@ -130,27 +128,18 @@ public class TryAndError implements Player {
 
 	@Override
 	public void receiveDisconnectMessage(DisconnectMessageType message) {
-		// TODO Auto-generated method stub
-
+		System.out.println(message.getErrorCode());
 	}
 
 	@Override
 	public void receiveWinMessage(WinMessageType message) {
-		// TODO Auto-generated method stub
-		JOptionPane.showMessageDialog(null, "Ende");
-
+		System.out.println(message);
+		System.out.println(message.getWinner());
 	}
 
 	@Override
 	public void receiveAcceptMessage(AcceptMessageType message) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void receiveMoveMessage(MoveMessageType moveMessage) {
-		// TODO Auto-generated method stub
-
+		System.out.println(message.getErrorCode());
 	}
 
 	@Override
