@@ -75,11 +75,6 @@ public class EventController implements Player {
 		ctrl_gui.displayMove(message.isAccept(), move);
 	}
 
-	public void receiveMoveMessage(MoveMessageType moveMessage) {
-		// TODO Auto-generated method stub
-		System.out.println("MOVE");
-	}
-
 	public void sendMoveMessage(int PlayerID, CardType c, Position shift, Position pin) {
 		connection.sendMoveMessage(PlayerID, c, shift, pin);
 		move = new MazeComMessageFactory().createMoveMessage(PlayerID, c, shift, pin).getMoveMessage();

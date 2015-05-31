@@ -58,7 +58,7 @@ public class Connection {
 
 		public void processMessage(MazeCom message) {
 			// TODO einfach auskommentieren wenn ich es vergessen habe
-//			Tmp_testGUI.receiveServerMessage(message);
+			// Tmp_testGUI.receiveServerMessage(message);
 
 			switch (message.getMcType()) {
 			case ACCEPT:
@@ -73,9 +73,6 @@ public class Connection {
 				break;
 			case LOGINREPLY:
 				ctrl_event.receiveLoginReply(message.getLoginReplyMessage());
-				break;
-			case MOVE:
-				ctrl_event.receiveMoveMessage(message.getMoveMessage());
 				break;
 			case WIN:
 				ctrl_event.receiveWinMessage(message.getWinMessage());
