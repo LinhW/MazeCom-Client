@@ -19,6 +19,7 @@ public class Main {
 		if (selection == JOptionPane.YES_OPTION) {
 			AISelector selector = new AISelector();
 			selection = selector.showDialog();
+			System.out.println(selection);
 			switch (selection) {
 			case -1:
 				JOptionPane.showMessageDialog(null, "Client will exit now.", "Exit", JOptionPane.INFORMATION_MESSAGE);
@@ -33,7 +34,7 @@ public class Main {
 				player = new RandomAIAdvanced(connection);
 				break;
 			case 3:
-				player = new TryAndError(connection);
+				player = new TryAndError(connection);break;
 			default:
 				player = new RandomAISimple(connection);
 			}

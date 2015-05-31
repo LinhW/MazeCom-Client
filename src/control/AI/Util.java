@@ -59,8 +59,11 @@ public class Util {
 	 * @param treasureName
 	 * @return
 	 */
-	public static Card createCard(String cardShape, int orientation, String treasureName) {
-		return new Card(CardShape.valueOf(cardShape), Orientation.fromValue(orientation), TreasureType.fromValue(treasureName));
+	public static Card createCard(String cardShape, int orientation,
+			String treasureName) {
+		return new Card(CardShape.valueOf(cardShape),
+				Orientation.fromValue(orientation),
+				TreasureType.fromValue(treasureName));
 	}
 
 	/**
@@ -94,7 +97,8 @@ public class Util {
 	 * @return
 	 * @throws Exception
 	 */
-	public static int getAmount(AwaitMoveMessageType message, int playerID) throws Exception {
+	public static int getAmount(AwaitMoveMessageType message, int playerID)
+			throws Exception {
 		List<TreasuresToGoType> list = message.getTreasuresToGo();
 		for (TreasuresToGoType tt : list) {
 			if (tt.getPlayer() == playerID) {
@@ -110,7 +114,8 @@ public class Util {
 	 * @param message
 	 * @return
 	 */
-	public static List<TreasureType> getFoundTreasures(AwaitMoveMessageType message) {
+	public static List<TreasureType> getFoundTreasures(
+			AwaitMoveMessageType message) {
 		return message.getFoundTreasures();
 	}
 
@@ -121,7 +126,8 @@ public class Util {
 	 * @param treasure
 	 * @return
 	 */
-	public static boolean iaAlreadyFound(AwaitMoveMessageType message, TreasureType treasure) {
+	public static boolean iaAlreadyFound(AwaitMoveMessageType message,
+			TreasureType treasure) {
 		return message.getFoundTreasures().contains(treasure);
 	}
 
@@ -134,7 +140,7 @@ public class Util {
 	 * @return
 	 */
 	public static boolean isGlued(int row, int col) {
-		return (row == 1 || row == 3 || row == 5) && (col == 1 || col == 3 || col == 3);
+		return row % 2 == 0 && col % 2 == 0;
 	}
 
 	/**
@@ -157,7 +163,8 @@ public class Util {
 	 * @param PlayerId
 	 * @return
 	 */
-	public static boolean foundMyTreasure(Board b, TreasureType treasure, int PlayerId) {
+	public static boolean foundMyTreasure(Board b, TreasureType treasure,
+			int PlayerId) {
 		return equals(b.findTreasure(treasure), b.findPlayer(PlayerId));
 	}
 
@@ -194,7 +201,8 @@ public class Util {
 	 * @return
 	 */
 	public static Card rotateCard(Card c, int celsius) {
-		return new Card(c.getShape(), Orientation.fromValue(((c.getOrientation().value() + celsius) % 360)), c.getTreasure());
+		return new Card(c.getShape(), Orientation.fromValue(((c
+				.getOrientation().value() + celsius) % 360)), c.getTreasure());
 	}
 
 }

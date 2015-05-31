@@ -31,6 +31,7 @@ public class RandomAISimple implements Player {
 	@Override
 	public String login() {
 		String name = JOptionPane.showInputDialog("Nickname");
+		System.out.println("Random AI");
 		return name + " (Random AI Simple)";
 	}
 
@@ -123,11 +124,6 @@ public class RandomAISimple implements Player {
 			JOptionPane.showMessageDialog(null, "WTF happened?", "WTF?", JOptionPane.ERROR_MESSAGE);
 			break;
 		}
-	}
-
-	@Override
-	public void receiveMoveMessage(MoveMessageType moveMessage) {
-		System.out.println("MOVE");
 	}
 
 	@Override

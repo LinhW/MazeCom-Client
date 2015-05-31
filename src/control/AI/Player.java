@@ -22,7 +22,5 @@ public interface Player {
 
 	public void receiveAcceptMessage(AcceptMessageType message);
 
-	public void receiveMoveMessage(MoveMessageType moveMessage);
-
 	public void sendMoveMessage(int PlayerID, CardType c, Position shift, Position pin);
 }

@@ -137,11 +137,6 @@ public class RandomAIAdvanced implements Player {
 	}
 
 	@Override
-	public void receiveMoveMessage(MoveMessageType moveMessage) {
-		System.out.println("MOVE");
-	}
-
-	@Override
 	public void sendMoveMessage(int PlayerID, CardType c, Position shift, Position pin) {
 		connection.sendMoveMessage(PlayerID, c, shift, pin);
 	}
