@@ -1,11 +1,5 @@
 package control.AI.ava;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import model.Board;
 import model.Position;
 import control.AI.ava.Pathfinding.PinPosHelp;
@@ -22,15 +16,8 @@ public class TestClassMain {
 		Pathfinding p = new Pathfinding(b, playerID);
 		PinPosHelp pph;
 
-		try {
-			FileWriter fwriter = new FileWriter((File) Context.getInstance().getValue(Context.FILE));
-			fwriter.append("test\n");
-			fwriter.write("testen\n");
-			fwriter.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		WriteIntoFile wif = new WriteIntoFile(WriteIntoFile.FILEPATH);
+		System.out.println(wif.clearFile());
 
 		System.out.println(b.getShiftCard());
 		// System.out.println(b);
