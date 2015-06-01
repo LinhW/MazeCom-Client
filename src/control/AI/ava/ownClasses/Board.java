@@ -274,12 +274,12 @@ public class Board extends BoardType {
 		// muss dieser wieder aufs Brett gesetzt werden
 		// Dazu wird Sie auf die gerade hereingeschoben
 		// Karte gesetzt
-		if (!shiftCard.getPin().getPlayerID().isEmpty()) {
+		if (!this.shiftCard.getPin().getPlayerID().isEmpty()) {
 			// Figur zwischenspeichern
-			Pin temp = shiftCard.getPin();
+			Pin temp = this.shiftCard.getPin();
 			// Figur auf SchiebeKarte l??schen
-			shiftCard.setPin(new Pin());
-			// Zwischengespeicherte Figut auf
+			this.shiftCard.setPin(new Pin());
+			// Zwischengespeicherte Figur auf
 			// neuer Karte plazieren
 			shiftCard.setPin(temp);
 		}
@@ -308,8 +308,6 @@ public class Board extends BoardType {
 				}
 			}
 		}
-		// Schatz nicht gefunden, kann nur bedeuten, dass Schatz sich auf
-		// Schiebekarte befindet
 		return null;
 	}
 
@@ -319,9 +317,5 @@ public class Board extends BoardType {
 
 	public TreasureType getTreasure() {
 		return currentTreasure;
-	}
-
-	public Position getTreasurePos() {
-		return findTreasure(currentTreasure);
 	}
 }
