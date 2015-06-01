@@ -1,12 +1,11 @@
 package control.AI;
 
-import model.Position;
 import model.jaxb.AcceptMessageType;
 import model.jaxb.AwaitMoveMessageType;
 import model.jaxb.CardType;
 import model.jaxb.DisconnectMessageType;
 import model.jaxb.LoginReplyMessageType;
-import model.jaxb.MoveMessageType;
+import model.jaxb.PositionType;
 import model.jaxb.WinMessageType;
 
 public interface Player {
@@ -22,5 +21,5 @@ public interface Player {
 
 	public void receiveAcceptMessage(AcceptMessageType message);
 
-	public void sendMoveMessage(int PlayerID, CardType c, Position shift, Position pin);
+	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift, PositionType pin);
 }

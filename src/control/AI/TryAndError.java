@@ -3,8 +3,6 @@ package control.AI;
 import java.util.List;
 import java.util.Random;
 
-import javax.swing.JOptionPane;
-
 import model.Board;
 import model.Card;
 import model.Position;
@@ -12,7 +10,6 @@ import model.jaxb.AcceptMessageType;
 import model.jaxb.AwaitMoveMessageType;
 import model.jaxb.CardType;
 import model.jaxb.DisconnectMessageType;
-import model.jaxb.ErrorType;
 import model.jaxb.LoginReplyMessageType;
 import model.jaxb.MoveMessageType;
 import model.jaxb.PositionType;
@@ -143,7 +140,7 @@ public class TryAndError implements Player {
 	}
 
 	@Override
-	public void sendMoveMessage(int PlayerID, CardType c, Position shift, Position pin) {
+	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift, PositionType pin) {
 		con.sendMoveMessage(PlayerID, c, shift, pin);
 	}
 

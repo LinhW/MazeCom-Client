@@ -1,13 +1,13 @@
 package control.network;
 
 import model.Board;
-import model.Position;
 import model.jaxb.CardType;
 import model.jaxb.ErrorType;
 import model.jaxb.MazeCom;
 import model.jaxb.MazeComType;
 import model.jaxb.MoveMessageType;
 import model.jaxb.ObjectFactory;
+import model.jaxb.PositionType;
 import model.jaxb.WinMessageType.Winner;
 
 public class MazeComMessageFactory {
@@ -32,8 +32,8 @@ public class MazeComMessageFactory {
 		mc.getAcceptMessage().setAccept(et == ErrorType.NOERROR);
 		return mc;
 	}
-	
-	public MazeCom createMoveMessage(int PlayerID, CardType c, Position shift, Position pin) {
+
+	public MazeCom createMoveMessage(int PlayerID, CardType c, PositionType shift, PositionType pin) {
 		MazeCom mc = of.createMazeCom();
 		mc.setMcType(MazeComType.MOVE);
 		mc.setId(PlayerID);
@@ -77,4 +77,3 @@ public class MazeComMessageFactory {
 		return mc;
 	}
 }
-

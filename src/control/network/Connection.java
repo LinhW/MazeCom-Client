@@ -1,7 +1,5 @@
 package control.network;
 
-import gui.testClasses.Tmp_testGUI;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,10 +13,10 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import control.AI.Player;
-import model.Position;
 import model.jaxb.CardType;
 import model.jaxb.MazeCom;
+import model.jaxb.PositionType;
+import control.AI.Player;
 
 public class Connection {
 	private boolean isConnected;
@@ -122,7 +120,7 @@ public class Connection {
 		return true;
 	}
 
-	public void sendMoveMessage(int PlayerID, CardType c, Position shift, Position pin) {
+	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift, PositionType pin) {
 		if (!hasPlayer) {
 			return;
 		}

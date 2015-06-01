@@ -3,13 +3,9 @@ package control.AI.ava;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.Board;
-import model.Card;
-import model.Position;
-import model.jaxb.MoveMessageType;
-import model.jaxb.PositionType;
-import model.jaxb.TreasureType;
-import control.AI.Util;
+import control.AI.ava.ownClasses.Board;
+import control.AI.ava.ownClasses.Card;
+import control.AI.ava.ownClasses.Position;
 
 public class Pathfinding {
 
@@ -20,6 +16,7 @@ public class Pathfinding {
 	private final int MARKER2 = 2;
 	private int PlayerID;
 	private int count;
+	private WriteIntoFile wif;
 
 	private List<PinPosHelp> list_PinPosHelp;
 
@@ -29,12 +26,14 @@ public class Pathfinding {
 		x = b.getRow().size();
 		y = b.getRow().get(0).getCol().size();
 		list_PinPosHelp = new ArrayList<>();
+		wif = new WriteIntoFile(WriteIntoFile.FILEPATH);
 	}
 
 	public PinPosHelp ava(Position start, Position trePos) {
 		CardHelp ch = simpleSolution(trePos);
 		PinPosHelp pph = new PinPosHelp(trePos, ch);
 		System.out.println("CardHelp " + ch);
+		wif.write("CardHelp " + ch);
 		if (ch == null) {
 			System.out.println("no solution");
 			List<PinPosHelp> list = PinPosHelp.getSmallestDiff(list_PinPosHelp);
@@ -42,7 +41,7 @@ public class Pathfinding {
 				pph = list.get(0);
 			} else {
 				for (PinPosHelp ph : list) {
-					if (Util.isGlued(ph.getPinPos())) {
+					if (ph.getPinPos().isGlued()) {
 						pph = ph;
 						// TODO nach Ausrichtung der Schatzkarte richten
 						break;
@@ -68,59 +67,43 @@ public class Pathfinding {
 
 	private CardHelp simpleSolution(Position trePos) {
 		Board board = (Board) betterBoard.clone();
-		Position oldPinPos = Util.getPinPos(betterBoard, PlayerID);
-		List<PositionType> l = board.getAllReachablePositions(oldPinPos);
-		Card shift = Util.getShiftCard(betterBoard);
+		Position oldPinPos = betterBoard.getPinPos(PlayerID);
+		List<Position> l = new ArrayList<>();
+		Card shift = betterBoard.getShiftCard();
 		Position shiftPos;
 		CardHelp ch;
-		MoveMessageType message = new MoveMessageType();
-		for (int i = 1; i < 6; i += 2) {
-			for (int j = 0; j < 4; j++) {
-				Card c = Util.rotateCard(shift, j * 90);
+		List<Card> list_c = shift.getPossibleRotations();
+		for (Card c : list_c) {
+			for (int i = 1; i < 6; i += 2) {
 				for (int k = 0; k < 7; k += 6) {
 					board = (Board) betterBoard.clone();
-					board.setShiftCard(c);
 					shiftPos = new Position(k, i);
-					message.setShiftPosition(shiftPos);
-					message.setShiftCard(c);
 					// System.out.println("i=" + i + "; j=" + j + "; k=" + k + "\n" + c);
-					board.proceedShift(message);
-					l = board.getAllReachablePositions(oldPinPos);
+					board.proceedShift(shiftPos, c);
+					l = findPossiblePos(l, oldPinPos);
 					ch = new CardHelp(c, shiftPos);
-					if (Util.containsInList(trePos, l) != null) {
+					if (l.contains(trePos)) {
 						return ch;
 					}
-					calcData(oldPinPos, trePos, ch);
+					calcData(oldPinPos, trePos, ch, l);
 
 					board = (Board) betterBoard.clone();
 					shiftPos = new Position(i, k);
-					message.setShiftPosition(shiftPos);
 					// System.out.println("i=" + i + "; j=" + j + "; k=" + k + "\n" + c);
-					board.proceedShift(message);
-					l = board.getAllReachablePositions(oldPinPos);
+					board.proceedShift(shiftPos, c);
+					l = findPossiblePos(l, oldPinPos);
 					ch = new CardHelp(c, shiftPos);
-					if (Util.containsInList(trePos, l) != null) {
+					if (l.contains(trePos)) {
 						return ch;
 					}
-					calcData(oldPinPos, trePos, ch);
+					calcData(oldPinPos, trePos, ch, l);
 				}
 			}
 		}
 		return null;
 	}
 
-	private void calcData(Position start, Position trePos, CardHelp ch) {
-		int[][] reachable = new int[x][y];
-		for (int i = 0; i < x; i++) {
-			for (int j = 0; j < y; j++) {
-				reachable[i][j] = 0;
-			}
-		}
-		reachable[start.getRow()][start.getCol()] = MARKER1;
-		count = 0;
-		List<Position> list = new ArrayList<>();
-		list = findPossiblePos(list, start);
-		// System.out.println("durchlaeufe: " + count);
+	private void calcData(Position start, Position trePos, CardHelp ch, List<Position> list) {
 		PinPosHelp pph = shortestPath(list, trePos);
 		pph.setCardHelp(ch);
 		list_PinPosHelp.add(pph);
@@ -247,10 +230,6 @@ public class Pathfinding {
 			// 1: block other player if possible
 		}
 		return reachable;
-	}
-
-	public CardHelp calcMove(Position start, TreasureType t) {
-		return simpleSolution(Util.getTreasurePos(betterBoard, t));
 	}
 
 	public class CardHelp {

@@ -1,8 +1,8 @@
 package control.AI.ava;
 
-import model.Board;
-import model.Position;
 import control.AI.ava.Pathfinding.PinPosHelp;
+import control.AI.ava.ownClasses.Board;
+import control.AI.ava.ownClasses.Position;
 
 public class TestClassMain {
 	private static final int playerID = 1;
@@ -11,7 +11,7 @@ public class TestClassMain {
 		System.out.println("Test for Ava");
 
 		Board b = new Board();
-		Position myPinPos = new Position(b.findPlayer(playerID));
+		Position myPinPos = new Position(b.getPinPos(playerID));
 		Position myTreasurePos = new Position(6, 4);
 		Pathfinding p = new Pathfinding(b, playerID);
 		PinPosHelp pph;

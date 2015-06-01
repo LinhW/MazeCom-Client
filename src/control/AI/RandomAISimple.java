@@ -127,7 +127,7 @@ public class RandomAISimple implements Player {
 	}
 
 	@Override
-	public void sendMoveMessage(int PlayerID, CardType c, Position shift, Position pin) {
+	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift, PositionType pin) {
 		connection.sendMoveMessage(PlayerID, c, shift, pin);
 	}
 
