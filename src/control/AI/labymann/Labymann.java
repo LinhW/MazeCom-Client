@@ -5,8 +5,6 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import control.AI.Player;
-import control.network.Connection;
 import model.Board;
 import model.Card;
 import model.Position;
@@ -16,8 +14,11 @@ import model.jaxb.CardType;
 import model.jaxb.DisconnectMessageType;
 import model.jaxb.LoginReplyMessageType;
 import model.jaxb.MoveMessageType;
+import model.jaxb.PositionType;
 import model.jaxb.TreasureType;
 import model.jaxb.WinMessageType;
+import control.AI.Player;
+import control.network.Connection;
 
 public class Labymann implements Player {
 	private int player_id;
@@ -86,12 +87,7 @@ public class Labymann implements Player {
 	}
 
 	@Override
-	public void receiveMoveMessage(MoveMessageType moveMessage) {
-		System.out.println("MOVE");
-	}
-
-	@Override
-	public void sendMoveMessage(int PlayerID, CardType c, Position shift, Position pin) {
+	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift, PositionType pin) {
 		connection.sendMoveMessage(PlayerID, c, shift, pin);
 	}
 
