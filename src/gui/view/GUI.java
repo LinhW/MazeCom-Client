@@ -58,11 +58,9 @@ import model.PersData;
 import model.Position;
 import model.jaxb.BoardType.Row;
 import model.jaxb.CardType;
-import model.jaxb.CardType.Pin;
 import model.jaxb.MoveMessageType;
 import model.jaxb.TreasuresToGoType;
 import control.Settings;
-import control.AI.Util;
 
 @SuppressWarnings("serial")
 public class GUI extends JFrame {
@@ -813,14 +811,14 @@ public class GUI extends JFrame {
 					uiboard.repaint();
 				} else {
 					System.out.println("pressed");
-					if (Util.containsInList(new Position(model.getPinPos().getRow() - 1, model.getPinPos().getCol()), model.getBoard().getAllReachablePositions(model.getPinPos())) != null) {
-						System.out.println("up");
-						Pin tmp = model.getBoard().getCard(model.getPinPos().getRow(), model.getPinPos().getCol()).getPin();
-						model.getBoard().getCard(model.getPinPos().getRow(), model.getPinPos().getCol()).setPin(new Pin());
-						model.getBoard().getCard(model.getPinPos().getRow() - 1, model.getPinPos().getCol()).setPin(tmp);
-						uiboard.setBoard(model.getBoard());
-						uiboard.repaint();
-					}
+//					if (Util.containsInList(new Position(model.getPinPos().getRow() - 1, model.getPinPos().getCol()), model.getBoard().getAllReachablePositions(model.getPinPos())) != null) {
+//						System.out.println("up");
+//						Pin tmp = model.getBoard().getCard(model.getPinPos().getRow(), model.getPinPos().getCol()).getPin();
+//						model.getBoard().getCard(model.getPinPos().getRow(), model.getPinPos().getCol()).setPin(new Pin());
+//						model.getBoard().getCard(model.getPinPos().getRow() - 1, model.getPinPos().getCol()).setPin(tmp);
+//						uiboard.setBoard(model.getBoard());
+//						uiboard.repaint();
+//					}
 				}
 			} else if (action == model.getKeyEvent(Context.DOWN)) {
 				if (model.getRow() == 0) {

@@ -5,8 +5,8 @@ import java.util.Random;
 
 import javax.swing.JOptionPane;
 
-import control.network.Connection;
 import model.Board;
+import model.Card;
 import model.Position;
 import model.jaxb.AcceptMessageType;
 import model.jaxb.AwaitMoveMessageType;
@@ -17,12 +17,13 @@ import model.jaxb.MoveMessageType;
 import model.jaxb.PositionType;
 import model.jaxb.TreasureType;
 import model.jaxb.WinMessageType;
+import control.network.Connection;
 
 public class RandomAIAdvanced implements Player {
 	private int player_id;
-	private Connection connection;
+	private final Connection connection;
 	private Board board;
-	private Random random;
+	private final Random random;
 
 	public RandomAIAdvanced(Connection connection) {
 		this.connection = connection;
@@ -36,7 +37,7 @@ public class RandomAIAdvanced implements Player {
 	}
 
 	private void calculateMove(Board b, TreasureType treasure) {
-		CardType shift = Util.getShiftCard(b);
+		CardType shift = new Card(b.getShiftCard());
 		MoveMessageType move = new MoveMessageType();
 		Position shiftPos = new Position();
 		List<PositionType> list;

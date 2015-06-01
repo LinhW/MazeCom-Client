@@ -3,15 +3,15 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
  
-public class UTFInputStream {
+class UTFInputStream {
  
-  private InputStream is;
+  private final InputStream is;
  
-  public UTFInputStream(InputStream stream) {
+  UTFInputStream(InputStream stream) {
     this.is = stream;
   }
  
-  public String readUTF8() throws IOException {
+  String readUTF8() throws IOException {
     byte[] tmp = this.readNBytes(4);
     int len = 0;
     len |= (tmp[3] & 0xff);
@@ -26,9 +26,9 @@ public class UTFInputStream {
     return message;
   }
  
-  public void close() throws IOException {
-    this.is.close();
-  }
+//  public void close() throws IOException {
+//    this.is.close();
+//  }
  
   private byte[] readNBytes(int n) throws IOException {
     if (n <= 0) {
