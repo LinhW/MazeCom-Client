@@ -8,7 +8,6 @@ import model.jaxb.LoginReplyMessageType;
 import model.jaxb.PositionType;
 import model.jaxb.WinMessageType;
 import control.AI.Player;
-import control.AI.Util;
 import control.AI.ava.Pathfinding.PinPosHelp;
 import control.AI.ava.ownClasses.Board;
 import control.AI.ava.ownClasses.Card;
@@ -24,6 +23,9 @@ public class Ava implements Player {
 		this.con = con;
 		wif = new WriteIntoFile(WriteIntoFile.FILEPATH);
 		System.out.println(wif.clearFile());
+		wif.write("Ava");
+		WriteIntoFile possPos = new WriteIntoFile("src/control/AI/ava/possPos.txt");
+		System.out.println(possPos.clearFile());
 	}
 
 	public Ava() {
@@ -47,7 +49,7 @@ public class Ava implements Player {
 		wif.write("AWAIT MOVE MESSAGES");
 		Board b = new Board(message.getBoard());
 		Pathfinding p = new Pathfinding(b, id);
-		PinPosHelp pph = p.ava(b.getPinPos(id), b.getTreasurePos());
+		PinPosHelp pph = p.ava(b.getPinPos(id), b.findTreasure(message.getTreasure()));
 		sendMoveMessage(id, pph.getCardHelp().getC(), pph.getCardHelp().getP(), pph.getPinPos());
 	}
 
@@ -56,7 +58,7 @@ public class Ava implements Player {
 		// TODO Auto-generated method stub
 		System.out.println("Ava receives a disconnect Message:");
 		System.out.println(message.getErrorCode());
-
+		wif.write(message.getErrorCode().toString());
 	}
 
 	@Override
@@ -68,10 +70,13 @@ public class Ava implements Player {
 	public void receiveAcceptMessage(AcceptMessageType message) {
 		System.out.println("Ava receives an Accept message");
 		System.out.println(message.getErrorCode());
+		wif.write(message.getErrorCode().toString());
+		wif.writeNewLine(2);
 	}
 
 	@Override
 	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift, PositionType pin) {
+		wif.write("Send:\nShiftPos " + new Position(shift) + " PinPos " + new Position(pin) + "\n" + c);
 		System.out.println("CardPos: " + shift);
 		System.out.println("PinPos: " + pin);
 		System.out.println(new Card(c));

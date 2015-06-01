@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 public class WriteIntoFile {
 	private File file;
@@ -34,6 +35,37 @@ public class WriteIntoFile {
 			bwriter = new BufferedWriter(fw);
 			bwriter.write(content);
 			bwriter.newLine();
+			bwriter.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	public void writeNewLine(int i) {
+		try {
+			FileWriter fw = new FileWriter(file.getAbsoluteFile(), true);
+			bwriter = new BufferedWriter(fw);
+			for (int k = 0; k < i; k++) {
+				bwriter.newLine();
+			}
+			bwriter.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public boolean writeList(List<?> list) {
+		try {
+			FileWriter fw = new FileWriter(file.getAbsoluteFile(), true);
+			bwriter = new BufferedWriter(fw);
+			for (Object o : list) {
+				bwriter.write(o.toString());
+				bwriter.newLine();
+			}
 			bwriter.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
