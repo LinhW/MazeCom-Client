@@ -29,7 +29,7 @@ public class Settings {
 	/**
 	 * Auf das angehaengte / achten
 	 */
-	public final static String IMAGEPATH = "/gui/data/resources/"; //$NON-NLS-1$
+	public final static String IMAGEPATH = "/gui/resources/"; //$NON-NLS-1$
 	public final static String IMAGEFILEEXTENSION = ".png"; //$NON-NLS-1$
 	public final static Locale LOCALE = new Locale("de"); //$NON-NLS-1$
 	/**
