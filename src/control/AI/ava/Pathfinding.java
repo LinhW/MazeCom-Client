@@ -19,22 +19,33 @@ public class Pathfinding {
 	private int count;
 	private static WriteIntoFile wif;
 	private static WriteIntoFile possPos;
+	private static WriteIntoFile wif_v2;
 	private static final String FILEPATH = "src/control/AI/ava/possPos.txt";
 
-	private List<PinPosHelp> list_PinPosHelp;
+	/**
+	 * PinPosHelp with diff from new PinPos to TreasurePos
+	 */
+	private List<PinPosHelp> list_PinPosHelp_v1;
+	/**
+	 * PinPosHelp with diff from new PinPos to the next Position with connection to the Treasure
+	 */
+	private List<PinPosHelp> list_PinPosHelp_v2;
 
 	public Pathfinding(Board b, int PlayerID) {
 		this.betterBoard = b;
 		this.PlayerID = PlayerID;
 		x = b.getRow().size();
 		y = b.getRow().get(0).getCol().size();
-		list_PinPosHelp = new ArrayList<>();
-		wif = new WriteIntoFile(WriteIntoFile.FILEPATH);
+		list_PinPosHelp_v1 = new ArrayList<>();
+		list_PinPosHelp_v2 = new ArrayList<>();
+		wif = new WriteIntoFile(WriteIntoFile.FILEPATH + ".txt");
+		wif_v2 = new WriteIntoFile(WriteIntoFile.FILEPATH + "_v2.txt");
 		possPos = new WriteIntoFile(FILEPATH);
 	}
 
 	public PinPosHelp ava(Position start, Position trePos) {
-		list_PinPosHelp.clear();
+		list_PinPosHelp_v1.clear();
+		list_PinPosHelp_v2.clear();
 		wif.write("PinPos: " + start + " TreasureToFindPos: " + trePos);
 		CardHelp ch = simpleSolution(trePos);
 		PinPosHelp pph = new PinPosHelp(trePos, ch);
@@ -42,7 +53,8 @@ public class Pathfinding {
 		wif.write("CardHelp " + ch);
 		if (ch == null) {
 			System.out.println("no solution");
-			List<PinPosHelp> list = PinPosHelp.getSmallestDiff(list_PinPosHelp);
+			List<PinPosHelp> list = PinPosHelp.getSmallestDiff(list_PinPosHelp_v1);
+			List<PinPosHelp> list_rev = PinPosHelp.getSmallestDiff(list_PinPosHelp_v2);
 			if (list.size() == 1) {
 				pph = list.get(0);
 			} else {
@@ -66,9 +78,9 @@ public class Pathfinding {
 			Position p = pph.getPinPos();
 			Card c = pph.getCardHelp().getC();
 			if (trePos.getCol() == p.getCol()) {
-//				if()
-			}else if(trePos.getRow() == p.getRow()){
-				
+				// if()
+			} else if (trePos.getRow() == p.getRow()) {
+
 			}
 		}
 		return list;
@@ -78,7 +90,7 @@ public class Pathfinding {
 		Position pos = null;
 		double diff = x * y;
 		for (Position p : list) {
-			double tmp = diff(p, trePos);
+			double tmp = p.diff(trePos);
 			wif.write(p + " " + trePos + " " + tmp);
 			if (tmp < diff) {
 				diff = tmp;
@@ -88,8 +100,25 @@ public class Pathfinding {
 		return new PinPosHelp(pos, diff);
 	}
 
+	private PinPosHelp shortestPath(List<Position> list, List<Position> list_rev) {
+		Position pos = null;
+		double diff = x * y;
+		for (Position p : list) {
+			for (Position pr : list_rev) {
+				double tmp = p.diff(pr);
+				wif_v2.write(p + " " + pr + " " + tmp);
+				if (tmp < diff) {
+					diff = tmp;
+					pos = p;
+				}
+			}
+		}
+		return new PinPosHelp(pos, diff);
+	}
+
 	private CardHelp simpleSolution(Position trePos) {
 		List<Position> l = new ArrayList<>();
+		List<Position> l_rev = new ArrayList<>();
 		Board board;
 		Position oldPinPos;
 		Position shiftPos;
@@ -109,6 +138,8 @@ public class Pathfinding {
 						wif.write("PinPos: " + oldPinPos + " " + "ShiftPos " + shiftPos);
 						l.clear();
 						l = findPossiblePos(board, l, oldPinPos);
+						l_rev.clear();
+						l_rev = findPossiblePos(board, l_rev, trePos);
 						possPos.write(board.toString());
 						possPos.write(oldPinPos.toString());
 						possPos.writeList(l);
@@ -120,7 +151,7 @@ public class Pathfinding {
 							wif.write("************************************************\n" + ch.toString() + "\n************************************************");
 							return ch;
 						}
-						calcData(oldPinPos, trePos, ch, l);
+						calcData(oldPinPos, trePos, ch, l, l_rev);
 					}
 				}
 			}
@@ -128,80 +159,13 @@ public class Pathfinding {
 		return null;
 	}
 
-	private void calcData(Position start, Position trePos, CardHelp ch, List<Position> list) {
-		wif.write("PinPos: " + start + " " + ch.debug() + " " + list.size());
+	private void calcData(Position start, Position trePos, CardHelp ch, List<Position> list, List<Position> list_rev) {
+		wif.write("PinPos: " + start + " " + ch.debug() + " " + list.size() + " " + list_rev.size());
 		PinPosHelp pph = shortestPath(list, trePos);
 		pph.setCardHelp(ch);
-		list_PinPosHelp.add(pph);
-	}
-
-	public static class PinPosHelp {
-		private Position pinPos;
-		private double diff = Double.MAX_VALUE;
-		private CardHelp ch;
-
-		public PinPosHelp(Position pinPos, double diff) {
-			this.pinPos = pinPos;
-			this.diff = diff;
-		}
-
-		public PinPosHelp(Position pinPos, CardHelp ch) {
-			this.pinPos = pinPos;
-			this.ch = ch;
-		}
-
-		public Position getPinPos() {
-			return pinPos;
-		}
-
-		public double getDiff() {
-			return diff;
-		}
-
-		public static List<PinPosHelp> getSmallestDiff(List<PinPosHelp> list) {
-			List<PinPosHelp> res = new ArrayList<>();
-			double min = Double.MAX_VALUE;
-			double diff;
-			wif.write("-----------");
-			for (PinPosHelp pph : list) {
-				diff = pph.getDiff();
-				wif.write(pph.debug() + "\t" + min);
-				if (diff == min) {
-					res.add(pph);
-				}
-				if (diff < min) {
-					min = diff;
-					res.clear();
-					res.add(pph);
-				}
-			}
-			wif.write("-----");
-			for (PinPosHelp pp : res) {
-				wif.write(pp.debug());
-			}
-			wif.write("-----------");
-			return res;
-		}
-
-		public CardHelp getCardHelp() {
-			return ch;
-		}
-
-		public void setCardHelp(CardHelp ch) {
-			this.ch = ch;
-		}
-
-		public String toString() {
-			return "PinPos: " + pinPos + " " + ch;
-		}
-
-		public String debug() {
-			return "PinPos: " + pinPos + " " + ch.debug() + "\t" + diff;
-		}
-	}
-
-	private double diff(Position p1, Position p2) {
-		return Math.sqrt((p1.getRow() - p2.getRow()) * (p1.getRow() - p2.getRow()) + (p1.getCol() - p2.getCol()) * (p1.getCol() - p2.getCol()));
+		list_PinPosHelp_v1.add(pph);
+		pph = shortestPath(list, list_rev);
+		list_PinPosHelp_v2.add(pph);
 	}
 
 	private List<Position> findPossiblePos(Board b, List<Position> list, Position start) {
@@ -270,6 +234,75 @@ public class Pathfinding {
 		return reachable;
 	}
 
+	public static class PinPosHelp {
+		private Position pinPos;
+		private double diff = Double.MAX_VALUE;
+		private CardHelp ch;
+
+		public PinPosHelp(Position pinPos, double diff) {
+			this.pinPos = pinPos;
+			this.diff = diff;
+		}
+
+		public PinPosHelp(Position pinPos, CardHelp ch) {
+			this.pinPos = pinPos;
+			this.ch = ch;
+		}
+
+		public Position getPinPos() {
+			return pinPos;
+		}
+
+		public double getDiff() {
+			return diff;
+		}
+
+		public static List<PinPosHelp> getSmallestDiff(List<PinPosHelp> list) {
+			List<PinPosHelp> res = new ArrayList<>();
+			double min = Double.MAX_VALUE;
+			double diff;
+			wif.write("-----------");
+			for (PinPosHelp pph : list) {
+				diff = pph.getDiff();
+				wif.write(pph.debug() + "\t" + min);
+				if (diff == min) {
+					res.add(pph);
+				}
+				if (diff < min) {
+					min = diff;
+					res.clear();
+					res.add(pph);
+				}
+			}
+			wif.write("-----");
+			for (PinPosHelp pp : res) {
+				wif.write(pp.debug());
+			}
+			wif.write("-----------");
+			return res;
+		}
+
+		public CardHelp getCardHelp() {
+			return ch;
+		}
+
+		public void setCardHelp(CardHelp ch) {
+			this.ch = ch;
+		}
+
+		public String toString() {
+			return "PinPos: " + pinPos + " " + ch;
+		}
+
+		public String debug() {
+			return "PinPos: " + pinPos + " " + ch.debug() + "\t" + diff;
+		}
+
+		public boolean equals(PinPosHelp pph) {
+			return pph.ch.equals(this.getCardHelp()) && this.pinPos.equals(pph.getPinPos());
+		}
+	}
+
 	public class CardHelp {
 		private Card c;
 		private Position p;
@@ -293,6 +326,10 @@ public class Pathfinding {
 
 		public String debug() {
 			return "CardPos: " + p + " Card: " + c.getShape() + c.getOrientation().value();
+		}
+
+		public boolean equals(CardHelp ch) {
+			return this.c.equals(ch.getC()) && this.p.equals(ch.getP());
 		}
 	}
 

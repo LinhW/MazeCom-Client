@@ -12,11 +12,11 @@ public class Settings {
 	 * Die Zeit in Milisekunden, die die Animation eines Zug (die Bewegung des
 	 * Pins) benoetigen soll
 	 */
-	public final static int MOVEDELAY = 10;
+	public final static int MOVEDELAY = 1000;
 	/**
 	 * Die Zeit in Milisekunden, die das Einschieben der Shiftcard dauern soll
 	 */
-	public final static int SHIFTDELAY = 10;
+	public final static int SHIFTDELAY = 1000;
 	/**
 	 * Wenn TESTBOARD = true ist, dann ist das Spielbrett bei jedem Start
 	 * identisch (zum Debugging)
@@ -29,7 +29,7 @@ public class Settings {
 	/**
 	 * Auf das angehaengte / achten
 	 */
-	public final static String IMAGEPATH = "/gui/data/resources/"; //$NON-NLS-1$
+	public final static String IMAGEPATH = "/gui/resources/"; //$NON-NLS-1$
 	public final static String IMAGEFILEEXTENSION = ".png"; //$NON-NLS-1$
 	public final static Locale LOCALE = new Locale("de"); //$NON-NLS-1$
 	/**

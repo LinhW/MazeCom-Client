@@ -6,6 +6,7 @@ import gui.GUIModel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -20,7 +21,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
@@ -41,6 +41,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
@@ -55,10 +56,13 @@ import model.Card;
 import model.Messages;
 import model.PersData;
 import model.Position;
-import model.jaxb.CardType;
-import model.jaxb.TreasuresToGoType;
 import model.jaxb.BoardType.Row;
+import model.jaxb.CardType;
+import model.jaxb.CardType.Pin;
+import model.jaxb.MoveMessageType;
+import model.jaxb.TreasuresToGoType;
 import control.Settings;
+import control.AI.Util;
 
 @SuppressWarnings("serial")
 public class GUI extends JFrame {
@@ -83,6 +87,7 @@ public class GUI extends JFrame {
 	private GUIModel model;
 	private JList<String> list_right;
 	private JList<String> list_left;
+	private boolean sendMove = false;
 
 	private static class ImageRessources {
 		private static HashMap<String, Image> images = new HashMap<String, Image>();
@@ -134,8 +139,10 @@ public class GUI extends JFrame {
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
+			System.out.println("startsdf");
 			if (board == null)
 				return;
+			System.out.println("paint");
 			int width = this.getWidth();
 			int height = this.getHeight();
 			width = height = Math.min(width, height);
@@ -244,7 +251,7 @@ public class GUI extends JFrame {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		JPanel splitPanel_right = new JPanel();
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, uiboard, splitPanel_right);
-		splitPane.setDividerLocation(470);
+		splitPane.setDividerLocation(460);
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 
 		{
@@ -260,11 +267,25 @@ public class GUI extends JFrame {
 				sp_bottom.setLayout(new BorderLayout());
 
 				lb_treasure_pic = new JLabel();
+				lb_treasure_pic.setAlignmentX(Component.CENTER_ALIGNMENT);
 				sp_bottom.add(lb_treasure_pic, BorderLayout.CENTER);
 
 				JLabel lb_treasure = new JLabel("Treasure");
 				lb_treasure.setBorder(new EmptyBorder(5, 5, 5, 5));
 				sp_bottom.add(lb_treasure, BorderLayout.WEST);
+
+				{
+					String instruction = "Mit ausgewählten Tasten Karte rotieren bzw. Position auswählen. Enter drücken. Jetzt kann mit denselben Tasten wie zur Positionsbestimmung der Pin verschoben werden. Mit Enter wird der Zug abgeschickt.";
+					JTextArea textArea = new JTextArea(instruction);
+					textArea.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.LOWERED), new EmptyBorder(2, 2, 2, 2)));
+					textArea.setEditable(false);
+					textArea.setLineWrap(true);
+					textArea.setWrapStyleWord(true);
+					textArea.setOpaque(true);
+					textArea.setPreferredSize(new Dimension(150, 200));
+					textArea.setSize(new Dimension(150, 200));
+					sp_bottom.add(textArea, BorderLayout.EAST);
+				}
 
 				JPanel panel_bot = new JPanel();
 				{
@@ -462,39 +483,6 @@ public class GUI extends JFrame {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				myController.onClose();
-			}
-		});
-		
-		this.addMouseListener(new MouseListener() {
-			
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void mousePressed(MouseEvent e) {
-				// TODO Auto-generated method stub
-				System.out.println("pressed");
-			}
-			
-			@Override
-			public void mouseExited(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				// TODO Auto-generated method stub
-				System.out.println("Clicked");
 			}
 		});
 
@@ -769,12 +757,6 @@ public class GUI extends JFrame {
 				case KeyEvent.KEY_PRESSED:
 					key_pressed(e);
 					break;
-				case KeyEvent.KEY_TYPED:
-					key_typed(e);
-					break;
-				case KeyEvent.KEY_RELEASED:
-					key_released(e);
-					break;
 				}
 			} else {
 				if (hasFocus_dialog) {
@@ -790,62 +772,56 @@ public class GUI extends JFrame {
 			return false;
 		}
 
-		/**
-		 * handling when a key is released
-		 * 
-		 * @param e
-		 *            (KeyEvent)
-		 */
-		private void key_released(KeyEvent e) {
-		}
-
-		/**
-		 * handling when a key is typed
-		 * 
-		 * @param e
-		 *            (KeyEvent)F
-		 */
-		private void key_typed(KeyEvent e) {
-		}
-
-		/**
-		 * handling when a key is pressed
-		 * 
-		 * @param e
-		 *            (KeyEvent)
-		 */
 		private void key_pressed(KeyEvent e) {
 			int action = e.getKeyCode();
 			switch (action) {
 			case KeyEvent.VK_ENTER:
-				System.out.println("pressed Enter");
-				sendMove();
-				return;
+				if (sendMove) {
+					sendMove();
+					return;
+				} else {
+					sendMove = true;
+					System.out.println("pressed Enter");
+					proceedShift();
+					return;
+				}
 			}
 			if (action == model.getKeyEvent(Context.ROTATE_LEFT)) {
 				rotate(true);
 			} else if (action == model.getKeyEvent(Context.ROTATE_RIGHT)) {
 				rotate(false);
 			} else if (action == model.getKeyEvent(Context.UP)) {
-				if (model.getRow() == 6) {
-					return;
-				}
-				if (model.getRow() == 0) {
-					model.setRow(6);
-				} else {
-					if (model.getRow() == 1) {
-						model.setRow(0);
-						if (model.getCol() == 0) {
-							model.setCol(1);
-						}
-						if (model.getCol() == 6) {
-							model.setCol(5);
-						}
+				if (!sendMove) {
+					if (model.getRow() == 6) {
+						return;
+					}
+					if (model.getRow() == 0) {
+						model.setRow(6);
 					} else {
-						model.setRow(model.getRow() - 2);
+						if (model.getRow() == 1) {
+							model.setRow(0);
+							if (model.getCol() == 0) {
+								model.setCol(1);
+							}
+							if (model.getCol() == 6) {
+								model.setCol(5);
+							}
+						} else {
+							model.setRow(model.getRow() - 2);
+						}
+					}
+					uiboard.repaint();
+				} else {
+					System.out.println("pressed");
+					if (Util.containsInList(new Position(model.getPinPos().getRow() - 1, model.getPinPos().getCol()), model.getBoard().getAllReachablePositions(model.getPinPos())) != null) {
+						System.out.println("up");
+						Pin tmp = model.getBoard().getCard(model.getPinPos().getRow(), model.getPinPos().getCol()).getPin();
+						model.getBoard().getCard(model.getPinPos().getRow(), model.getPinPos().getCol()).setPin(new Pin());
+						model.getBoard().getCard(model.getPinPos().getRow() - 1, model.getPinPos().getCol()).setPin(tmp);
+						uiboard.setBoard(model.getBoard());
+						uiboard.repaint();
 					}
 				}
-				uiboard.repaint();
 			} else if (action == model.getKeyEvent(Context.DOWN)) {
 				if (model.getRow() == 0) {
 					return;
@@ -908,5 +884,17 @@ public class GUI extends JFrame {
 				uiboard.repaint();
 			}
 		}
+	}
+
+	public void proceedShift() {
+		System.out.println("proceed");
+		MoveMessageType move = new MoveMessageType();
+		move.setNewPinPos(model.getPinPos());
+		move.setShiftCard(model.getShiftCard());
+		move.setShiftPosition(new Position(model.getRow(), model.getCol()));
+		model.getBoard().proceedTurn(move, model.getPlayerID());
+		displayMove(Settings.MOVEDELAY, Settings.SHIFTDELAY);
+		uiboard.setBoard(model.getBoard());
+		uiboard.repaint();
 	}
 }

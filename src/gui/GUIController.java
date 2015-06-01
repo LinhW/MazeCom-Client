@@ -49,8 +49,6 @@ public class GUIController {
 		Card c = new Card(model.getBoard().getShiftCard());
 		model.setShiftCard(c);
 		System.out.println("shiftcard gesendet");
-		model.setCardOrientation(c.getOrientation());
-		model.setCardShape(c.getShape());
 		model.setCardTreasure(c.getTreasure());
 		model.setPinPos(new Position(model.getBoard().findPlayer(((PersData) Context.getInstance().getValue(Context.USER)).getID())));
 		gui.update();

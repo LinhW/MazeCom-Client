@@ -232,6 +232,7 @@ public class Board extends BoardType {
 
 	// Fuehrt nur das Hereinschieben der Karte aus!!!
 	public void proceedShift(MoveMessageType move) {
+		System.out.println("proceed Shift");
 		Debug.print(Messages.getInstance().getString("Board.proceedShiftFkt"), DebugLevel.DEBUG); //$NON-NLS-1$
 		Position sm = new Position(move.getShiftPosition());
 		if (sm.getCol() % 6 == 0) { // Col=6 oder 0
@@ -298,6 +299,7 @@ public class Board extends BoardType {
 	 * @return
 	 */
 	public boolean proceedTurn(MoveMessageType move, Integer currPlayer) {
+		System.out.println("proceedTurn");
 		Debug.print(Messages.getInstance().getString("Board.proceedTurnFkt"), DebugLevel.DEBUG); //$NON-NLS-1$
 		// XXX ACHTUNG wird nicht mehr auf Richtigkeit ??berpr??ft!!!
 		this.proceedShift(move);
@@ -340,8 +342,7 @@ public class Board extends BoardType {
 	}
 
 	public boolean validateTransition(MoveMessageType move, Integer playerID) {
-		Debug.print(
-				Messages.getInstance().getString("Board.validateTransitionFkt"), DebugLevel.DEBUG); //$NON-NLS-1$
+		Debug.print(Messages.getInstance().getString("Board.validateTransitionFkt"), DebugLevel.DEBUG); //$NON-NLS-1$
 		PositionType movePosition = move.getShiftPosition();
 		CardType moveShiftCard = move.getShiftCard();
 		if (movePosition == null || moveShiftCard == null)
@@ -349,31 +350,23 @@ public class Board extends BoardType {
 		Position sm = new Position(movePosition);
 		// Ueberpruefen ob das Reinschieben der Karte gueltig ist
 		if (!sm.isLoosePosition() || sm.equals(forbidden)) {
-			System.err.println(Messages.getInstance()
-					.getString("Board.forbiddenPostitionShiftCard")); //$NON-NLS-1$
+			System.err.println(Messages.getInstance().getString("Board.forbiddenPostitionShiftCard")); //$NON-NLS-1$
 			return false;
 		}
 		Card sc = new Card(moveShiftCard);
 		if (!sc.equals(shiftCard)) {
-			System.err.println(Messages.getInstance()
-					.getString("Board.shiftCardIllegallyChanged")); //$NON-NLS-1$
+			System.err.println(Messages.getInstance().getString("Board.shiftCardIllegallyChanged")); //$NON-NLS-1$
 			return false;
 		}
 		// Ueberpruefen ob der Spielzug gueltig ist
 		Board fakeBoard = this.fakeShift(move);
 		Position playerPosition = new Position(fakeBoard.findPlayer(playerID));
-		Debug.print(
-				String.format(Messages.getInstance()
-						.getString("Board.playerWantsToMoveFromTo"), //$NON-NLS-1$
-						playerPosition.getRow(), playerPosition.getCol(), move
-								.getNewPinPos().getRow(), move.getNewPinPos()
-								.getCol()), DebugLevel.VERBOSE);
-		Debug.print(
-				Messages.getInstance().getString("Board.boardAfterShifting"), DebugLevel.VERBOSE); //$NON-NLS-1$
+		Debug.print(String.format(Messages.getInstance().getString("Board.playerWantsToMoveFromTo"), //$NON-NLS-1$
+				playerPosition.getRow(), playerPosition.getCol(), move.getNewPinPos().getRow(), move.getNewPinPos().getCol()), DebugLevel.VERBOSE);
+		Debug.print(Messages.getInstance().getString("Board.boardAfterShifting"), DebugLevel.VERBOSE); //$NON-NLS-1$
 		Debug.print(fakeBoard.toString(), DebugLevel.VERBOSE);
 		if (fakeBoard.pathPossible(playerPosition, move.getNewPinPos())) {
-			Debug.print(
-					Messages.getInstance().getString("Board.illegalMove"), DebugLevel.VERBOSE); //$NON-NLS-1$
+			Debug.print(Messages.getInstance().getString("Board.illegalMove"), DebugLevel.VERBOSE); //$NON-NLS-1$
 			return true;
 		}
 		Debug.print(Messages.getInstance().getString("Board.positionNotReachable"), //$NON-NLS-1$
@@ -382,8 +375,7 @@ public class Board extends BoardType {
 	}
 
 	public boolean pathPossible(PositionType oldPos, PositionType newPos) {
-		Debug.print(
-				Messages.getInstance().getString("Board.pathPossibleFkt"), DebugLevel.DEBUG); //$NON-NLS-1$
+		Debug.print(Messages.getInstance().getString("Board.pathPossibleFkt"), DebugLevel.DEBUG); //$NON-NLS-1$
 		if (oldPos == null || newPos == null)
 			return false;
 		Position oldP = new Position(oldPos);
@@ -392,8 +384,7 @@ public class Board extends BoardType {
 	}
 
 	public List<PositionType> getAllReachablePositions(PositionType position) {
-		Debug.print(
-				Messages.getInstance().getString("Board.getAllReachablePositionsFkt"), DebugLevel.DEBUG); //$NON-NLS-1$
+		Debug.print(Messages.getInstance().getString("Board.getAllReachablePositionsFkt"), DebugLevel.DEBUG); //$NON-NLS-1$
 		List<PositionType> erreichbarePositionen = new ArrayList<PositionType>();
 		int[][] erreichbar = new int[7][7];
 		erreichbar[position.getRow()][position.getCol()] = 1;

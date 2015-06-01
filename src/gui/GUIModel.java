@@ -16,8 +16,6 @@ public class GUIModel {
 
 	private Board board;
 	private Card shiftCard;
-	private Orientation cardOrientation;
-	private CardShape cardShape;
 	private TreasureType cardTreasure;
 	private Map<String, Integer> map;
 	private int row;
@@ -46,35 +44,35 @@ public class GUIModel {
 	}
 
 	public Orientation getCardOrientation() {
-		return cardOrientation;
+		return shiftCard.getOrientation();
 	}
 
 	public int getOrientation() {
-		return cardOrientation.value();
+		return getCardOrientation().value();
 	}
 
 	public void setCardOrientation(int orientation) {
-		this.cardOrientation = Orientation.fromValue(orientation);
+		this.shiftCard = new Card(getCardShape(), Orientation.fromValue(orientation), shiftCard.getTreasure());
 	}
 
 	public void setCardOrientation(Orientation orientation) {
-		this.cardOrientation = orientation;
+		this.shiftCard = new Card(getCardShape(), orientation, shiftCard.getTreasure());
 	}
 
 	public CardShape getCardShape() {
-		return cardShape;
+		return this.shiftCard.getShape();
 	}
 
 	public String getShape() {
-		return cardShape.name();
+		return this.shiftCard.getShape().name();
 	}
 
 	public void setCardShape(CardShape c) {
-		this.cardShape = c;
+		this.shiftCard = new Card(c, getCardOrientation(), shiftCard.getTreasure());
 	}
 
 	public void setCardShape(String c) {
-		this.cardShape = CardShape.valueOf(c);
+		this.shiftCard = new Card(CardShape.valueOf(c), getCardOrientation(), shiftCard.getTreasure());
 	}
 
 	public TreasureType getCardTreasure() {
@@ -136,12 +134,12 @@ public class GUIModel {
 	public void setPinPos(Position pinPos) {
 		this.pinPos = pinPos;
 	}
-	
-	public void setPlayerID(int id){
+
+	public void setPlayerID(int id) {
 		this.id = id;
 	}
-	
-	public int getPlayerID(){
+
+	public int getPlayerID() {
 		return id;
 	}
 

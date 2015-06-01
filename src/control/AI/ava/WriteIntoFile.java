@@ -9,7 +9,7 @@ import java.util.List;
 public class WriteIntoFile {
 	private File file;
 	private BufferedWriter bwriter;
-	public static final String FILEPATH = "src/control/AI/ava/tmp.txt";
+	public static final String FILEPATH = "src/control/AI/ava/tmp";
 
 	public WriteIntoFile(String filepath) {
 		file = new File(filepath);

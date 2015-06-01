@@ -21,7 +21,7 @@ public class Ava implements Player {
 
 	public Ava(Connection con) {
 		this.con = con;
-		wif = new WriteIntoFile(WriteIntoFile.FILEPATH);
+		wif = new WriteIntoFile(WriteIntoFile.FILEPATH + ".txt");
 		System.out.println(wif.clearFile());
 		wif.write("Ava");
 		WriteIntoFile possPos = new WriteIntoFile("src/control/AI/ava/possPos.txt");
