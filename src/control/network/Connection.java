@@ -1,7 +1,5 @@
 package control.network;
 
-import gui.testClasses.Tmp_testGUI;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -57,9 +55,6 @@ public class Connection {
 		}
 
 		public void processMessage(MazeCom message) {
-			// TODO einfach auskommentieren wenn ich es vergessen habe
-			 Tmp_testGUI.receiveServerMessage(message);
-
 			switch (message.getMcType()) {
 			case ACCEPT:
 				ctrl_event.receiveAcceptMessage(message.getAcceptMessage());
@@ -183,25 +178,21 @@ public class Connection {
 		return success;
 	}
 
-	public boolean isConnected() {
-		return isConnected;
-	}
-
-	public boolean closeConnection() {
-		if (isConnected) {
-			try {
-				clientSocket.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-				return false;
-			}
-		}
-		try {
-			serverListener.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		isConnected = false;
-		return true;
-	}
+//	public boolean closeConnection() {
+//		if (isConnected) {
+//			try {
+//				clientSocket.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//				return false;
+//			}
+//		}
+//		try {
+//			serverListener.join();
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+//		isConnected = false;
+//		return true;
+//	}
 }

@@ -3,15 +3,15 @@ package control.network;
 import java.io.IOException;
 import java.io.OutputStream;
  
-public class UTFOutputStream {
+class UTFOutputStream {
  
-  private OutputStream os;
+  private final OutputStream os;
  
-  public UTFOutputStream(OutputStream stream) {
+  UTFOutputStream(OutputStream stream) {
     os = stream;
   }
  
-  public void writeUTF8(String text) throws IOException
+  void writeUTF8(String text) throws IOException
   {
     byte[] bytes = text.getBytes("UTF-8");
     int len=bytes.length;
@@ -29,11 +29,11 @@ public class UTFOutputStream {
     os.write(bytes);
   }
  
-  public void flush() throws IOException {
-    os.flush();
-  }
- 
-  public void close() throws IOException {
-    this.os.close();
-  }
+//  public void flush() throws IOException {
+//    os.flush();
+//  }
+// 
+//  public void close() throws IOException {
+//    this.os.close();
+//  }
 }

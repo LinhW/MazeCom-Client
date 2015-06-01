@@ -6,6 +6,7 @@ import java.util.Random;
 import model.Board;
 import model.Card;
 import model.Position;
+import model.Card.Orientation;
 import model.jaxb.AcceptMessageType;
 import model.jaxb.AwaitMoveMessageType;
 import model.jaxb.CardType;
@@ -18,7 +19,7 @@ import model.jaxb.WinMessageType;
 import control.network.Connection;
 
 public class TryAndError implements Player {
-	private Connection con;
+	private final Connection con;
 	private int PlayerID;
 	private Random random;
 
@@ -40,20 +41,20 @@ public class TryAndError implements Player {
 
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
-		calcMove(Util.getBoard(message), message.getTreasure());
+		calcMove(new Board(message.getBoard()), message.getTreasure());
 	}
 
 	private void calcMove(Board b, TreasureType t) {
 		Board board = (Board) b.clone();
-		Position oldPinPos = Util.getPinPos(board, PlayerID);
+		Position oldPinPos = new Position(board.findPlayer(PlayerID));
 		List<PositionType> l = board.getAllReachablePositions(oldPinPos);
-		Position pt = Util.getTreasurePos(board, t);
-		Card shift = Util.getShiftCard(board);
+		Position pt = new Position(board.findTreasure(t));
+		Card shift = new Card(board.getShiftCard());
 		Position shiftPos;
 		MoveMessageType message = new MoveMessageType();
 		for (int i = 1; i < 6; i += 2) {
 			for (int j = 0; j < 4; j++) {
-				Card c = Util.rotateCard(shift, j * 90);
+				Card c = new Card(shift.getShape(), Orientation.fromValue(((shift.getOrientation().value() + j * 90) % 360)), shift.getTreasure());
 				for (int k = 0; k < 7; k += 6) {
 					board = (Board) b.clone();
 					board.setShiftCard(c);
@@ -62,10 +63,12 @@ public class TryAndError implements Player {
 					message.setShiftCard(shift);
 					board.proceedShift(message);
 					l = board.getAllReachablePositions(oldPinPos);
-					if (Util.containsInList(pt, l) != null) {
-						System.out.println("found it");
-						sendMoveMessage(PlayerID, c, shiftPos, pt);
-						return;
+					for (PositionType p : l) {
+						if (new Position(p).equals(pt)) {
+							System.out.println("found it");
+							sendMoveMessage(PlayerID, c, shiftPos, pt);
+							return;
+						}
 					}
 				}
 			}
@@ -77,7 +80,7 @@ public class TryAndError implements Player {
 
 	private void random(Board b) {
 		System.out.println("random");
-		CardType shift = Util.getShiftCard(b);
+		CardType shift = new Card(b.getShiftCard());
 		MoveMessageType move = new MoveMessageType();
 		Position shiftPos = new Position();
 		List<PositionType> list;

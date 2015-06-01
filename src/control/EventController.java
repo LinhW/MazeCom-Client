@@ -23,12 +23,12 @@ import control.network.Connection;
 import control.network.MazeComMessageFactory;
 
 public class EventController implements Player {
-	private GUIController ctrl_gui;
-	private Connection connection;
+	private final GUIController ctrl_gui;
+	private final Connection connection;
 	private int count = 0;
 	private MoveMessageType move;
 
-	public EventController(Connection connection) {
+	EventController(Connection connection) {
 		this.connection = connection;
 		ctrl_gui = new GUIController(this);
 		Debug.addDebugger(System.out, Settings.DEBUGLEVEL);
