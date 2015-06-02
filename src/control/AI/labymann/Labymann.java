@@ -1,15 +1,16 @@
 package control.AI.labymann;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.JOptionPane;
 
 import model.Board;
-import model.Card;
-import model.Position;
 import model.jaxb.AcceptMessageType;
 import model.jaxb.AwaitMoveMessageType;
+import model.jaxb.BoardType;
 import model.jaxb.CardType;
 import model.jaxb.DisconnectMessageType;
 import model.jaxb.LoginReplyMessageType;
@@ -20,51 +21,75 @@ import control.AI.Player;
 import control.network.Connection;
 
 public class Labymann implements Player {
-	private int player_id;
+	private int playerID;
+	private boolean first_move;
+	private AnalyseThread.Parameter parameter;
 	private final Connection connection;
-	private final ArrayList<TreasureType> treasuresToGo;
+	private ArrayList<TreasureType> treasures_to_go;
+	private ReentrantLock moveLock;
 	
 	public Labymann(Connection connection) {
 		this.connection = connection;
-		treasuresToGo = new ArrayList<TreasureType>();
-		for (TreasureType t : TreasureType.values()) {
-			treasuresToGo.add(t);
+		first_move = true;
+	}
+	
+	private void calculateMove(BoardType board, TreasureType treasure) {
+		/* -------------------- INITIALIZATION -------------------- */
+		ArrayList<Move> moves = new ArrayList<Move>();
+		ArrayList<AnalyseThread> threads = new ArrayList<AnalyseThread>();
+		parameter.setBoard(new Board(board));
+		parameter.setMoves(moves);
+		/* --------------------- CALCULATIONS --------------------- */
+		for (AnalyseThread.Side s : AnalyseThread.Side.values()) {
+			AnalyseThread t = new AnalyseThread(parameter, s);
+			threads.add(t);
+			t.start();
 		}
-		treasuresToGo.trimToSize();
+		for (AnalyseThread t : threads) {
+			try {
+				t.join();
+			} catch (InterruptedException e) {
+				System.err.println("Thread " + t.getId() + " has been interrupted!");
+			}
+		}
+		Move bestMove = Collections.max(moves);
+		sendMoveMessage(playerID, bestMove.getShiftCard(), bestMove.getShiftPosition(), bestMove.getMovePosition());
 	}
 	
 	@Override
 	public String login() {
-		String name = JOptionPane.showInputDialog("Nickname");
-		return name + "(Labymann)";
-	}
-	
-	private void calculateMove(Board board, TreasureType treasure) {
-		/* -------------------- INITIALIZATION -------------------- */
-		Card shiftCard = new Card(board.getShiftCard());
-		Position shiftPos = new Position(board.getForbidden());
-		Position oldPinPos = new Position(board.findPlayer(player_id));
-		Position newPinPos = new Position(oldPinPos);
-		/* --------------------- CALCULATIONS --------------------- */
-		
-		/* ------------------- CALCULATIONS END ------------------- */
-		sendMoveMessage(player_id, shiftCard, shiftPos, newPinPos);
+//		String name = JOptionPane.showInputDialog("Nickname");
+//		return name + "(Labymann)";
+		return "Labymann";
 	}
 
 	@Override
 	public void receiveLoginReply(LoginReplyMessageType message) {
-		this.player_id = message.getNewID();
+		this.playerID = message.getNewID();
+		treasures_to_go = new ArrayList<TreasureType>();
+		for (TreasureType t : TreasureType.values()) {
+			treasures_to_go.add(t);
+		}
+		treasures_to_go.trimToSize();
+		moveLock = new ReentrantLock();
+		parameter = new AnalyseThread.Parameter();
+		parameter.setLock(moveLock);
+		parameter.setPlayerID(playerID);
 		System.out.println("Login successful.");
 	}
 
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
+		if (first_move) {
+			parameter.setPlayerCount(message.getTreasuresToGo().size());
+			first_move = false;
+		}
 		List<TreasureType> found = message.getFoundTreasures();
 		for (TreasureType t : found) {
-			treasuresToGo.remove(t);
+			treasures_to_go.remove(t);
 		}
 		message.getTreasuresToGo().size();
-		calculateMove(new Board(message.getBoard()), message.getTreasure());
+		calculateMove(message.getBoard(), message.getTreasure());
 	}
 
 	@Override
