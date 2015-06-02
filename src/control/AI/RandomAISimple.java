@@ -31,7 +31,8 @@ public class RandomAISimple implements Player {
 
 	@Override
 	public String login() {
-		String name = JOptionPane.showInputDialog("Nickname");
+		// String name = JOptionPane.showInputDialog("Nickname");
+		String name = "";
 		System.out.println("Random AI");
 		return name + " (Random AI Simple)";
 	}
