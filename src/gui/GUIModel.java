@@ -125,6 +125,10 @@ public class GUIModel {
 		this.pinPos = pinPos;
 	}
 
+	public void setPinPos(int row, int col) {
+		this.pinPos = new Position(row, col);
+	}
+
 	public void setPlayerID(int id) {
 		this.id = id;
 	}

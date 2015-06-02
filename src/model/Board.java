@@ -232,7 +232,6 @@ public class Board extends BoardType {
 
 	// Fuehrt nur das Hereinschieben der Karte aus!!!
 	public void proceedShift(MoveMessageType move) {
-		System.out.println("proceed Shift");
 		Debug.print(Messages.getInstance().getString("Board.proceedShiftFkt"), DebugLevel.DEBUG); //$NON-NLS-1$
 		Position sm = new Position(move.getShiftPosition());
 		if (sm.getCol() % 6 == 0) { // Col=6 oder 0
@@ -305,16 +304,9 @@ public class Board extends BoardType {
 		// XXX ACHTUNG wird nicht mehr auf Richtigkeit ??berpr??ft!!!
 		this.proceedShift(move);
 		Position target = new Position(move.getNewPinPos());
-		movePlayer(findPlayer(currPlayer), target, currPlayer);
 		Card c = new Card(getCard(target.getRow(), target.getCol()));
 		return (c.getTreasure() == currentTreasure);
 
-	}
-
-	protected void movePlayer(PositionType oldPos, PositionType newPos, Integer playerID) {
-		Debug.print(Messages.getInstance().getString("Board.movePlayerFkt"), DebugLevel.DEBUG); //$NON-NLS-1$
-		getCard(oldPos.getRow(), oldPos.getCol()).getPin().getPlayerID().remove(playerID);
-		getCard(newPos.getRow(), newPos.getCol()).getPin().getPlayerID().add(playerID);
 	}
 
 	public Board fakeShift(MoveMessageType move) {
@@ -483,11 +475,9 @@ public class Board extends BoardType {
 
 	public void setPinPos(int PlayerID, int row, int col) {
 		Position p = new Position(findPlayer(PlayerID));
-		System.out.println("h " + p + "\t" + new Position(row, col));
 		Pin pin = this.getCard(p.getRow(), p.getCol()).getPin();
 		this.getCard(p.getRow(), p.getCol()).setPin(new Pin());
 		this.getCard(row, col).setPin(pin);
 		p = new Position(findPlayer(PlayerID));
-		System.out.println("h2 " + p);
 	}
 }

@@ -9,12 +9,12 @@ public class Settings {
 	/**
 	 * Die Zeit in Milisekunden, die die Animation eines Zug (die Bewegung des Pins) benoetigen soll
 	 */
-	public final static int MOVEDELAY = 10000;
+	public final static int MOVEDELAY = 1000;
 	/**
 	 * Die Zeit in Milisekunden, die das Einschieben der Shiftcard dauern soll
 	 */
 
-	public final static int SHIFTDELAY = 10000;
+	public final static int SHIFTDELAY = 1000;
 	/**
 	 * Wenn TESTBOARD = true ist, dann ist das Spielbrett bei jedem Start identisch (zum Debugging)
 	 */

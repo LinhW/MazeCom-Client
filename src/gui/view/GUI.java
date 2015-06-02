@@ -13,10 +13,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
@@ -66,7 +63,6 @@ import model.jaxb.MoveMessageType;
 import model.jaxb.TreasuresToGoType;
 import model.jaxb.WinMessageType.Winner;
 import control.Settings;
-import java.awt.GridLayout;
 
 @SuppressWarnings("serial")
 public class GUI extends JFrame {
@@ -232,10 +228,6 @@ public class GUI extends JFrame {
 				g.setColor(Color.YELLOW);
 				g.drawRect(topLeftX, topLeftY, pixelsPerField, pixelsPerField);
 			}
-		}
-
-		public int getPixelsPerField() {
-			return pixelsPerField;
 		}
 
 		private void centerStringInRect(Graphics2D g2d, String s, int x, int y, int height, int width) {
@@ -897,6 +889,23 @@ public class GUI extends JFrame {
 		animateMove = false;
 		MoveMessageType move = new MoveMessageType();
 		move.setNewPinPos(model.getPinPos());
+		if (!(model.getPinPos().getRow() % 2 == 0 && model.getPinPos().getCol() % 2 == 0)) {
+			if (model.getRow() == model.getPinPos().getRow()) {
+				if (model.getCol() == 0) {
+					model.setPinPos(model.getPinPos().getRow(), model.getPinPos().getCol() + 1);
+				} else {
+					model.setPinPos(model.getPinPos().getRow(), model.getPinPos().getCol() - 1);
+				}
+			}
+
+			if (model.getCol() == model.getPinPos().getCol()) {
+				if (model.getRow() == 0) {
+					model.setPinPos(model.getPinPos().getRow() + 1, model.getPinPos().getCol());
+				} else {
+					model.setPinPos(model.getPinPos().getRow() - 1, model.getPinPos().getCol());
+				}
+			}
+		}
 		move.setShiftCard(model.getShiftCard());
 		move.setShiftPosition(new Position(model.getRow(), model.getCol()));
 		board.proceedTurn(move, model.getPlayerID());
