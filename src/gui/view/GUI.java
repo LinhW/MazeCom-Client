@@ -139,6 +139,7 @@ public class GUI extends JFrame {
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
+			System.out.println("u shall paint");
 			if (board == null)
 				return;
 			System.out.println("animationProp " + animationProperties);
@@ -510,7 +511,9 @@ public class GUI extends JFrame {
 		public void actionPerformed(ActionEvent arg0) {
 			System.out.println("shiftanimation");
 			animationState++;
-			uiboard.repaint();
+//			uiboard.repaint();
+			uiboard.paintComponent(uiboard.getGraphics());
+			System.out.println("shiftanimation Ende");
 			if (animationState == animationFrames) {
 				animationState = 0;
 				animationTimer.stopIt();
@@ -635,9 +638,9 @@ public class GUI extends JFrame {
 		shiftCard.setCard(new Card(mm.getShiftCard()));
 		if (animateShift) {
 			uiboard.board.setShiftCard(mm.getShiftCard());
+			animationProperties = new AnimationProperties(new Position(mm.getShiftPosition()));
 			animationTimer = new Timer(shiftDelay, new ShiftAnimationTimerOperation());
 			animationTimer.setInitialDelay(0);
-			animationProperties = new AnimationProperties(new Position(mm.getShiftPosition()));
 			synchronized (animationFinished) {
 				animationTimer.start();
 				try {
