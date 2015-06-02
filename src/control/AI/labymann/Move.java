@@ -1,23 +1,35 @@
 package control.AI.labymann;
 
-import model.jaxb.CardType;
+import model.Card;
 import model.jaxb.PositionType;
 
 public class Move implements Comparable<Move> {
 	private PositionType shiftPosition;
 	private PositionType movePosition;
-	private CardType shiftCard;
+	private Card shiftCard;
 	private int value;
 	
 	public Move() {
 		super();
 	}
 	
-	public Move(CardType shiftCard, PositionType shift, PositionType move, int value) {
+	public Move(Card shiftCard, PositionType shift, PositionType move, int value) {
 		this.shiftPosition = shift;
 		this.movePosition = move;
 		this.shiftCard = shiftCard;
 		this.value = value;
+	}
+
+	public void setShiftPosition(PositionType shiftPosition) {
+		this.shiftPosition = shiftPosition;
+	}
+
+	public void setMovePosition(PositionType movePosition) {
+		this.movePosition = movePosition;
+	}
+
+	public void setShiftCard(Card shiftCard) {
+		this.shiftCard = shiftCard;
 	}
 
 	public PositionType getShiftPosition() {
@@ -28,7 +40,7 @@ public class Move implements Comparable<Move> {
 		return movePosition;
 	}
 	
-	public CardType getShiftCard() {
+	public Card getShiftCard() {
 		return shiftCard;
 	}
 

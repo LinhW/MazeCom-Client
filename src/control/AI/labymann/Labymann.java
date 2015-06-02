@@ -10,7 +10,6 @@ import javax.swing.JOptionPane;
 import model.Board;
 import model.jaxb.AcceptMessageType;
 import model.jaxb.AwaitMoveMessageType;
-import model.jaxb.BoardType;
 import model.jaxb.CardType;
 import model.jaxb.DisconnectMessageType;
 import model.jaxb.LoginReplyMessageType;
@@ -23,7 +22,7 @@ import control.network.Connection;
 public class Labymann implements Player {
 	private int playerID;
 	private boolean first_move;
-	private AnalyseThread.Parameter parameter;
+	private Parameter parameter;
 	private final Connection connection;
 	private ArrayList<TreasureType> treasures_to_go;
 	private ReentrantLock moveLock;
@@ -33,11 +32,10 @@ public class Labymann implements Player {
 		first_move = true;
 	}
 	
-	private void calculateMove(BoardType board, TreasureType treasure) {
+	private void calculateMove() {
 		/* -------------------- INITIALIZATION -------------------- */
 		ArrayList<Move> moves = new ArrayList<Move>();
 		ArrayList<AnalyseThread> threads = new ArrayList<AnalyseThread>();
-		parameter.setBoard(new Board(board));
 		parameter.setMoves(moves);
 		/* --------------------- CALCULATIONS --------------------- */
 		for (AnalyseThread.Side s : AnalyseThread.Side.values()) {
@@ -72,7 +70,7 @@ public class Labymann implements Player {
 		}
 		treasures_to_go.trimToSize();
 		moveLock = new ReentrantLock();
-		parameter = new AnalyseThread.Parameter();
+		parameter = new Parameter();
 		parameter.setLock(moveLock);
 		parameter.setPlayerID(playerID);
 		System.out.println("Login successful.");
@@ -88,8 +86,10 @@ public class Labymann implements Player {
 		for (TreasureType t : found) {
 			treasures_to_go.remove(t);
 		}
-		message.getTreasuresToGo().size();
-		calculateMove(message.getBoard(), message.getTreasure());
+		parameter.setTreasure(message.getTreasure());
+		parameter.setBoard(new Board(message.getBoard()));
+		parameter.setTreasuresToGo(message.getTreasuresToGo());
+		calculateMove();
 	}
 
 	@Override
