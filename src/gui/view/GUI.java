@@ -40,6 +40,7 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
@@ -60,6 +61,7 @@ import model.jaxb.BoardType.Row;
 import model.jaxb.CardType;
 import model.jaxb.MoveMessageType;
 import model.jaxb.TreasuresToGoType;
+import model.jaxb.WinMessageType.Winner;
 import control.Settings;
 
 @SuppressWarnings("serial")
@@ -67,14 +69,13 @@ public class GUI extends JFrame {
 
 	UIBoard uiboard = new UIBoard();
 	private static boolean animateMove = true;
-	private static boolean animateShift = true;
+	private static final boolean animateShift = true;
 	private static final int animationFrames = 10;
 	private int animationState = 0;
 	Object animationFinished = new Object();
 	Timer animationTimer;
 	AnimationProperties animationProperties = null;
 	public GraphicalCardBuffered shiftCard;
-	private JLabel lb_shiftCard;
 	private JLabel lb_treasure_pic;
 	private JLabel lb_statistic;
 	private boolean hasFocus;
@@ -137,10 +138,8 @@ public class GUI extends JFrame {
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
-			System.out.println("startsdf");
 			if (board == null)
 				return;
-			System.out.println("paint");
 			System.out.println("animationProp " + animationProperties);
 			int width = this.getWidth();
 			int height = this.getHeight();
@@ -245,7 +244,6 @@ public class GUI extends JFrame {
 
 	private void createView() {
 		createMenu();
-		shiftCard = new GraphicalCardBuffered();
 		getContentPane().setLayout(new BorderLayout());
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		JPanel splitPanel_right = new JPanel();
@@ -257,8 +255,8 @@ public class GUI extends JFrame {
 			JPanel sp_top = new JPanel();
 			{
 				sp_top.setLayout(new BorderLayout());
-				lb_shiftCard = new JLabel();
-				sp_top.add(lb_shiftCard, BorderLayout.CENTER);
+				shiftCard = new GraphicalCardBuffered();
+				sp_top.add(shiftCard, BorderLayout.CENTER);
 			}
 
 			JPanel sp_bottom = new JPanel();
@@ -332,19 +330,16 @@ public class GUI extends JFrame {
 	}
 
 	private void showPreferences() {
-		// TODO Auto-generated method stub
 		JDialog dialog = new JDialog();
 		dialog.addWindowFocusListener(new WindowFocusListener() {
 
 			@Override
 			public void windowLostFocus(WindowEvent e) {
-				// TODO Auto-generated method stub
 				hasFocus_dialog = false;
 			}
 
 			@Override
 			public void windowGainedFocus(WindowEvent e) {
-				// TODO Auto-generated method stub
 				hasFocus_dialog = true;
 			}
 		});
@@ -438,7 +433,8 @@ public class GUI extends JFrame {
 	private void update_own() {
 		PersData p = (PersData) Context.getInstance().getValue(Context.USER);
 		Card c = model.getShiftCard();
-		lb_shiftCard.setIcon(new ImageIcon(ImageRessources.getImage(c.value())));
+		// TODO
+		shiftCard.setCard(c);
 		lb_treasure_pic.setIcon(new ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
 		String stat = "";
 		@SuppressWarnings("unchecked")
@@ -524,9 +520,7 @@ public class GUI extends JFrame {
 				animationTimer = null;
 				animationProperties = null;
 				synchronized (animationFinished) {
-					System.out.println("for notify");
 					animationFinished.notify();
-					System.out.println("nach notify");
 				}
 			}
 		}
@@ -640,7 +634,6 @@ public class GUI extends JFrame {
 	public void displayMove(MoveMessageType mm, Board b, long moveDelay, long shiftDelay) {
 		// Die Dauer von shiftDelay bezieht sich auf den kompletten Shift und
 		// nicht auf einen einzelnen Frame
-		System.out.println("displayMove");
 		shiftDelay /= animationFrames;
 		shiftCard.setCard(new Card(mm.getShiftCard()));
 		if (animateShift) {
@@ -651,21 +644,16 @@ public class GUI extends JFrame {
 			synchronized (animationFinished) {
 				animationTimer.start();
 				try {
-					// animationTimer.start();
-					System.out.println("wait");
 					animationFinished.wait();
-					System.out.println("wait end");
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
 		}
-		System.out.println("mitte");
 		Position oldPlayerPos = new Position(uiboard.board.findPlayer(model.getPlayerID()));
 		uiboard.setBoard(b);
 		// XXX: Von Matthias (alte Karten waren vorher noch sichtbar)
 		uiboard.repaint();
-		System.out.println("repaint should");
 		if (animateMove) {
 			// Falls unser Spieler sich selbst verschoben hat.
 			AnimationProperties props = new AnimationProperties(new Position(mm.getShiftPosition()));
@@ -691,8 +679,6 @@ public class GUI extends JFrame {
 			uiboard.repaint();
 		}
 		animateMove = true;
-		animateShift = true;
-		System.out.println("ende displayMove");
 	}
 
 	public void update(Board b) {
@@ -702,7 +688,7 @@ public class GUI extends JFrame {
 	}
 
 	public void close() {
-		// TODO
+		// TODOs
 		removeListener();
 		this.dispose();
 	}
@@ -725,27 +711,21 @@ public class GUI extends JFrame {
 	}
 
 	public void rotate(boolean rotateLeft) {
-		// TODO
 		int rot = 90;
 		if (rotateLeft) {
 			rot += 180;
 		}
 		int orient = (model.getOrientation() + rot) % 360;
-		lb_shiftCard.setIcon(new ImageIcon(ImageRessources.getImage("" + model.getCardShape() + orient)));
+		// lb_shiftCard.setIcon(new ImageIcon(ImageRessources.getImage("" + model.getCardShape() + orient)));
 		model.setCardOrientation(orient);
 	}
 
-	// public void setGame(Game g) {
-	// this.g = g;
-	// }
-	public void gameEnded(int winner) {
-		System.out.println("game ended");
-		// if (winner != null) {
-		//				JOptionPane.showMessageDialog(this, String.format(Messages.getInstance().getString("BetterUI.playerIDwon"), winner.getName() //$NON-NLS-1$
-		// , winner.getID()));
-		// }
-		// // MIStart.setEnabled(true);
-		// // MIStop.setEnabled(false);
+	public void gameEnded(Winner winner) {
+		if (winner.getId() != model.getPlayerID()) {
+			JOptionPane.showMessageDialog(this, winner.getValue() + " (Player " + winner.getId() + ") has wons!");
+		} else {
+			JOptionPane.showMessageDialog(this, "You WON\nCongratulation!");
+		}
 	}
 
 	public void sendMove() {
@@ -789,11 +769,9 @@ public class GUI extends JFrame {
 				if (sendMove) {
 					sendMove = false;
 					sendMove();
-					System.out.println("pressed Enter send Move");
 					return;
 				} else {
 					sendMove = true;
-					System.out.println("pressed Enter");
 					myController.proceedShift();
 					return;
 				}
@@ -850,7 +828,6 @@ public class GUI extends JFrame {
 					}
 					uiboard.repaint();
 				} else {
-					System.out.println("down pressed");
 					if (model.getPinPos().getRow() < 6) {
 						myController.moveBot();
 					}
@@ -877,7 +854,6 @@ public class GUI extends JFrame {
 					}
 					uiboard.repaint();
 				} else {
-					System.out.println("left pressed");
 					if (model.getPinPos().getCol() > 0) {
 						myController.moveLeft();
 					}
@@ -904,7 +880,6 @@ public class GUI extends JFrame {
 					}
 					uiboard.repaint();
 				} else {
-					System.out.println("right pressed");
 					if (model.getPinPos().getCol() < 6) {
 						myController.moveRight();
 					}
@@ -914,7 +889,6 @@ public class GUI extends JFrame {
 	}
 
 	public void proceedShift(Board board) {
-		System.out.println("proceed");
 		animateMove = false;
 		MoveMessageType move = new MoveMessageType();
 		move.setNewPinPos(model.getPinPos());
@@ -924,11 +898,9 @@ public class GUI extends JFrame {
 		displayMove(move, board, Settings.MOVEDELAY, Settings.SHIFTDELAY);
 		uiboard.setBoard(board);
 		uiboard.repaint();
-		System.out.println("ende");
 	}
 
 	public void movePin(Board b) {
-		System.out.println("u shall repaint");
 		uiboard.setBoard(b);
 		uiboard.repaint();
 	}

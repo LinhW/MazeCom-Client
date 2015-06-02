@@ -1,6 +1,5 @@
 package gui.view;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -8,27 +7,19 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.TexturePaint;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.Timer;
 
 import model.Card;
-import model.Messages;
 import model.Card.CardShape;
 import model.Card.Orientation;
+import model.Messages;
 import model.jaxb.TreasureType;
 import tools.Debug;
 import tools.DebugLevel;
@@ -39,7 +30,6 @@ public class GraphicalCardBuffered extends JPanel implements ComponentListener {
 	private static final long serialVersionUID = 7583185643671311612L;
 	private Image shape;
 	private Image treasure;
-	private List<Integer> pin;
 	private TexturePaint paintBuffer = null;
 	private CardShape cardShape;
 	private Orientation cardOrientation;
@@ -54,7 +44,6 @@ public class GraphicalCardBuffered extends JPanel implements ComponentListener {
 		// setBackground(Color.blue);
 		loadShape(CardShape.T, Orientation.D0);
 		loadTreasure(null);
-		loadPins(null);
 		addComponentListener(this);
 		maxSize = 150;
 		minSize = 50;
@@ -71,7 +60,6 @@ public class GraphicalCardBuffered extends JPanel implements ComponentListener {
 	public void setCard(Card c) {
 		loadShape(c.getShape(), c.getOrientation());
 		loadTreasure(c.getTreasure());
-		loadPins(c.getPin().getPlayerID());
 		componentResized(new ComponentEvent(this, -1));
 	}
 
@@ -92,45 +80,6 @@ public class GraphicalCardBuffered extends JPanel implements ComponentListener {
 		updatePaint();
 	}
 
-	// FIXME
-	/**
-	 * show a JOptionPane with an image for a specified time
-	 * 
-	 * @param title
-	 * @param filepath
-	 * @param scaling
-	 * @param timer
-	 * @param smaller
-	 * @throws Exception
-	 */
-	public static void showMessageWithTimer(String title, String filepath, int scaling, int timer, boolean smaller) throws Exception {
-		ImageIcon icon = new ImageIcon(filepath);
-		Image img = icon.getImage();
-		if (img.getWidth(null) < 0 || img.getHeight(null) < 0)
-			throw new Exception("invalid adress. Cannot find image");
-		Image newimg;
-		if (smaller) {
-			newimg = img.getScaledInstance(img.getWidth(null) / scaling, img.getHeight(null) / scaling, java.awt.Image.SCALE_SMOOTH);
-		} else {
-			newimg = img.getScaledInstance(img.getWidth(null) * scaling, img.getHeight(null) * scaling, java.awt.Image.SCALE_SMOOTH);
-		}
-		icon = new ImageIcon(newimg);
-		JLabel lb = new JLabel(icon, JLabel.CENTER);
-		JOptionPane pane = new JOptionPane(lb);
-		final JDialog dialog;
-		dialog = pane.createDialog(null, title);
-		dialog.setAlwaysOnTop(true);
-		dialog.setModal(false);
-		dialog.setVisible(true);
-
-		new Timer(timer, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				dialog.dispose();
-			}
-		}).start();
-	}
-
 	public void loadTreasure(TreasureType t) {
 		if (t == this.cardTreasure) {
 			return;
@@ -147,14 +96,6 @@ public class GraphicalCardBuffered extends JPanel implements ComponentListener {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		updatePaint();
-	}
-
-	public void loadPins(List<Integer> list) {
-		if (list != null && list.size() != 0)
-			pin = list;
-		else
-			pin = null;
 		updatePaint();
 	}
 
@@ -180,15 +121,6 @@ public class GraphicalCardBuffered extends JPanel implements ComponentListener {
 		if (treasure != null) {
 			int zentrum = h / 2 - treasure.getHeight(null) / 2;
 			g2.drawImage(treasure, zentrum, zentrum, null);
-		}
-		if (pin != null) {
-			g2.setColor(Color.BLACK);
-			int height = 15;
-			int width = 20;
-			int zentrum = h / 2 - height / 2;
-			g2.fillOval(zentrum, zentrum, height, width);
-			char[] number = { (pin.get(0).toString()).charAt(0) };
-			g2.drawChars(number, 0, 1, zentrum, zentrum);
 		}
 		paintBuffer = new TexturePaint(buff, new Rectangle(0, 0, w, h));
 		g2.dispose();
@@ -227,21 +159,6 @@ public class GraphicalCardBuffered extends JPanel implements ComponentListener {
 				e.printStackTrace();
 			}
 			shape = save;
-			updatePaint();
-		}
-	}
-
-	public void blinkPlayer(long millis, int n) {
-		List<Integer> save = pin;
-		for (int i = 0; i < n; i++) {
-			pin = null;
-			updatePaint();
-			try {
-				Thread.sleep(millis / n);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			pin = save;
 			updatePaint();
 		}
 	}
