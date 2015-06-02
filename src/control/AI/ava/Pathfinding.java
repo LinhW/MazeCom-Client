@@ -58,8 +58,10 @@ public class Pathfinding {
 			if (list.size() == 1 && list_rev.size() == 1) {
 				if (list.get(0).equals(list_rev.get(0))) {
 					pph = list.get(0);
-				}else{
-					
+				} else {
+					if (list_rev.get(0).getDiff() < 4) {
+						pph = list_rev.get(0);
+					}
 				}
 			} else {
 				list = chooseOrientation(list, trePos);

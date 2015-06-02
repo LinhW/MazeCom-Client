@@ -140,20 +140,20 @@ public class GraphicalCardBuffered extends JPanel implements ComponentListener {
 		}
 	}
 
-	public void blinkCard(long millis, int n) {
-		Image save = shape;
-		for (int i = 0; i < n; i++) {
-			shape = null;
-			updatePaint();
-			try {
-				Thread.sleep(millis / n);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			shape = save;
-			updatePaint();
-		}
-	}
+//	public void blinkCard(long millis, int n) {
+//		Image save = shape;
+//		for (int i = 0; i < n; i++) {
+//			shape = null;
+//			updatePaint();
+//			try {
+//				Thread.sleep(millis / n);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//			shape = save;
+//			updatePaint();
+//		}
+//	}
 
 	@Override
 	public void componentHidden(ComponentEvent e) {
