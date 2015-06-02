@@ -66,8 +66,8 @@ import control.Settings;
 public class GUI extends JFrame {
 
 	UIBoard uiboard = new UIBoard();
-	private static final boolean animateMove = true;
-	private static final boolean animateShift = true;
+	private static boolean animateMove = true;
+	private static boolean animateShift = true;
 	private static final int animationFrames = 10;
 	private int animationState = 0;
 	Object animationFinished = new Object();
@@ -141,6 +141,7 @@ public class GUI extends JFrame {
 			if (board == null)
 				return;
 			System.out.println("paint");
+			System.out.println("animationProp " + animationProperties);
 			int width = this.getWidth();
 			int height = this.getHeight();
 			width = height = Math.min(width, height);
@@ -183,32 +184,32 @@ public class GUI extends JFrame {
 					}
 				}
 			}
+			if (!sendMove) {
+				int x = 0;
+				int y = 0;
+				switch (model.getCol()) {
+				case 0:
+					x = 0;
+					break;
+				case 6:
+					x = 7 * pixelsPerField - 20;
+					break;
+				default:
+					x = pixelsPerField * model.getCol() + pixelsPerField / 2 - 10;
+				}
 
-			int x = 0;
-			int y = 0;
-			switch (model.getCol()) {
-			case 0:
-				x = 0;
-				break;
-			case 6:
-				x = 7 * pixelsPerField - 20;
-				break;
-			default:
-				x = pixelsPerField * model.getCol() + pixelsPerField / 2 - 10;
+				switch (model.getRow()) {
+				case 0:
+					y = 0;
+					break;
+				case 6:
+					y = 7 * pixelsPerField - 20;
+					break;
+				default:
+					y = pixelsPerField * model.getRow() + pixelsPerField / 2 - 10;
+				}
+				g.drawImage(ImageRessources.getImage("Red_Arrow_Up"), x, y, 20, 20, null);
 			}
-
-			switch (model.getRow()) {
-			case 0:
-				y = 0;
-				break;
-			case 6:
-				y = 7 * pixelsPerField - 20;
-				break;
-			default:
-				y = pixelsPerField * model.getRow() + pixelsPerField / 2 - 10;
-			}
-
-			g.drawImage(ImageRessources.getImage("Red_Arrow_Up"), x, y, 20, 20, null);
 			// Zeichnen der eingeschobenen karte in der animation
 			if (animationProperties != null) {
 				int topLeftY = pixelsPerField * (animationProperties.shiftPosition.getRow() - (animationProperties.vertikal ? animationProperties.direction : 0));
@@ -515,14 +516,11 @@ public class GUI extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			System.out.println("shiftanimation");
-			System.out.println(arg0.getSource());
-			System.out.println(arg0.getSource().getClass());
-			System.out.println(arg0.getSource().getClass().getName());
 			animationState++;
 			uiboard.repaint();
 			if (animationState == animationFrames) {
 				animationState = 0;
-				animationTimer.stop();
+				animationTimer.stopIt();
 				animationTimer = null;
 				animationProperties = null;
 				synchronized (animationFinished) {
@@ -625,7 +623,7 @@ public class GUI extends JFrame {
 		public void actionPerformed(ActionEvent arg0) {
 			if (i + 1 == points.length) {
 				synchronized (animationFinished) {
-					animationTimer.stop();
+					animationTimer.stopIt();
 					animationTimer = null;
 					animationFinished.notify();
 				}
@@ -652,14 +650,14 @@ public class GUI extends JFrame {
 			animationProperties = new AnimationProperties(new Position(mm.getShiftPosition()));
 			synchronized (animationFinished) {
 				animationTimer.start();
-//				try {
-//					// animationTimer.start();
-//					System.out.println("wait");
-//					animationFinished.wait();
-//					System.out.println("wait end");
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				}
+				try {
+					// animationTimer.start();
+					System.out.println("wait");
+					animationFinished.wait();
+					System.out.println("wait end");
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		System.out.println("mitte");
@@ -683,15 +681,17 @@ public class GUI extends JFrame {
 			animationTimer = new Timer((int) moveDelay, new MoveAnimationTimerOperation(uiboard.board, oldPlayerPos, new Position(mm.getNewPinPos())));
 			synchronized (animationFinished) {
 				animationTimer.start();
-//				try {
-//					animationFinished.wait();
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				}
+				try {
+					animationFinished.wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		} else {
 			uiboard.repaint();
 		}
+		animateMove = true;
+		animateShift = true;
 		System.out.println("ende displayMove");
 	}
 
@@ -787,7 +787,9 @@ public class GUI extends JFrame {
 			switch (action) {
 			case KeyEvent.VK_ENTER:
 				if (sendMove) {
+					sendMove = false;
 					sendMove();
+					System.out.println("pressed Enter send Move");
 					return;
 				} else {
 					sendMove = true;
@@ -822,7 +824,9 @@ public class GUI extends JFrame {
 					}
 					uiboard.repaint();
 				} else {
-					System.out.println("up pressed");
+					if (model.getPinPos().getRow() > 0) {
+						myController.moveTop();
+					}
 				}
 			} else if (action == model.getKeyEvent(Context.DOWN)) {
 				if (!sendMove) {
@@ -847,6 +851,9 @@ public class GUI extends JFrame {
 					uiboard.repaint();
 				} else {
 					System.out.println("down pressed");
+					if (model.getPinPos().getRow() < 6) {
+						myController.moveBot();
+					}
 				}
 			} else if (action == model.getKeyEvent(Context.LEFT)) {
 				if (!sendMove) {
@@ -871,6 +878,9 @@ public class GUI extends JFrame {
 					uiboard.repaint();
 				} else {
 					System.out.println("left pressed");
+					if (model.getPinPos().getCol() > 0) {
+						myController.moveLeft();
+					}
 				}
 			} else if (action == model.getKeyEvent(Context.RIGHT)) {
 				if (!sendMove) {
@@ -895,6 +905,9 @@ public class GUI extends JFrame {
 					uiboard.repaint();
 				} else {
 					System.out.println("right pressed");
+					if (model.getPinPos().getCol() < 6) {
+						myController.moveRight();
+					}
 				}
 			}
 		}
@@ -902,6 +915,7 @@ public class GUI extends JFrame {
 
 	public void proceedShift(Board board) {
 		System.out.println("proceed");
+		animateMove = false;
 		MoveMessageType move = new MoveMessageType();
 		move.setNewPinPos(model.getPinPos());
 		move.setShiftCard(model.getShiftCard());
@@ -911,5 +925,11 @@ public class GUI extends JFrame {
 		uiboard.setBoard(board);
 		uiboard.repaint();
 		System.out.println("ende");
+	}
+
+	public void movePin(Board b) {
+		System.out.println("u shall repaint");
+		uiboard.setBoard(b);
+		uiboard.repaint();
 	}
 }

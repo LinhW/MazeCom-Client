@@ -6,15 +6,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class Timer implements Runnable {
+public class Timer extends Thread {
 	private long delay;
 	private long initdelay;
 	private List<ActionListener> list;
 	private boolean stop = false;
+	private boolean init = true;
 
 	@Override
 	public void run() {
 		try {
+			if (init) {
+				TimeUnit.MILLISECONDS.sleep(initdelay);
+				init = false;
+			}
 			for (ActionListener listener : list) {
 				listener.actionPerformed(new ActionEvent(this, list.indexOf(listener), "fireF"));
 			}
@@ -28,19 +33,8 @@ public class Timer implements Runnable {
 		}
 	}
 
-	public void stop() {
+	public void stopIt() {
 		stop = true;
-	}
-
-	public void start() {
-
-		try {
-			TimeUnit.MILLISECONDS.sleep(initdelay);
-			run();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	public Timer(long shiftDelay, ActionListener listener) {

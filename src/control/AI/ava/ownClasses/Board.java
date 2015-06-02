@@ -318,4 +318,11 @@ public class Board extends BoardType {
 	public TreasureType getTreasure() {
 		return currentTreasure;
 	}
+
+	public void setPinPos(int PlayerID, int row, int col) {
+		Position p = getPinPos(PlayerID);
+		Pin pin = this.getCard(p.getRow(), p.getCol()).getPin();
+		this.getCard(p.getRow(), p.getCol()).setPin(new Pin());
+		this.getCard(row, col).setPin(pin);
+	}
 }

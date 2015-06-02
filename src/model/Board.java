@@ -9,11 +9,11 @@ import model.Card.CardShape;
 import model.Card.Orientation;
 import model.jaxb.BoardType;
 import model.jaxb.CardType;
+import model.jaxb.CardType.Openings;
+import model.jaxb.CardType.Pin;
 import model.jaxb.MoveMessageType;
 import model.jaxb.PositionType;
 import model.jaxb.TreasureType;
-import model.jaxb.CardType.Openings;
-import model.jaxb.CardType.Pin;
 import tools.Debug;
 import tools.DebugLevel;
 import control.Settings;
@@ -479,5 +479,15 @@ public class Board extends BoardType {
 
 	public TreasureType getTreasure() {
 		return currentTreasure;
+	}
+
+	public void setPinPos(int PlayerID, int row, int col) {
+		Position p = new Position(findPlayer(PlayerID));
+		System.out.println("h " + p + "\t" + new Position(row, col));
+		Pin pin = this.getCard(p.getRow(), p.getCol()).getPin();
+		this.getCard(p.getRow(), p.getCol()).setPin(new Pin());
+		this.getCard(row, col).setPin(pin);
+		p = new Position(findPlayer(PlayerID));
+		System.out.println("h2 " + p);
 	}
 }

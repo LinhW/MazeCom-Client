@@ -76,11 +76,55 @@ public class GUIController {
 	public void sendMove() {
 		Card c = new Card(model.getCardShape(), model.getCardOrientation(), model.getCardTreasure());
 		Position shift = new Position(model.getRow(), model.getCol());
-		Position pin = new Position(((Board) Context.getInstance().getValue(Context.BOARD)).findPlayer(((PersData) Context.getInstance().getValue(Context.USER)).getID()));
+		Position pin = model.getPinPos();
 		ctrl_event.sendMoveMessage(model.getPlayerID(), c, shift, pin);
 	}
 
 	public void proceedShift() {
 		gui.proceedShift(b);
+	}
+
+	public void moveTop() {
+		if (b.getCard(model.getPinPos().getRow(), model.getPinPos().getCol()).getOpenings().isTop()
+				&& b.getCard(model.getPinPos().getRow() - 1, model.getPinPos().getCol()).getOpenings().isBottom()) {
+			Position p = new Position(b.findPlayer(model.getPlayerID()));
+			p.setRow(p.getRow() - 1);
+			model.setPinPos(p);
+			b.setPinPos(model.getPlayerID(), p.getRow(), p.getCol());
+			gui.movePin(b);
+		}
+	}
+
+	public void moveBot() {
+		if (b.getCard(model.getPinPos().getRow(), model.getPinPos().getCol()).getOpenings().isBottom()
+				&& b.getCard(model.getPinPos().getRow() + 1, model.getPinPos().getCol()).getOpenings().isTop()) {
+			Position p = new Position(b.findPlayer(model.getPlayerID()));
+			p.setRow(p.getRow() + 1);
+			model.setPinPos(p);
+			b.setPinPos(model.getPlayerID(), p.getRow(), p.getCol());
+			gui.movePin(b);
+		}
+	}
+
+	public void moveRight() {
+		if (b.getCard(model.getPinPos().getRow(), model.getPinPos().getCol()).getOpenings().isRight()
+				&& b.getCard(model.getPinPos().getRow(), model.getPinPos().getCol() + 1).getOpenings().isLeft()) {
+			Position p = new Position(b.findPlayer(model.getPlayerID()));
+			p.setCol(p.getCol() + 1);
+			model.setPinPos(p);
+			b.setPinPos(model.getPlayerID(), p.getRow(), p.getCol());
+			gui.movePin(b);
+		}
+	}
+
+	public void moveLeft() {
+		if (b.getCard(model.getPinPos().getRow(), model.getPinPos().getCol()).getOpenings().isLeft()
+				&& b.getCard(model.getPinPos().getRow(), model.getPinPos().getCol() - 1).getOpenings().isRight()) {
+			Position p = new Position(b.findPlayer(model.getPlayerID()));
+			p.setCol(p.getCol() - 1);
+			model.setPinPos(p);
+			b.setPinPos(model.getPlayerID(), p.getRow(), p.getCol());
+			gui.movePin(b);
+		}
 	}
 }
