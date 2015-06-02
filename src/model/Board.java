@@ -289,6 +289,7 @@ public class Board extends BoardType {
 			c.setPin(temp);
 		}
 		setCard(sm.getRow(), sm.getCol(), c);
+		System.out.println("ende proceed Shift");
 	}
 
 	/**

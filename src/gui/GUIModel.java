@@ -5,16 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import model.Board;
 import model.Card;
-import model.Position;
 import model.Card.CardShape;
 import model.Card.Orientation;
+import model.Position;
 import model.jaxb.TreasureType;
 
 public class GUIModel {
 
-	private Board board;
 	private Card shiftCard;
 	private TreasureType cardTreasure;
 	private Map<String, Integer> map;
@@ -109,14 +107,6 @@ public class GUIModel {
 
 	public Set<String> getKeys() {
 		return map.keySet();
-	}
-
-	public Board getBoard() {
-		return board;
-	}
-
-	public void setBoard(Board board) {
-		this.board = board;
 	}
 
 	public Card getShiftCard() {

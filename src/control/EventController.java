@@ -13,20 +13,17 @@ import model.jaxb.AwaitMoveMessageType;
 import model.jaxb.CardType;
 import model.jaxb.DisconnectMessageType;
 import model.jaxb.LoginReplyMessageType;
-import model.jaxb.MoveMessageType;
 import model.jaxb.PositionType;
 import model.jaxb.WinMessageType;
 import tools.Debug;
 import tools.DebugLevel;
 import control.AI.Player;
 import control.network.Connection;
-import control.network.MazeComMessageFactory;
 
 public class EventController implements Player {
 	private final GUIController ctrl_gui;
 	private final Connection connection;
 	private int count = 0;
-	private MoveMessageType move;
 
 	EventController(Connection connection) {
 		this.connection = connection;
@@ -56,11 +53,10 @@ public class EventController implements Player {
 			ctrl_gui.start();
 			count++;
 		}
-		Context.getInstance().setValue(Context.BOARD, new Board(message.getBoard()));
 		((PersData) Context.getInstance().getValue(Context.USER)).setCurrentTreasure(message.getTreasure());
 		// TODO TreasureToFind != noch zu findenden Schaetze?
 		Context.getInstance().setValue(Context.TREASURELIST, message.getTreasuresToGo());
-		ctrl_gui.update();
+		ctrl_gui.update(new Board(message.getBoard()));
 	}
 
 	public void receiveDisconnectMessage(DisconnectMessageType message) {
@@ -72,12 +68,12 @@ public class EventController implements Player {
 	}
 
 	public void receiveAcceptMessage(AcceptMessageType message) {
-		ctrl_gui.displayMove(message.isAccept(), move);
+		System.out.println(message.getErrorCode());
+		// ctrl_gui.displayMove(message.isAccept(), move);
 	}
 
 	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift, PositionType pin) {
 		connection.sendMoveMessage(PlayerID, c, shift, pin);
-		move = new MazeComMessageFactory().createMoveMessage(PlayerID, c, shift, pin).getMoveMessage();
 	}
 
 }

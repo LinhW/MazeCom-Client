@@ -7,18 +7,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JOptionPane;
+import javax.swing.JScrollBar;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 import model.Board;
 import model.Card;
 import model.PersData;
 import model.Position;
-import model.jaxb.MoveMessageType;
+import tools.Debug;
 import control.EventController;
+import control.Settings;
 
 public class GUIController {
 	private GUI gui;
 	private GUIModel model;
 	private EventController ctrl_event;
+	private Board b;
 
 	@SuppressWarnings("unchecked")
 	public GUIController(EventController ctrl_event) {
@@ -44,31 +49,19 @@ public class GUIController {
 		gui.setVisible(true);
 	}
 
-	public void update() {
-		model.setBoard((Board) Context.getInstance().getValue(Context.BOARD));
-		Card c = new Card(model.getBoard().getShiftCard());
+	public void update(Board b) {
+		this.b = b;
+		Card c = new Card(b.getShiftCard());
 		model.setShiftCard(c);
 		System.out.println("shiftcard gesendet");
 		model.setCardTreasure(c.getTreasure());
-		model.setPinPos(new Position(model.getBoard().findPlayer(((PersData) Context.getInstance().getValue(Context.USER)).getID())));
-		gui.update();
+		model.setPinPos(new Position(b.findPlayer(((PersData) Context.getInstance().getValue(Context.USER)).getID())));
+		gui.update(b);
 	}
 
 	public void close() {
 		// FIXME
 		System.out.println("too close");
-	}
-
-	public void displayMove(boolean accept, MoveMessageType move) {
-		// TODO Auto-generated method stub
-		if (accept) {
-			
-			model.getBoard().validateTransition(move, model.getPlayerID());
-//			gui.displayMove(Settings.MOVEDELAY, Settings.SHIFTDELAY);
-		} else {
-			JOptionPane.showMessageDialog(null, "Zug ist ungueltig");
-		}
-
 	}
 
 	public void endGame(int player, String name) {
@@ -85,5 +78,9 @@ public class GUIController {
 		Position shift = new Position(model.getRow(), model.getCol());
 		Position pin = new Position(((Board) Context.getInstance().getValue(Context.BOARD)).findPlayer(((PersData) Context.getInstance().getValue(Context.USER)).getID()));
 		ctrl_event.sendMoveMessage(model.getPlayerID(), c, shift, pin);
+	}
+
+	public void proceedShift() {
+		gui.proceedShift(b);
 	}
 }

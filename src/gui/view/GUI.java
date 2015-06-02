@@ -436,7 +436,7 @@ public class GUI extends JFrame {
 
 	private void update_own() {
 		PersData p = (PersData) Context.getInstance().getValue(Context.USER);
-		Card c = new Card(((Board) Context.getInstance().getValue(Context.BOARD)).getShiftCard());
+		Card c = model.getShiftCard();
 		lb_shiftCard.setIcon(new ImageIcon(ImageRessources.getImage(c.value())));
 		lb_treasure_pic.setIcon(new ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
 		String stat = "";
@@ -514,6 +514,10 @@ public class GUI extends JFrame {
 	private class ShiftAnimationTimerOperation implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
+			System.out.println("shiftanimation");
+			System.out.println(arg0.getSource());
+			System.out.println(arg0.getSource().getClass());
+			System.out.println(arg0.getSource().getClass().getName());
 			animationState++;
 			uiboard.repaint();
 			if (animationState == animationFrames) {
@@ -633,32 +637,33 @@ public class GUI extends JFrame {
 		}
 	}
 
-	public void displayMove(long moveDelay, long shiftDelay) {
+	public void displayMove(MoveMessageType mm, Board b, long moveDelay, long shiftDelay) {
 		// Die Dauer von shiftDelay bezieht sich auf den kompletten Shift und
 		// nicht auf einen einzelnen Frame
+		System.out.println("displayMove");
 		shiftDelay /= animationFrames;
-		System.out.println(model.getShiftCard());
-		shiftCard.setCard(model.getShiftCard());
+		shiftCard.setCard(new Card(mm.getShiftCard()));
 		if (animateShift) {
-			uiboard.board.setShiftCard(model.getShiftCard());
+			uiboard.board.setShiftCard(mm.getShiftCard());
 			animationTimer = new Timer((int) shiftDelay, new ShiftAnimationTimerOperation());
-			animationProperties = new AnimationProperties(new Position(model.getRow(), model.getCol()));
+			animationProperties = new AnimationProperties(new Position(mm.getShiftPosition()));
 			synchronized (animationFinished) {
 				animationTimer.start();
 				try {
-					animationFinished.wait();
+					animationFinished.wait(0);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
 		}
+		System.out.println("mitte");
 		Position oldPlayerPos = new Position(uiboard.board.findPlayer(model.getPlayerID()));
-		uiboard.setBoard(model.getBoard());
+		uiboard.setBoard(b);
 		// XXX: Von Matthias (alte Karten waren vorher noch sichtbar)
 		uiboard.repaint();
 		if (animateMove) {
 			// Falls unser Spieler sich selbst verschoben hat.
-			AnimationProperties props = new AnimationProperties(new Position(model.getRow(), model.getCol()));
+			AnimationProperties props = new AnimationProperties(new Position(mm.getShiftPosition()));
 			if (props.vertikal) {
 				if (oldPlayerPos.getCol() == props.shiftPosition.getCol()) {
 					oldPlayerPos.setRow((7 + oldPlayerPos.getRow() + props.direction) % 7);
@@ -668,11 +673,11 @@ public class GUI extends JFrame {
 					oldPlayerPos.setCol((7 + oldPlayerPos.getCol() + props.direction) % 7);
 				}
 			}
-			animationTimer = new Timer((int) moveDelay, new MoveAnimationTimerOperation(uiboard.board, oldPlayerPos, new Position(model.getPinPos())));
+			animationTimer = new Timer((int) moveDelay, new MoveAnimationTimerOperation(uiboard.board, oldPlayerPos, new Position(mm.getNewPinPos())));
 			synchronized (animationFinished) {
 				animationTimer.start();
 				try {
-					animationFinished.wait();
+					animationFinished.wait(0);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -680,10 +685,10 @@ public class GUI extends JFrame {
 		} else {
 			uiboard.repaint();
 		}
+		System.out.println("ende displayMove");
 	}
 
-	public void update() {
-		Board b = (Board) Context.getInstance().getValue(Context.BOARD);
+	public void update(Board b) {
 		uiboard.setBoard(b);
 		uiboard.repaint();
 		update_own();
@@ -780,7 +785,7 @@ public class GUI extends JFrame {
 				} else {
 					sendMove = true;
 					System.out.println("pressed Enter");
-					proceedShift();
+					myController.proceedShift();
 					return;
 				}
 			}
@@ -810,89 +815,94 @@ public class GUI extends JFrame {
 					}
 					uiboard.repaint();
 				} else {
-					System.out.println("pressed");
-//					if (Util.containsInList(new Position(model.getPinPos().getRow() - 1, model.getPinPos().getCol()), model.getBoard().getAllReachablePositions(model.getPinPos())) != null) {
-//						System.out.println("up");
-//						Pin tmp = model.getBoard().getCard(model.getPinPos().getRow(), model.getPinPos().getCol()).getPin();
-//						model.getBoard().getCard(model.getPinPos().getRow(), model.getPinPos().getCol()).setPin(new Pin());
-//						model.getBoard().getCard(model.getPinPos().getRow() - 1, model.getPinPos().getCol()).setPin(tmp);
-//						uiboard.setBoard(model.getBoard());
-//						uiboard.repaint();
-//					}
+					System.out.println("up pressed");
 				}
 			} else if (action == model.getKeyEvent(Context.DOWN)) {
-				if (model.getRow() == 0) {
-					return;
-				}
-				if (model.getRow() == 6) {
-					model.setRow(0);
-				} else {
-					if (model.getRow() == 5) {
-						model.setRow(6);
-						if (model.getCol() == 0) {
-							model.setCol(1);
-						}
-						if (model.getCol() == 6) {
-							model.setCol(5);
-						}
-					} else {
-						model.setRow(model.getRow() + 2);
+				if (!sendMove) {
+					if (model.getRow() == 0) {
+						return;
 					}
+					if (model.getRow() == 6) {
+						model.setRow(0);
+					} else {
+						if (model.getRow() == 5) {
+							model.setRow(6);
+							if (model.getCol() == 0) {
+								model.setCol(1);
+							}
+							if (model.getCol() == 6) {
+								model.setCol(5);
+							}
+						} else {
+							model.setRow(model.getRow() + 2);
+						}
+					}
+					uiboard.repaint();
+				} else {
+					System.out.println("down pressed");
 				}
-				uiboard.repaint();
 			} else if (action == model.getKeyEvent(Context.LEFT)) {
-				if (model.getCol() == 6) {
-					return;
-				}
-				if (model.getCol() == 0) {
-					model.setCol(6);
-				} else {
-					if (model.getCol() == 1) {
-						model.setCol(0);
-						if (model.getRow() == 0) {
-							model.setRow(1);
-						}
-						if (model.getRow() == 6) {
-							model.setRow(5);
-						}
-					} else {
-						model.setCol(model.getCol() - 2);
+				if (!sendMove) {
+					if (model.getCol() == 6) {
+						return;
 					}
-				}
-				uiboard.repaint();
-			} else if (action == model.getKeyEvent(Context.RIGHT)) {
-				if (model.getCol() == 0) {
-					return;
-				}
-				if (model.getCol() == 6) {
-					model.setCol(0);
-				} else {
-					if (model.getCol() == 5) {
+					if (model.getCol() == 0) {
 						model.setCol(6);
-						if (model.getRow() == 0) {
-							model.setRow(1);
-						}
-						if (model.getRow() == 6) {
-							model.setRow(5);
-						}
 					} else {
-						model.setCol(model.getCol() + 2);
+						if (model.getCol() == 1) {
+							model.setCol(0);
+							if (model.getRow() == 0) {
+								model.setRow(1);
+							}
+							if (model.getRow() == 6) {
+								model.setRow(5);
+							}
+						} else {
+							model.setCol(model.getCol() - 2);
+						}
 					}
+					uiboard.repaint();
+				} else {
+					System.out.println("left pressed");
 				}
-				uiboard.repaint();
+			} else if (action == model.getKeyEvent(Context.RIGHT)) {
+				if (!sendMove) {
+					if (model.getCol() == 0) {
+						return;
+					}
+					if (model.getCol() == 6) {
+						model.setCol(0);
+					} else {
+						if (model.getCol() == 5) {
+							model.setCol(6);
+							if (model.getRow() == 0) {
+								model.setRow(1);
+							}
+							if (model.getRow() == 6) {
+								model.setRow(5);
+							}
+						} else {
+							model.setCol(model.getCol() + 2);
+						}
+					}
+					uiboard.repaint();
+				} else {
+					System.out.println("right pressed");
+				}
 			}
 		}
 	}
 
-	public void proceedShift() {
+	public void proceedShift(Board board) {
 		System.out.println("proceed");
 		MoveMessageType move = new MoveMessageType();
 		move.setNewPinPos(model.getPinPos());
 		move.setShiftCard(model.getShiftCard());
 		move.setShiftPosition(new Position(model.getRow(), model.getCol()));
-		model.getBoard().proceedTurn(move, model.getPlayerID());
-		displayMove(Settings.MOVEDELAY, Settings.SHIFTDELAY);
-		uiboard.setBoard(model.getBoard());
+		board.proceedTurn(move, model.getPlayerID());
+		displayMove(move, board, Settings.MOVEDELAY, Settings.SHIFTDELAY);
+		uiboard.setBoard(board);
 		uiboard.repaint();
+		System.out.println("ende");
 	}
 }
