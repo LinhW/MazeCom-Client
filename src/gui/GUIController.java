@@ -7,17 +7,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JOptionPane;
-import javax.swing.JScrollBar;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
 
 import model.Board;
 import model.Card;
 import model.PersData;
 import model.Position;
-import tools.Debug;
 import control.EventController;
-import control.Settings;
 
 public class GUIController {
 	private GUI gui;

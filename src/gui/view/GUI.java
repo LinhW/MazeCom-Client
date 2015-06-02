@@ -13,7 +13,10 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
@@ -63,6 +66,7 @@ import model.jaxb.MoveMessageType;
 import model.jaxb.TreasuresToGoType;
 import model.jaxb.WinMessageType.Winner;
 import control.Settings;
+import java.awt.GridLayout;
 
 @SuppressWarnings("serial")
 public class GUI extends JFrame {
@@ -87,6 +91,7 @@ public class GUI extends JFrame {
 	private JList<String> list_right;
 	private JList<String> list_left;
 	private boolean sendMove = false;
+	private JPanel sp_top;
 
 	private static class ImageRessources {
 		private static HashMap<String, Image> images = new HashMap<String, Image>();
@@ -252,10 +257,11 @@ public class GUI extends JFrame {
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 
 		{
-			JPanel sp_top = new JPanel();
+			sp_top = new JPanel();
+			sp_top.setLayout(new BorderLayout(0, 0));
 			{
-				sp_top.setLayout(new BorderLayout());
 				shiftCard = new GraphicalCardBuffered();
+				shiftCard.setSize(shiftCard.getMinimumSize());
 				sp_top.add(shiftCard, BorderLayout.CENTER);
 			}
 
@@ -433,7 +439,6 @@ public class GUI extends JFrame {
 	private void update_own() {
 		PersData p = (PersData) Context.getInstance().getValue(Context.USER);
 		Card c = model.getShiftCard();
-		// TODO
 		shiftCard.setCard(c);
 		lb_treasure_pic.setIcon(new ImageIcon(ImageRessources.getImage(p.getCurrentTreasure().value())));
 		String stat = "";
@@ -716,8 +721,8 @@ public class GUI extends JFrame {
 			rot += 180;
 		}
 		int orient = (model.getOrientation() + rot) % 360;
-		// lb_shiftCard.setIcon(new ImageIcon(ImageRessources.getImage("" + model.getCardShape() + orient)));
 		model.setCardOrientation(orient);
+		shiftCard.setCard(model.getShiftCard());
 	}
 
 	public void gameEnded(Winner winner) {

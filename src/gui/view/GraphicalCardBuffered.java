@@ -19,10 +19,7 @@ import javax.swing.JPanel;
 import model.Card;
 import model.Card.CardShape;
 import model.Card.Orientation;
-import model.Messages;
 import model.jaxb.TreasureType;
-import tools.Debug;
-import tools.DebugLevel;
 import control.Settings;
 
 public class GraphicalCardBuffered extends JPanel implements ComponentListener {
@@ -39,9 +36,6 @@ public class GraphicalCardBuffered extends JPanel implements ComponentListener {
 
 	public GraphicalCardBuffered() {
 		super();
-		// Debuging mit Hintergrundfarbe um Framegr????e besser erkennen zu
-		// k??nnen
-		// setBackground(Color.blue);
 		loadShape(CardShape.T, Orientation.D0);
 		loadTreasure(null);
 		addComponentListener(this);
@@ -71,8 +65,6 @@ public class GraphicalCardBuffered extends JPanel implements ComponentListener {
 		this.cardOrientation = co;
 		try {
 			URL url = GraphicalCardBuffered.class.getResource(Settings.IMAGEPATH + cs.toString() + co.value() + Settings.IMAGEFILEEXTENSION);
-			System.out.println(url);
-			Debug.print(Messages.getInstance().getString("GraphicalCardBuffered.Load") + url.toString(), DebugLevel.DEBUG); //$NON-NLS-1$
 			shape = ImageIO.read(url);
 
 		} catch (IOException e) {
@@ -88,7 +80,6 @@ public class GraphicalCardBuffered extends JPanel implements ComponentListener {
 		try {
 			if (t != null) {
 				URL url = GraphicalCardBuffered.class.getResource(Settings.IMAGEPATH + t.value() + Settings.IMAGEFILEEXTENSION);
-				Debug.print(Messages.getInstance().getString("GraphicalCardBuffered.Load") + url.toString(), DebugLevel.DEBUG); //$NON-NLS-1$
 				treasure = ImageIO.read(url);
 			} else {
 				treasure = null;
@@ -123,6 +114,7 @@ public class GraphicalCardBuffered extends JPanel implements ComponentListener {
 			g2.drawImage(treasure, zentrum, zentrum, null);
 		}
 		paintBuffer = new TexturePaint(buff, new Rectangle(0, 0, w, h));
+		this.setSize(new Dimension(w, h));
 		g2.dispose();
 		repaint();
 	}
