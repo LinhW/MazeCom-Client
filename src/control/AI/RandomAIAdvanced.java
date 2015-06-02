@@ -32,7 +32,8 @@ public class RandomAIAdvanced implements Player {
 
 	@Override
 	public String login() {
-		String name = JOptionPane.showInputDialog("Nickname");
+//		String name = JOptionPane.showInputDialog("Nickname");
+		String name = "";
 		return name + " (Random AI Advanced)";
 	}
 
