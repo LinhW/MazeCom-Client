@@ -3,6 +3,7 @@ package gui.view;
 import gui.Context;
 import gui.GUIController;
 import gui.GUIModel;
+import gui.Timer;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -44,7 +45,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
-import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -526,7 +526,9 @@ public class GUI extends JFrame {
 				animationTimer = null;
 				animationProperties = null;
 				synchronized (animationFinished) {
+					System.out.println("for notify");
 					animationFinished.notify();
+					System.out.println("nach notify");
 				}
 			}
 		}
@@ -645,32 +647,19 @@ public class GUI extends JFrame {
 		shiftCard.setCard(new Card(mm.getShiftCard()));
 		if (animateShift) {
 			uiboard.board.setShiftCard(mm.getShiftCard());
+			animationTimer = new Timer(shiftDelay, new ShiftAnimationTimerOperation());
+			animationTimer.setInitialDelay(0);
 			animationProperties = new AnimationProperties(new Position(mm.getShiftPosition()));
-			new Timer((int) shiftDelay, new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					System.out.println("shiftanimation_own");
-					animationState++;
-					uiboard.repaint();
-					if (animationState == animationFrames) {
-						animationState = 0;
-						((Timer) e.getSource()).stop();
-						animationProperties = null;
-						synchronized (animationFinished) {
-							animationFinished.notify();
-						}
-					}
-				}
-			}).start();
 			synchronized (animationFinished) {
-				try {
-					animationTimer.start();
-					System.out.println("wait");
-					animationFinished.wait();
-					System.out.println("wait end");
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				animationTimer.start();
+//				try {
+//					// animationTimer.start();
+//					System.out.println("wait");
+//					animationFinished.wait();
+//					System.out.println("wait end");
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
 			}
 		}
 		System.out.println("mitte");
@@ -678,6 +667,7 @@ public class GUI extends JFrame {
 		uiboard.setBoard(b);
 		// XXX: Von Matthias (alte Karten waren vorher noch sichtbar)
 		uiboard.repaint();
+		System.out.println("repaint should");
 		if (animateMove) {
 			// Falls unser Spieler sich selbst verschoben hat.
 			AnimationProperties props = new AnimationProperties(new Position(mm.getShiftPosition()));
@@ -693,11 +683,11 @@ public class GUI extends JFrame {
 			animationTimer = new Timer((int) moveDelay, new MoveAnimationTimerOperation(uiboard.board, oldPlayerPos, new Position(mm.getNewPinPos())));
 			synchronized (animationFinished) {
 				animationTimer.start();
-				try {
-					animationFinished.wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+//				try {
+//					animationFinished.wait();
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
 			}
 		} else {
 			uiboard.repaint();

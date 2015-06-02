@@ -55,8 +55,12 @@ public class Pathfinding {
 			System.out.println("no solution");
 			List<PinPosHelp> list = PinPosHelp.getSmallestDiff(list_PinPosHelp_v1);
 			List<PinPosHelp> list_rev = PinPosHelp.getSmallestDiff(list_PinPosHelp_v2);
-			if (list.size() == 1) {
-				pph = list.get(0);
+			if (list.size() == 1 && list_rev.size() == 1) {
+				if (list.get(0).equals(list_rev.get(0))) {
+					pph = list.get(0);
+				}else{
+					
+				}
 			} else {
 				list = chooseOrientation(list, trePos);
 				// if (ph.getPinPos().isGlued()) {
