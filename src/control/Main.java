@@ -48,6 +48,6 @@ public class Main {
 			player = new EventController(connection);
 		}
 		connection.setPlayer(player);
-		connection.establishConnection("localhost", 5123);
+		connection.establishConnection("localhost", Settings.PORT);
 	}
 }

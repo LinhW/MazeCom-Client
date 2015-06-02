@@ -16,6 +16,7 @@ import javax.xml.bind.Unmarshaller;
 import model.jaxb.CardType;
 import model.jaxb.MazeCom;
 import model.jaxb.PositionType;
+import control.AI.AiVsAI;
 import control.AI.Player;
 
 public class Connection {
@@ -36,9 +37,16 @@ public class Connection {
 	private Player ctrl_event;
 
 	private boolean hasPlayer;
+	private AiVsAI aiai;
 
 	public Connection() {
 		super();
+		hasPlayer = false;
+	}
+
+	public Connection(AiVsAI aiai) {
+		super();
+		this.aiai = aiai;
 		hasPlayer = false;
 	}
 
@@ -71,6 +79,9 @@ public class Connection {
 				break;
 			case WIN:
 				ctrl_event.receiveWinMessage(message.getWinMessage());
+				if (aiai != null) {
+					aiai.updateWinnerStat(message.getWinMessage().getWinner());
+				}
 				break;
 			default:
 				break;
@@ -178,21 +189,21 @@ public class Connection {
 		return success;
 	}
 
-//	public boolean closeConnection() {
-//		if (isConnected) {
-//			try {
-//				clientSocket.close();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//				return false;
-//			}
-//		}
-//		try {
-//			serverListener.join();
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//		isConnected = false;
-//		return true;
-//	}
+	// public boolean closeConnection() {
+	// if (isConnected) {
+	// try {
+	// clientSocket.close();
+	// } catch (IOException e) {
+	// e.printStackTrace();
+	// return false;
+	// }
+	// }
+	// try {
+	// serverListener.join();
+	// } catch (InterruptedException e) {
+	// e.printStackTrace();
+	// }
+	// isConnected = false;
+	// return true;
+	// }
 }

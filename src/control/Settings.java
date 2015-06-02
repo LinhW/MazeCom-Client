@@ -6,6 +6,8 @@ public class Settings {
 	private Settings() {
 	}
 
+	public static int PORT = 5123;
+
 	/**
 	 * Die Zeit in Milisekunden, die die Animation eines Zug (die Bewegung des Pins) benoetigen soll
 	 */
