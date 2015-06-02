@@ -288,7 +288,6 @@ public class Board extends BoardType {
 			c.setPin(temp);
 		}
 		setCard(sm.getRow(), sm.getCol(), c);
-		System.out.println("ende proceed Shift");
 	}
 
 	/**
@@ -299,7 +298,6 @@ public class Board extends BoardType {
 	 * @return
 	 */
 	public boolean proceedTurn(MoveMessageType move, Integer currPlayer) {
-		System.out.println("proceedTurn");
 		Debug.print(Messages.getInstance().getString("Board.proceedTurnFkt"), DebugLevel.DEBUG); //$NON-NLS-1$
 		// XXX ACHTUNG wird nicht mehr auf Richtigkeit ??berpr??ft!!!
 		this.proceedShift(move);

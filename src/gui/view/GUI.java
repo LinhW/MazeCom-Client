@@ -890,21 +890,40 @@ public class GUI extends JFrame {
 		MoveMessageType move = new MoveMessageType();
 		move.setNewPinPos(model.getPinPos());
 		if (!(model.getPinPos().getRow() % 2 == 0 && model.getPinPos().getCol() % 2 == 0)) {
+			System.out.println(model.getPinPos());
+			System.out.println(new Position(model.getRow(), model.getCol()));
 			if (model.getRow() == model.getPinPos().getRow()) {
 				if (model.getCol() == 0) {
-					model.setPinPos(model.getPinPos().getRow(), model.getPinPos().getCol() + 1);
+					if (model.getPinPos().getCol() == 6) {
+						model.setPinPos(model.getPinPos().getRow(), 0);
+					} else {
+						model.setPinPos(model.getPinPos().getRow(), model.getPinPos().getCol() + 1);
+					}
 				} else {
-					model.setPinPos(model.getPinPos().getRow(), model.getPinPos().getCol() - 1);
+					if (model.getPinPos().getCol() == 0) {
+						model.setPinPos(model.getPinPos().getRow(), 6);
+					} else {
+						model.setPinPos(model.getPinPos().getRow(), model.getPinPos().getCol() - 1);
+					}
+				}
+			} else {
+				if (model.getCol() == model.getPinPos().getCol()) {
+					if (model.getRow() == 0) {
+						if (model.getPinPos().getRow() == 6) {
+							model.setPinPos(0, model.getPinPos().getCol());
+						} else {
+							model.setPinPos(model.getPinPos().getRow() + 1, model.getPinPos().getCol());
+						}
+					} else {
+						if (model.getPinPos().getRow() == 0) {
+							model.setPinPos(6, model.getPinPos().getCol());
+						} else {
+							model.setPinPos(model.getPinPos().getRow() - 1, model.getPinPos().getCol());
+						}
+					}
 				}
 			}
-
-			if (model.getCol() == model.getPinPos().getCol()) {
-				if (model.getRow() == 0) {
-					model.setPinPos(model.getPinPos().getRow() + 1, model.getPinPos().getCol());
-				} else {
-					model.setPinPos(model.getPinPos().getRow() - 1, model.getPinPos().getCol());
-				}
-			}
+			System.out.println("result: " + model.getPinPos());
 		}
 		move.setShiftCard(model.getShiftCard());
 		move.setShiftPosition(new Position(model.getRow(), model.getCol()));

@@ -54,7 +54,6 @@ public class EventController implements Player {
 			count++;
 		}
 		((PersData) Context.getInstance().getValue(Context.USER)).setCurrentTreasure(message.getTreasure());
-		// TODO TreasureToFind != noch zu findenden Schaetze?
 		Context.getInstance().setValue(Context.TREASURELIST, message.getTreasuresToGo());
 		ctrl_gui.update(new Board(message.getBoard()));
 	}
@@ -69,7 +68,19 @@ public class EventController implements Player {
 
 	public void receiveAcceptMessage(AcceptMessageType message) {
 		System.out.println(message.getErrorCode());
-		// ctrl_gui.displayMove(message.isAccept(), move);
+		switch (message.getErrorCode()) {
+		case ILLEGAL_MOVE:
+			JOptionPane.showMessageDialog(null, "Illegal Move. Try again");
+			break;
+		case TOO_MANY_TRIES:
+			JOptionPane.showMessageDialog(null, "To many Tries. Bye Bye.");
+			break;
+		case TIMEOUT:
+			JOptionPane.showMessageDialog(null, "Timeout");
+			break;
+		default:
+			;
+		}
 	}
 
 	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift, PositionType pin) {

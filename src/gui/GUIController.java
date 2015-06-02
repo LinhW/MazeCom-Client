@@ -69,7 +69,7 @@ public class GUIController {
 	}
 
 	public void sendMove() {
-		Card c = new Card(model.getCardShape(), model.getCardOrientation(), model.getCardTreasure());
+		Card c = model.getShiftCard();
 		Position shift = new Position(model.getRow(), model.getCol());
 		Position pin = model.getPinPos();
 		ctrl_event.sendMoveMessage(model.getPlayerID(), c, shift, pin);
