@@ -645,12 +645,29 @@ public class GUI extends JFrame {
 		shiftCard.setCard(new Card(mm.getShiftCard()));
 		if (animateShift) {
 			uiboard.board.setShiftCard(mm.getShiftCard());
-			animationTimer = new Timer((int) shiftDelay, new ShiftAnimationTimerOperation());
 			animationProperties = new AnimationProperties(new Position(mm.getShiftPosition()));
+			new Timer((int) shiftDelay, new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					System.out.println("shiftanimation_own");
+					animationState++;
+					uiboard.repaint();
+					if (animationState == animationFrames) {
+						animationState = 0;
+						((Timer) e.getSource()).stop();
+						animationProperties = null;
+						synchronized (animationFinished) {
+							animationFinished.notify();
+						}
+					}
+				}
+			}).start();
 			synchronized (animationFinished) {
-				animationTimer.start();
 				try {
+					animationTimer.start();
+					System.out.println("wait");
 					animationFinished.wait();
+					System.out.println("wait end");
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
