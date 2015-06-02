@@ -650,7 +650,7 @@ public class GUI extends JFrame {
 			synchronized (animationFinished) {
 				animationTimer.start();
 				try {
-					animationFinished.wait(0);
+					animationFinished.wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -677,7 +677,7 @@ public class GUI extends JFrame {
 			synchronized (animationFinished) {
 				animationTimer.start();
 				try {
-					animationFinished.wait(0);
+					animationFinished.wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
