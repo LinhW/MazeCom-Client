@@ -1,4 +1,4 @@
-package control.AI.labymann;
+package control.AI.LAMB;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,11 +1,9 @@
-package control.AI.labymann;
+package control.AI.LAMB;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
-
-import javax.swing.JOptionPane;
 
 import model.Board;
 import model.jaxb.AcceptMessageType;
@@ -19,15 +17,14 @@ import model.jaxb.WinMessageType;
 import control.AI.Player;
 import control.network.Connection;
 
-public class Labymann implements Player {
+public class LAMB implements Player {
 	private int playerID;
-	private boolean first_move;
 	private Parameter parameter;
 	private final Connection connection;
 	private ArrayList<TreasureType> treasures_to_go;
 	private ReentrantLock moveLock;
 	
-	public Labymann(Connection connection) {
+	public LAMB(Connection connection) {
 		this.connection = connection;
 		first_move = true;
 	}
@@ -39,9 +36,8 @@ public class Labymann implements Player {
 		parameter.setMoves(moves);
 		/* --------------------- CALCULATIONS --------------------- */
 		for (AnalyseThread.Side s : AnalyseThread.Side.values()) {
-			AnalyseThread t = new AnalyseThread(parameter, s);
-			threads.add(t);
-			t.start();
+			threads.add(new AnalyseThread(parameter, s));
+			threads.get(threads.size() -1).start();
 		}
 		for (AnalyseThread t : threads) {
 			try {
@@ -50,7 +46,9 @@ public class Labymann implements Player {
 				System.err.println("Thread " + t.getId() + " has been interrupted!");
 			}
 		}
+		threads.clear();
 		Move bestMove = Collections.max(moves);
+		moves.clear();
 		sendMoveMessage(playerID, bestMove.getShiftCard(), bestMove.getShiftPosition(), bestMove.getMovePosition());
 	}
 	
@@ -78,14 +76,11 @@ public class Labymann implements Player {
 
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
-		if (first_move) {
-			parameter.setPlayerCount(message.getTreasuresToGo().size());
-			first_move = false;
-		}
 		List<TreasureType> found = message.getFoundTreasures();
 		for (TreasureType t : found) {
 			treasures_to_go.remove(t);
 		}
+		parameter.setPlayerCount(message.getTreasuresToGo().size());
 		parameter.setTreasure(message.getTreasure());
 		parameter.setBoard(new Board(message.getBoard()));
 		parameter.setTreasuresToGo(message.getTreasuresToGo());
@@ -94,14 +89,12 @@ public class Labymann implements Player {
 
 	@Override
 	public void receiveDisconnectMessage(DisconnectMessageType message) {
-		JOptionPane.showMessageDialog(null, "I have been disconnected...",
-				"Disconnected", JOptionPane.ERROR_MESSAGE);
+		System.out.println("I have been disconnected!");
 	}
 
 	@Override
 	public void receiveWinMessage(WinMessageType message) {
-		JOptionPane.showMessageDialog(null, message.getWinner().getValue() +
-				" has won the game", "Game over", JOptionPane.INFORMATION_MESSAGE);
+		System.out.println("Player " + message.getWinner().getValue() + " (" + message.getWinner().getId() + ") has won the game!");
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package control.AI.labymann;
+package control.AI.LAMB;
 
 import java.util.List;
 
@@ -133,7 +133,7 @@ public class AnalyseThread extends Thread {
 			else {
 				shiftPos.setRow(i);
 			}
-			if (shiftPos.getCol() == forbidden.getCol() && shiftPos.getRow() == forbidden.getRow()) {
+			if ((shiftPos.getCol() == forbidden.getCol()) && (shiftPos.getRow() == forbidden.getRow())) {
 				continue;
 			}
 			for (Card tempCard : shiftCard.getPossibleRotations()) {

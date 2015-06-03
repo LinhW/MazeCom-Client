@@ -8,8 +8,8 @@ import control.AI.Player;
 import control.AI.RandomAIAdvanced;
 import control.AI.RandomAISimple;
 import control.AI.TryAndError;
+import control.AI.LAMB.LAMB;
 import control.AI.ava.Ava;
-import control.AI.labymann.Labymann;
 import control.network.Connection;
 
 public class Main {
@@ -38,7 +38,7 @@ public class Main {
 				player = new TryAndError(connection);
 				break;
 			case 4:
-				player = new Labymann(connection);
+				player = new LAMB(connection);
 				break;
 			default:
 				player = new RandomAISimple(connection);
