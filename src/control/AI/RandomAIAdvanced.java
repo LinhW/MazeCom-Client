@@ -32,7 +32,7 @@ public class RandomAIAdvanced implements Player {
 
 	@Override
 	public String login() {
-//		String name = JOptionPane.showInputDialog("Nickname");
+		// String name = JOptionPane.showInputDialog("Nickname");
 		String name = "";
 		return name + " (Random AI Advanced)";
 	}
@@ -112,7 +112,10 @@ public class RandomAIAdvanced implements Player {
 
 	@Override
 	public void receiveWinMessage(WinMessageType message) {
-		JOptionPane.showMessageDialog(null, "I have won!", "WIN!", JOptionPane.INFORMATION_MESSAGE);
+		// JOptionPane.showMessageDialog(null, "I have won!", "WIN!", JOptionPane.INFORMATION_MESSAGE);
+		if (message.getWinner().getId() == player_id) {
+			connection.sendWin(message.getWinner());
+		}
 	}
 
 	@Override
