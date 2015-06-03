@@ -1,4 +1,4 @@
-package control.AI.labymann;
+package control.AI.LAMB;
 
 import model.Card;
 import model.jaxb.PositionType;
