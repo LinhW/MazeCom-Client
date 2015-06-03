@@ -49,7 +49,8 @@ public class Ava implements Player {
 		wif.write("AWAIT MOVE MESSAGES");
 		Board b = new Board(message.getBoard());
 		Pathfinding p = new Pathfinding(b, id);
-		PinPosHelp pph = p.ava(b.getPinPos(id), b.findTreasure(message.getTreasure()));
+		PinPosHelp pph = p.start();
+//		PinPosHelp pph = p.ava(b.getPinPos(id), b.findTreasure(message.getTreasure()));
 		sendMoveMessage(id, pph.getCardHelp().getC(), pph.getCardHelp().getP(), pph.getPinPos());
 	}
 

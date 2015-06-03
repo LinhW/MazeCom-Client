@@ -10,6 +10,7 @@ public class WriteIntoFile {
 	private File file;
 	private BufferedWriter bwriter;
 	public static final String FILEPATH = "src/control/AI/ava/tmp";
+	public static final String FILEEXTENSION = ".txt";
 
 	public WriteIntoFile(String filepath) {
 		file = new File(filepath);

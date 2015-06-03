@@ -188,7 +188,9 @@ public class Connection {
 	}
 
 	public void sendWin(Winner winner) {
-		aiai.updateWinnerStat(winner);
+		if (aiai != null) {
+			aiai.updateWinnerStat(winner);
+		}
 	}
 
 	// public boolean closeConnection() {

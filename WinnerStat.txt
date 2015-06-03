@@ -1,5 +1,0 @@
-3
-Player1: 0 wins
-Player2: 1 wins
-Player3: 0 wins
-Player4: 2 wins

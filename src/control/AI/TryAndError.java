@@ -16,6 +16,7 @@ import model.jaxb.MoveMessageType;
 import model.jaxb.PositionType;
 import model.jaxb.TreasureType;
 import model.jaxb.WinMessageType;
+import model.jaxb.CardType.Pin;
 import control.network.Connection;
 
 public class TryAndError implements Player {
@@ -48,26 +49,35 @@ public class TryAndError implements Player {
 		Board board = (Board) b.clone();
 		Position oldPinPos = new Position(board.findPlayer(PlayerID));
 		List<PositionType> l = board.getAllReachablePositions(oldPinPos);
-		Position pt = new Position(board.findTreasure(t));
-		Card shift = new Card(board.getShiftCard());
+		PositionType ptt = board.findTreasure(t);
+		Position pt = null;
+		if (ptt != null) {
+			pt = new Position(ptt);
+		}
 		Position shiftPos;
 		MoveMessageType message = new MoveMessageType();
-		for (int i = 1; i < 6; i += 2) {
-			for (int j = 0; j < 4; j++) {
-				Card c = new Card(shift.getShape(), Orientation.fromValue(((shift.getOrientation().value() + j * 90) % 360)), shift.getTreasure());
+
+		List<Card> list_c = new Card(board.getShiftCard()).getPossibleRotations();
+		for (Card c : list_c) {
+			for (int i = 1; i < 6; i += 2) {
 				for (int k = 0; k < 7; k += 6) {
-					board = (Board) b.clone();
-					board.setShiftCard(c);
-					shiftPos = new Position(k, i);
-					message.setShiftPosition(shiftPos);
-					message.setShiftCard(shift);
-					board.proceedShift(message);
-					l = board.getAllReachablePositions(oldPinPos);
-					for (PositionType p : l) {
-						if (new Position(p).equals(pt)) {
-							System.out.println("found it");
-							sendMoveMessage(PlayerID, c, shiftPos, pt);
-							return;
+					for (int j = 0; j < 2; j++) {
+						board = (Board) b.clone();
+						c.setPin(new Pin());
+						shiftPos = new Position(k + (i - k) * j, i + (k - i) * j);
+						if (b.getForbidden() != null && shiftPos.equals(new Position(b.getForbidden()))) {
+							continue;
+						}
+						message.setShiftPosition(shiftPos);
+						message.setShiftCard(c);
+						board.proceedShift(message);
+						l = board.getAllReachablePositions(oldPinPos);
+						for (PositionType p : l) {
+							if (new Position(p).equals(pt)) {
+								System.out.println("found it");
+								sendMoveMessage(PlayerID, c, shiftPos, pt);
+								return;
+							}
 						}
 					}
 				}

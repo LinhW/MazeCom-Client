@@ -38,12 +38,62 @@ public class Pathfinding {
 		y = b.getRow().get(0).getCol().size();
 		list_PinPosHelp_v1 = new ArrayList<>();
 		list_PinPosHelp_v2 = new ArrayList<>();
-		wif = new WriteIntoFile(WriteIntoFile.FILEPATH + ".txt");
-		wif_v2 = new WriteIntoFile(WriteIntoFile.FILEPATH + "_v2.txt");
+		wif = new WriteIntoFile(WriteIntoFile.FILEPATH + WriteIntoFile.FILEEXTENSION);
+		wif_v2 = new WriteIntoFile(WriteIntoFile.FILEPATH + "_v2" + WriteIntoFile.FILEEXTENSION);
 		possPos = new WriteIntoFile(FILEPATH);
 	}
 
+	public PinPosHelp start() {
+		Position trePos = betterBoard.findTreasure(betterBoard.getTreasure());
+		if (trePos == null) {
+			CardHelp ch = treIsOnShift();
+			if (ch == null) {
+				return ava(betterBoard.getPinPos(PlayerID), trePos);
+			}
+			return new PinPosHelp(trePos, ch);
+		} else {
+			return ava(betterBoard.getPinPos(PlayerID), trePos);
+		}
+	}
+
+	//TODO bei mehreren moeglichkeiten 
+	private CardHelp treIsOnShift() {
+		List<Position> l = new ArrayList<>();
+		Board board;
+		Position oldPinPos;
+		Position shiftPos;
+		CardHelp ch;
+
+		List<Card> list_c = betterBoard.getShiftCard().getPossibleRotations();
+		for (Card c : list_c) {
+			for (int i = 1; i < 6; i += 2) {
+				for (int k = 0; k < 7; k += 6) {
+					for (int j = 0; j < 2; j++) {
+						board = (Board) betterBoard.clone();
+						c.setPin(new Pin());
+						shiftPos = new Position(k + (i - k) * j, i + (k - i) * j);
+						if (betterBoard.getForbidden() != null && shiftPos.equals(new Position(betterBoard.getForbidden()))) {
+							continue;
+						}
+						board.proceedShift(shiftPos, c);
+						oldPinPos = board.getPinPos(PlayerID);
+						l.clear();
+						l = findPossiblePos(board, l, oldPinPos);
+						ch = new CardHelp(c, shiftPos);
+						if (l.contains(shiftPos)) {
+							return ch;
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	// teasure on shiftCard
+	// forbidden (last turn was on the opposite)
 	public PinPosHelp ava(Position start, Position trePos) {
+		// if()
 		list_PinPosHelp_v1.clear();
 		list_PinPosHelp_v2.clear();
 		wif.write("PinPos: " + start + " TreasureToFindPos: " + trePos);
@@ -138,6 +188,9 @@ public class Pathfinding {
 						board = (Board) betterBoard.clone();
 						c.setPin(new Pin());
 						shiftPos = new Position(k + (i - k) * j, i + (k - i) * j);
+						if (betterBoard.getForbidden() != null && shiftPos.equals(new Position(betterBoard.getForbidden()))) {
+							continue;
+						}
 						board.proceedShift(shiftPos, c);
 						oldPinPos = board.getPinPos(PlayerID);
 						wif.writeNewLine(1);
