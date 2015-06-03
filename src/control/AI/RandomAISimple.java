@@ -102,7 +102,10 @@ public class RandomAISimple implements Player {
 
 	@Override
 	public void receiveWinMessage(WinMessageType message) {
-		JOptionPane.showMessageDialog(null, "I have won!", "WIN!", JOptionPane.INFORMATION_MESSAGE);
+		// JOptionPane.showMessageDialog(null, "I have won!", "WIN!", JOptionPane.INFORMATION_MESSAGE);
+		if (message.getWinner().getId() == player_id) {
+			connection.sendWin(message.getWinner());
+		}
 	}
 
 	@Override
