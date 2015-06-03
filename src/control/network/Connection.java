@@ -16,6 +16,7 @@ import javax.xml.bind.Unmarshaller;
 import model.jaxb.CardType;
 import model.jaxb.MazeCom;
 import model.jaxb.PositionType;
+import model.jaxb.WinMessageType.Winner;
 import control.AI.AiVsAI;
 import control.AI.Player;
 
@@ -187,6 +188,10 @@ public class Connection {
 			serverListener.start();
 		}
 		return success;
+	}
+
+	public void sendWin(Winner winner) {
+		aiai.updateWinnerStat(winner);
 	}
 
 	// public boolean closeConnection() {

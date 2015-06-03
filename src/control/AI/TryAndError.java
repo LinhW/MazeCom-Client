@@ -135,6 +135,7 @@ public class TryAndError implements Player {
 	public void receiveWinMessage(WinMessageType message) {
 		System.out.println(message);
 		System.out.println(message.getWinner());
+		con.sendWin(message.getWinner());
 	}
 
 	@Override

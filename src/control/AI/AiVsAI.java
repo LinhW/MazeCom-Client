@@ -1,6 +1,7 @@
 package control.AI;
 
 import java.awt.event.ActionEvent;
+import java.util.concurrent.TimeUnit;
 
 import model.jaxb.WinMessageType.Winner;
 import server.Game;
@@ -10,6 +11,7 @@ import control.network.Connection;
 
 public class AiVsAI {
 	private int p1 = 0, p2 = 0, p3 = 0, p4 = 0;
+	private static int count;
 
 	public static void main(String[] args) {
 		AiVsAI a = new AiVsAI();
@@ -20,8 +22,14 @@ public class AiVsAI {
 		Server server = new Server();
 		server.start();
 		server.startGame(4);
-
 		startClients();
+	}
+
+	private void showResults() {
+		System.out.println("Player1: " + p1 + " wins");
+		System.out.println("Player2: " + p2 + " wins");
+		System.out.println("Player3: " + p3 + " wins");
+		System.out.println("Player4: " + p4 + " wins");
 	}
 
 	public void updateWinnerStat(Winner winner) {
@@ -39,23 +47,28 @@ public class AiVsAI {
 			p4++;
 			break;
 		}
+		if (count < 3) {
+			start();
+		} else {
+			showResults();
+		}
 	}
 
 	private void startClients() {
 		Connection connection = new Connection(this);
-		Client c1 = new Client(new TryAndError(connection), connection);
+		Client c1 = new Client(new RandomAIAdvanced(connection), connection);
 		c1.start();
 
 		connection = new Connection(this);
-		Client c2 = new Client(new TryAndError(connection), connection);
+		Client c2 = new Client(new RandomAIAdvanced(connection), connection);
 		c2.start();
 
 		connection = new Connection(this);
-		Client c3 = new Client(new TryAndError(connection), connection);
+		Client c3 = new Client(new RandomAIAdvanced(connection), connection);
 		c3.start();
 
 		connection = new Connection(this);
-		Client c4 = new Client(new TryAndError(connection), connection);
+		Client c4 = new Client(new RandomAIAdvanced(connection), connection);
 		c4.start();
 	}
 
