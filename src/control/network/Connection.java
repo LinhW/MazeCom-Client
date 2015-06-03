@@ -80,9 +80,6 @@ public class Connection {
 				break;
 			case WIN:
 				ctrl_event.receiveWinMessage(message.getWinMessage());
-				if (aiai != null) {
-					aiai.updateWinnerStat(message.getWinMessage().getWinner());
-				}
 				break;
 			default:
 				break;

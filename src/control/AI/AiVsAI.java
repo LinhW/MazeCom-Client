@@ -1,24 +1,35 @@
 package control.AI;
 
 import java.awt.event.ActionEvent;
-import java.util.concurrent.TimeUnit;
 
 import model.jaxb.WinMessageType.Winner;
 import server.Game;
 import server.userInterface.BetterUI;
 import config.Settings;
+import control.AI.Player;
+import control.AI.RandomAIAdvanced;
+import control.AI.ava.WriteIntoFile;
 import control.network.Connection;
 
 public class AiVsAI {
 	private int p1 = 0, p2 = 0, p3 = 0, p4 = 0;
-	private static int count;
+	private static int number = 0;
+	private WriteIntoFile wif;
+	private int count = 50;
 
 	public static void main(String[] args) {
 		AiVsAI a = new AiVsAI();
-		a.start();
+		a.init();
+	}
+
+	public void init() {
+		wif = new WriteIntoFile("WinnerStat.txt");
+		wif.clearFile();
+		start();
 	}
 
 	public void start() {
+		number++;
 		Server server = new Server();
 		server.start();
 		server.startGame(4);
@@ -26,10 +37,10 @@ public class AiVsAI {
 	}
 
 	private void showResults() {
-		System.out.println("Player1: " + p1 + " wins");
-		System.out.println("Player2: " + p2 + " wins");
-		System.out.println("Player3: " + p3 + " wins");
-		System.out.println("Player4: " + p4 + " wins");
+		wif.write("Player1: " + p1 + " wins");
+		wif.write("Player2: " + p2 + " wins");
+		wif.write("Player3: " + p3 + " wins");
+		wif.write("Player4: " + p4 + " wins");
 	}
 
 	public void updateWinnerStat(Winner winner) {
@@ -47,7 +58,7 @@ public class AiVsAI {
 			p4++;
 			break;
 		}
-		if (count < 3) {
+		if (number < count) {
 			start();
 		} else {
 			showResults();
