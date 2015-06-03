@@ -15,6 +15,7 @@ public class Parameter {
 	private TreasureType treasure;
 	private ArrayList<Move> moves;
 	private List<TreasuresToGoType> treasuresToGo;
+	private List<TreasureType> treasuresFound;
 	private ReentrantLock lock;
 	
 	public Board getBoard() {
@@ -52,6 +53,12 @@ public class Parameter {
 	}
 	public void setTreasuresToGo(List<TreasuresToGoType> treasuresToGo) {
 		this.treasuresToGo = treasuresToGo;
+	}
+	public List<TreasureType> getTreasuresFound() {
+		return treasuresFound;
+	}
+	public void setTreasuresFound(List<TreasureType> treasuresFound) {
+		this.treasuresFound = treasuresFound;
 	}
 	public ReentrantLock getLock() {
 		return lock;

@@ -2,7 +2,6 @@ package control.AI.LAMB;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import model.Board;
@@ -12,7 +11,6 @@ import model.jaxb.CardType;
 import model.jaxb.DisconnectMessageType;
 import model.jaxb.LoginReplyMessageType;
 import model.jaxb.PositionType;
-import model.jaxb.TreasureType;
 import model.jaxb.WinMessageType;
 import control.AI.Player;
 import control.network.Connection;
@@ -21,12 +19,10 @@ public class LAMB implements Player {
 	private int playerID;
 	private Parameter parameter;
 	private final Connection connection;
-	private ArrayList<TreasureType> treasures_to_go;
 	private ReentrantLock moveLock;
 	
 	public LAMB(Connection connection) {
 		this.connection = connection;
-		first_move = true;
 	}
 	
 	private void calculateMove() {
@@ -62,11 +58,6 @@ public class LAMB implements Player {
 	@Override
 	public void receiveLoginReply(LoginReplyMessageType message) {
 		this.playerID = message.getNewID();
-		treasures_to_go = new ArrayList<TreasureType>();
-		for (TreasureType t : TreasureType.values()) {
-			treasures_to_go.add(t);
-		}
-		treasures_to_go.trimToSize();
 		moveLock = new ReentrantLock();
 		parameter = new Parameter();
 		parameter.setLock(moveLock);
@@ -76,14 +67,11 @@ public class LAMB implements Player {
 
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
-		List<TreasureType> found = message.getFoundTreasures();
-		for (TreasureType t : found) {
-			treasures_to_go.remove(t);
-		}
 		parameter.setPlayerCount(message.getTreasuresToGo().size());
 		parameter.setTreasure(message.getTreasure());
 		parameter.setBoard(new Board(message.getBoard()));
 		parameter.setTreasuresToGo(message.getTreasuresToGo());
+		parameter.setTreasuresFound(message.getFoundTreasures());
 		calculateMove();
 	}
 
