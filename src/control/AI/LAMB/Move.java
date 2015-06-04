@@ -3,7 +3,7 @@ package control.AI.LAMB;
 import model.Card;
 import model.jaxb.PositionType;
 
-public class Move implements Comparable<Move> {
+public class Move implements Comparable<Object> {
 	private PositionType shiftPosition;
 	private PositionType movePosition;
 	private Card shiftCard;
@@ -53,11 +53,11 @@ public class Move implements Comparable<Move> {
 	}
 
 	@Override
-	public int compareTo(Move o) {
-		if (this.value > o.value) {
+	public int compareTo(Object o) {
+		if (this.value > ((Move) o).value) {
 			return 1;
 		}
-		else if (this.value == o.value) {
+		else if (this.value == ((Move) o).value) {
 			return 0;
 		}
 		else {

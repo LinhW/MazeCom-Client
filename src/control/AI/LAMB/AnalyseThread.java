@@ -4,16 +4,20 @@ import java.util.List;
 
 import model.Board;
 import model.Card;
+import model.Position;
 import model.jaxb.MoveMessageType;
 import model.jaxb.PositionType;
 import model.jaxb.TreasureType;
 import model.jaxb.TreasuresToGoType;
+import control.AI.LAMB.Move;
+import control.AI.LAMB.Parameter;
 
 public class AnalyseThread extends Thread {
 	public enum Side {UP, RIGHT, DOWN, LEFT}
 	private enum Points {
 		OWN_START(Integer.MAX_VALUE),
 		OWN_TARGET(100),
+		TARGET_MISSING(-10),
 		OTHER_START_OPEN(-50),
 		OTHER_TREASURE_REACHABLE(-25);
 		
@@ -36,8 +40,8 @@ public class AnalyseThread extends Thread {
 		Move move = new Move();
 		int boardValue = 0;
 		int posValue = Integer.MIN_VALUE;
-		move.setShiftCard(shiftCard);
-		move.setShiftPosition(shiftPos);
+		move.setShiftCard(new Card(shiftCard));
+		move.setShiftPosition(new Position(shiftPos));
 		MoveMessageType moveMessage = new MoveMessageType();
 		moveMessage.setShiftCard(shiftCard);
 		moveMessage.setShiftPosition(shiftPos);
@@ -63,18 +67,22 @@ public class AnalyseThread extends Thread {
 		PositionType tPos = board.findTreasure(p.getTreasure());
 		for (PositionType pos : board.getAllReachablePositions(board.findPlayer(p.getPlayerID()))) {
 			int tempValue = board.getAllReachablePositions(pos).size();
-			int dist = (12 - Math.abs(pos.getCol() - tPos.getCol()) - Math.abs(pos.getRow() - tPos.getRow()));
-			if (dist == 12) {
-				tempValue += Points.OWN_TARGET.value;
+			if (tPos != null) {
+				int dist = (12 - Math.abs(pos.getCol() - tPos.getCol()) - Math.abs(pos.getRow() - tPos.getRow()));
+				if (dist == 12) {
+					tempValue += Points.OWN_TARGET.value;
+				}
+				else {
+					tempValue += 2 * dist;
+				}
 			}
 			else {
-				tempValue += 2 * dist;
+				tempValue += Points.TARGET_MISSING.value;
 			}
 			if (tempValue > posValue) {
 				posValue = tempValue;
-				move.setMovePosition(pos);
+				move.setMovePosition(new Position(pos));
 			}
-//			System.out.println(posValue + " " + new Position(pos).toString());
 		}
 		move.setValue(boardValue + posValue);
 		return move;
@@ -108,7 +116,6 @@ public class AnalyseThread extends Thread {
 		default:
 			throw new IllegalStateException("Side state not allowed!");
 		}
-		p.getLock().lock();
 		outer:
 		for (int i = 1; i < 6; i += 2) {
 			if ((side == Side.UP) || (side == Side.DOWN)) {
@@ -120,9 +127,8 @@ public class AnalyseThread extends Thread {
 			if ((shiftPos.getCol() == forbidden.getCol()) && (shiftPos.getRow() == forbidden.getRow())) {
 				continue;
 			}
-//			System.out.println("ShiftPos: " + new Position(shiftPos).toString());
+			System.out.println("ShiftPos: " + new Position(shiftPos).toString());
 			for (Card tempCard : shiftCard.getPossibleRotations()) {
-//				System.out.println("Card: " + tempCard.getShape().name() + " " + tempCard.getOrientation().name());
 				tempMove = analyseBoard((Board) p.getBoard().clone(), shiftPos, tempCard);
 				if (tempMove.compareTo(bestMove) == 1) {
 					bestMove = tempMove;
@@ -133,6 +139,7 @@ public class AnalyseThread extends Thread {
 			}
 			
 		}
+		p.getLock().lock();
 		p.getMoves().add(bestMove);
 		p.getLock().unlock();
 	}

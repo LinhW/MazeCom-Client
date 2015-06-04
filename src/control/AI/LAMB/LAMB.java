@@ -13,6 +13,9 @@ import model.jaxb.LoginReplyMessageType;
 import model.jaxb.PositionType;
 import model.jaxb.WinMessageType;
 import control.AI.Player;
+import control.AI.LAMB.AnalyseThread;
+import control.AI.LAMB.Move;
+import control.AI.LAMB.Parameter;
 import control.network.Connection;
 
 public class LAMB implements Player {
@@ -50,9 +53,7 @@ public class LAMB implements Player {
 	
 	@Override
 	public String login() {
-//		String name = JOptionPane.showInputDialog("Nickname");
-//		return name + "(Labymann)";
-		return "Labymann";
+		return "LAMB";
 	}
 
 	@Override
