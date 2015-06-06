@@ -1,30 +1,53 @@
 package control;
 
-public class Main {
-	private static final boolean debug = true;
-	
-	private Controller controller;
-	
-	private void run() {
-		//erzeugt ein Messagedialog und gibt den eingegeben namen zurueck
-		//Tmp_testGUI.first();
+import gui.view.AISelector;
 
-		// Create controller
-		controller = new Controller();
-		// der controller sollte wahrscheinlich ganz oben sitzen, dann kann man über den die
-		// notifications zwischen fenster und verbindung schicken
-		controller.createWindow();
-		
-		// Debug code begin -----------------------------------------------------------------------
-		if (debug) {
-			controller.setName("Test");
-			System.out.println(controller.connect("localhost", 5123));
-		}
-		// Debug code end -------------------------------------------------------------------------
-	}
-	
+import javax.swing.JOptionPane;
+
+import control.AI.Player;
+import control.AI.RandomAIAdvanced;
+import control.AI.RandomAISimple;
+import control.AI.TryAndError;
+import control.AI.LAMB.LAMB;
+import control.AI.ava.Ava;
+import control.network.Connection;
+
+public class Main {
 	public static void main(String[] args) {
-		Main m = new Main();
-		m.run();
+		int selection = JOptionPane.showConfirmDialog(null, "Do you want to start an artificial intelligence?", "AI selection", JOptionPane.YES_NO_OPTION);
+		Connection connection = new Connection();
+		Player player;
+		if (selection == JOptionPane.YES_OPTION) {
+			AISelector selector = new AISelector();
+			selection = selector.showDialog();
+			System.out.println(selection);
+			switch (selection) {
+			case -1:
+				JOptionPane.showMessageDialog(null, "Client will exit now.", "Exit", JOptionPane.INFORMATION_MESSAGE);
+				return;
+			case 0:
+				player = new RandomAISimple(connection);
+				break;
+			case 1:
+				player = new Ava(connection);
+				break;
+			case 2:
+				player = new RandomAIAdvanced(connection);
+				break;
+			case 3:
+				player = new TryAndError(connection);
+				break;
+			case 4:
+				player = new LAMB(connection);
+				break;
+			default:
+				player = new RandomAISimple(connection);
+			}
+		} else {
+			System.out.println("start");
+			player = new EventController(connection);
+		}
+		connection.setPlayer(player);
+		connection.establishConnection("localhost", Settings.PORT);
 	}
 }
