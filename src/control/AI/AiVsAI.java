@@ -16,7 +16,7 @@ public class AiVsAI {
 	private int p1 = 0, p2 = 0, p3 = 0, p4 = 0;
 	private static int number = 0;
 	private WriteIntoFile wif;
-	private int count = 20;
+	private int count = 10000;
 	private static AiVsAI a;
 
 	public static void main(String[] args) {
@@ -40,7 +40,7 @@ public class AiVsAI {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		startClients(server, 0, 0, 0, 1, 0, 1);
+		startClients(server, 0, 0, 0, 1, 1, 1);
 	}
 
 	private void showResults() {

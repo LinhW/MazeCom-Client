@@ -223,6 +223,10 @@ public class Board extends BoardType {
 	public CardType getCard(int row, int col) {
 		return this.getRow().get(row).getCol().get(col);
 	}
+	
+	public Card getCard(Position p){
+		return new Card(getCard(p.getRow(), p.getCol()));
+	}
 
 	public Card getShiftCard() {
 		return new Card(super.getShiftCard());
