@@ -251,34 +251,52 @@ namespace MazeNetClient
 			return msg;
 		}
 
-		public static bool CalculateAnnoyingness(MazeNetPosition[][] board, MazeNetPosition shiftCard)
+		public static bool CalculateAnnoyingness(MazeNetPosition[][] board, MazeNetPosition shiftCard, int userid, List<treasureType> foundtreasures)
 		{
+			MazeNetPosition pos = null;
+			int d = 0;
+			bool res = false;
 			if (shiftCard.X == 0) {
 				for (int i = board.Length - 1; i > 0; i--) {
 					if (board [i] [shiftCard.Y].Card.pin.Length > 0) {
-						return true;
+						res = true;
+						pos = board [i] [shiftCard.Y];
 					}
 				}
 			} else if (shiftCard.Y == 0) {
 				for (int i = board.Length - 1; i > 0; i--) {
 					if (board [shiftCard.X] [i].Card.pin.Length > 0) {
-						return true;
+						res = true;
+						pos = board [shiftCard.X] [i];
 					}
 				}
 			} else if (shiftCard.X == board.Length - 1) {
 				for (int i = 0; i < board.Length - 1; i++) {
 					if (board [i] [shiftCard.Y].Card.pin.Length > 0) {
-						return true;
+						res = true;
+						pos = board [i] [shiftCard.Y];
 					}
 				}
 			} else if (shiftCard.Y == board.Length - 1) {
 				for (int i = 0; i < board.Length - 1; i++) {
 					if (board [shiftCard.X] [i].Card.pin.Length > 0) {
-						return true;
+						res = true;
+						pos = board [shiftCard.X] [i];
 					}
 				}
 			}
-			return false;
+			if (res && !pos.Card.pin.Contains(userid)) {
+				List<MazeNetPosition> way = MazeNetUtil.getWayablePositions (pos, board).ToList ();
+				foreach (var item in way) {
+					if (item.Card.treasureSpecified && !foundtreasures.Contains(item.Card.treasure)) {
+						d++;
+					}
+				}
+				if (d > 3) {
+					res = false;
+				}
+			}
+			return res;
 		}
 
 		public static MazeNetMessage getMoveMessage(MazeNetPosition pinPosition, MazeNetPosition insertionCard, MazeNetPosition[][] board, double d)

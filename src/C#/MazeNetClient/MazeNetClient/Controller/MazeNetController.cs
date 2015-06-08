@@ -79,6 +79,7 @@ namespace MazeNetClient
 				} else {
 					ki.activeBoard = activeBoard;
 					ki.treasure = treasure;
+					ki.treasuresToGo = treasuresToGo;
 				}
 				send(ki.calculateNextMove ());
 				break;
