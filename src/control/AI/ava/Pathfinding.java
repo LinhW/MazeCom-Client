@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import model.jaxb.CardType.Openings;
 import model.jaxb.CardType.Pin;
 import model.jaxb.TreasureType;
 import model.jaxb.TreasuresToGoType;
@@ -106,12 +107,16 @@ public class Pathfinding {
 				pph = new PinPosHelp(betterBoard.getPinPos(PlayerID), new CardHelp(betterBoard.getShiftCard(), new Position(0, 1)));
 			}
 			List<PinPosHelp> tmp_remove = new ArrayList<>();
-			for (PinPosHelp pp: list){
-				if(!map_PinPosHelp_v2.containsKey(pp.getCardHelp())){
+			for (PinPosHelp pp : list) {
+				if (!map_PinPosHelp_v2.containsKey(pp.getCardHelp())) {
 					tmp_remove.add(pp);
 				}
 			}
 			list.removeAll(tmp_remove);
+			if (list.size() == 0) {
+				list.addAll(tmp_remove);
+				chooseOrientation(list);
+			}
 			// if (list_rev.get(0).getPinPos().diff(trePos) <= list.get(0).getDiff() + (4 - list_treToGo.size())) {
 			//
 			// } else {
@@ -130,18 +135,36 @@ public class Pathfinding {
 		return pph;
 	}
 
-	private List<PinPosHelp> chooseOrientation(List<PinPosHelp> list, Position trePos) {
-		List<PinPosHelp> tmp = new ArrayList<>();
+	private List<PinPosHelp> chooseOrientation(List<PinPosHelp> list) {
+		//TODO
+		List<PinPosHelp> tmp1 = new ArrayList<>();
+		List<PinPosHelp> tmp2 = new ArrayList<>();
 		for (PinPosHelp pph : list) {
 			Position p = pph.getPinPos();
 			Card c = pph.getCardHelp().getC();
-			if (trePos.getCol() == p.getCol()) {
-				// if()
-			} else if (trePos.getRow() == p.getRow()) {
-
+			int count = 0;
+			if (pph.getTrePos().getCol() <= p.getCol() && c.getOpenings().isTop()) {
+				count++;
+			}
+			if (pph.getTrePos().getCol() >= p.getCol() && c.getOpenings().isBottom()) {
+				count++;
+			}
+			if (pph.getTrePos().getRow() <= p.getRow() && c.getOpenings().isLeft()) {
+				count++;
+			}
+			if (pph.getTrePos().getRow() >= p.getRow() && c.getOpenings().isRight()) {
+				count++;
+			}
+			if(count == 2){
+				tmp2.add(pph);
+			}else if(count ==1){
+				tmp1.add(pph);
 			}
 		}
-		return list;
+		if(tmp2.size() == 0){
+			return tmp1;
+		}
+		return tmp2;
 	}
 
 	private List<PinPosHelp> shortestPath(List<Position> list, Position trePos, CardHelp ch) {
@@ -153,10 +176,10 @@ public class Pathfinding {
 			if (tmp < diff) {
 				diff = tmp;
 				pos.clear();
-				pos.add(new PinPosHelp(p, ch, diff));
+				pos.add(new PinPosHelp(trePos, p, ch, diff));
 				// wif.write(new PinPosHelp(p, diff).toString());
 			} else if (tmp == diff) {
-				pos.add(new PinPosHelp(p, ch, tmp));
+				pos.add(new PinPosHelp(trePos, p, ch, tmp));
 				// wif.write("add " + new PinPosHelp(p, diff).toString());
 			}
 		}
@@ -299,6 +322,7 @@ public class Pathfinding {
 		private Position pinPos;
 		private double diff = Double.MAX_VALUE;
 		private CardHelp ch;
+		private Position trePos;
 
 		public PinPosHelp(Position pinPos, double diff) {
 			this.pinPos = pinPos;
@@ -310,7 +334,7 @@ public class Pathfinding {
 			this.ch = ch;
 		}
 
-		public PinPosHelp(Position pinPos, CardHelp ch, double diff) {
+		public PinPosHelp(Position trePos, Position pinPos, CardHelp ch, double diff) {
 			this.pinPos = pinPos;
 			this.ch = ch;
 			this.diff = diff;
@@ -322,6 +346,14 @@ public class Pathfinding {
 
 		public double getDiff() {
 			return diff;
+		}
+
+		public Position getTrePos() {
+			return this.trePos;
+		}
+
+		public void setTrePos(Position trePos) {
+			this.trePos = trePos;
 		}
 
 		public static List<PinPosHelp> getSmallestDiff(List<PinPosHelp> list) {

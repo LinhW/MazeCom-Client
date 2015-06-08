@@ -53,10 +53,10 @@ public class Ava implements Player {
 
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
-		System.out.println("Ava receives an await move message");
+//		System.out.println("Ava receives an await move message");
 		wif.write("AWAIT MOVE MESSAGES");
 		wif_v2.write("AWAIT MOVE MESSAGES");
-		System.out.println(message.getTreasure());
+//		System.out.println(message.getTreasure());
 		Board b = new Board(message.getBoard());
 		b.setTreasure(message.getTreasure());
 		p.setBoard(b);
@@ -84,8 +84,8 @@ public class Ava implements Player {
 
 	@Override
 	public void receiveAcceptMessage(AcceptMessageType message) {
-		System.out.println("Ava receives an Accept message");
-		System.out.println(message.getErrorCode());
+//		System.out.println("Ava receives an Accept message");
+//		System.out.println(message.getErrorCode());
 		wif.write(message.getErrorCode().toString());
 		wif_v2.write(message.getErrorCode().toString());
 		wif.writeNewLine(2);
