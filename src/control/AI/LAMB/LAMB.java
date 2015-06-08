@@ -24,11 +24,11 @@ public class LAMB implements Player {
 	private Parameter parameter;
 	private final Connection connection;
 	private ReentrantLock moveLock;
-	
+
 	public LAMB(Connection connection) {
 		this.connection = connection;
 	}
-	
+
 	private void calculateMove() {
 		/* -------------------- INITIALIZATION -------------------- */
 		ArrayList<Move> moves = new ArrayList<Move>();
@@ -37,7 +37,7 @@ public class LAMB implements Player {
 		/* --------------------- CALCULATIONS --------------------- */
 		for (AnalyseThread.Side s : AnalyseThread.Side.values()) {
 			threads.add(new AnalyseThread(parameter, s));
-			threads.get(threads.size() -1).start();
+			threads.get(threads.size() - 1).start();
 		}
 		for (AnalyseThread t : threads) {
 			try {
@@ -51,7 +51,7 @@ public class LAMB implements Player {
 		moves.clear();
 		sendMoveMessage(playerID, bestMove.getShiftCard(), bestMove.getShiftPosition(), bestMove.getMovePosition());
 	}
-	
+
 	@Override
 	public String login() {
 		return "LAMB";
@@ -80,6 +80,7 @@ public class LAMB implements Player {
 	@Override
 	public void receiveDisconnectMessage(DisconnectMessageType message) {
 		System.out.println("I have been disconnected!");
+		connection.sendDisconnect(message.getErrorCode(), playerID);
 	}
 
 	@Override

@@ -14,6 +14,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import model.jaxb.CardType;
+import model.jaxb.ErrorType;
 import model.jaxb.MazeCom;
 import model.jaxb.PositionType;
 import model.jaxb.WinMessageType.Winner;
@@ -190,6 +191,12 @@ public class Connection {
 	public void sendWin(Winner winner) {
 		if (aiai != null) {
 			AiVsAI.updateWinnerStat(winner);
+		}
+	}
+	
+	public void sendDisconnect(ErrorType error, int id){
+		if (aiai != null) {
+			AiVsAI.disconnect(error, id);
 		}
 	}
 

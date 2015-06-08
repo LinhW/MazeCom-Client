@@ -3,6 +3,7 @@ package control.AI;
 import java.awt.event.ActionEvent;
 import java.util.concurrent.TimeUnit;
 
+import model.jaxb.ErrorType;
 import model.jaxb.WinMessageType.Winner;
 import server.Game;
 import server.userInterface.BetterUI;
@@ -82,6 +83,14 @@ public class AiVsAI {
 		} else {
 			showResults();
 		}
+	}
+
+	public static void disconnect(ErrorType error, int id) {
+		a.dc(error, id);
+	}
+
+	private void dc(ErrorType error, int id) {
+		wif.write("Player " + id + " has a disconnect. Reason: " + error.toString());
 	}
 
 	private void startClients(Server server, int randomSimple, int randomAdvanced, int tryAndError, int ava, int lamb, int hal9000) {

@@ -230,7 +230,7 @@ public class Pathfinding {
 			//
 			// break;
 			// }
-			pph = list.get(0);
+			pph = PinPosHelp.getSmallestDiff(list_PinPosHelp_v1).get(0);
 		}
 		return pph;
 	}

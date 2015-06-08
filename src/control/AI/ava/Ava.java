@@ -70,6 +70,7 @@ public class Ava implements Player {
 	public void receiveDisconnectMessage(DisconnectMessageType message) {
 		System.out.println("Ava receives a disconnect Message:");
 		System.out.println(message.getErrorCode());
+		con.sendDisconnect(message.getErrorCode(), id);
 		wif.write(message.getErrorCode().toString());
 		wif_v2.write(message.getErrorCode().toString());
 	}
