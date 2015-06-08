@@ -7,6 +7,7 @@ import java.util.Random;
 import model.jaxb.BoardType;
 import model.jaxb.CardType;
 import model.jaxb.CardType.Pin;
+import model.jaxb.PositionType;
 import model.jaxb.TreasureType;
 import control.Settings;
 import control.AI.ava.ownClasses.Card.CardShape;
@@ -18,6 +19,8 @@ public class Board extends BoardType {
 
 	public Board(BoardType boardType) {
 		super();
+		PositionType forbiddenPositionType = boardType.getForbidden();
+		forbidden = (forbiddenPositionType != null) ? new Position(forbiddenPositionType) : null;
 		shiftCard = new Card(boardType.getShiftCard());
 		this.getRow();
 		for (int i = 0; i < 7; i++) {
@@ -31,6 +34,7 @@ public class Board extends BoardType {
 
 	public Board() {
 		super();
+		forbidden = null;
 		this.getRow();
 		// Erst werden alle Karten mit einer Standardkarte belegt
 		for (int i = 0; i < 7; i++) {
@@ -271,6 +275,7 @@ public class Board extends BoardType {
 
 			}
 		}
+		forbidden = shiftPos.getOpposite();
 		// muss dieser wieder aufs Brett gesetzt werden
 		// Dazu wird Sie auf die gerade hereingeschoben
 		// Karte gesetzt
@@ -289,6 +294,11 @@ public class Board extends BoardType {
 	@Override
 	public Object clone() {
 		Board clone = new Board();
+		if (forbidden == null) {
+			clone.forbidden = null;
+		} else {
+			clone.forbidden = new Position(this.forbidden);
+		}
 		clone.shiftCard = new Card(this.shiftCard);
 		clone.currentTreasure = this.currentTreasure;
 		for (int i = 0; i < 7; i++) {

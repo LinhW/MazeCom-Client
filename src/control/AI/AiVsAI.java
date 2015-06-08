@@ -15,7 +15,7 @@ public class AiVsAI {
 	private int p1 = 0, p2 = 0, p3 = 0, p4 = 0;
 	private static int number = 0;
 	private WriteIntoFile wif;
-	private int count = 2;
+	private int count = 4;
 
 	public static void main(String[] args) {
 		AiVsAI a = new AiVsAI();
@@ -32,10 +32,12 @@ public class AiVsAI {
 		number++;
 		Server server = new Server();
 		server.start();
-		startClients(server, 0, 0, 0, 4, 0);
+		startClients(server, 1, 1, 0, 1, 0);
 	}
 
 	private void showResults() {
+		wif.writeNewLine(2);
+		wif.write("-----------Stats--------------");
 		wif.write("Player1: " + p1 + " wins");
 		wif.write("Player2: " + p2 + " wins");
 		wif.write("Player3: " + p3 + " wins");
@@ -62,29 +64,13 @@ public class AiVsAI {
 			break;
 		}
 		if (number < count) {
+			config.Settings.PORT++;
+			control.Settings.PORT = config.Settings.PORT;
 			start();
 		} else {
 			showResults();
 		}
 	}
-
-	// private void startClients_tae() {
-	// Connection connection = new Connection(this);
-	// Client c1 = new Client(new TryAndError(connection), connection);
-	// c1.start();
-	//
-	// connection = new Connection(this);
-	// Client c2 = new Client(new TryAndError(connection), connection);
-	// c2.start();
-	//
-	// connection = new Connection(this);
-	// Client c3 = new Client(new TryAndError(connection), connection);
-	// c3.start();
-	//
-	// connection = new Connection(this);
-	// Client c4 = new Client(new TryAndError(connection), connection);
-	// c4.start();
-	// }
 
 	private void startClients(Server server, int randomSimple, int randomAdvanced, int tryAndError, int ava, int lamb) {
 		int sum = randomSimple + randomAdvanced + tryAndError + ava + lamb;
@@ -114,24 +100,6 @@ public class AiVsAI {
 			}
 		}
 	}
-
-	// private void startClients_ra() {
-	// Connection connection = new Connection(this);
-	// Client c1 = new Client(new RandomAIAdvanced(connection), connection);
-	// c1.start();
-	//
-	// connection = new Connection(this);
-	// Client c2 = new Client(new RandomAIAdvanced(connection), connection);
-	// c2.start();
-	//
-	// connection = new Connection(this);
-	// Client c3 = new Client(new RandomAIAdvanced(connection), connection);
-	// c3.start();
-	//
-	// connection = new Connection(this);
-	// Client c4 = new Client(new RandomAIAdvanced(connection), connection);
-	// c4.start();
-	// }
 
 	private class Client extends Thread {
 		private Player player;

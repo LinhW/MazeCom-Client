@@ -11,21 +11,23 @@ import control.AI.Player;
 import control.AI.ava.Pathfinding.PinPosHelp;
 import control.AI.ava.ownClasses.Board;
 import control.AI.ava.ownClasses.Card;
-import control.AI.ava.ownClasses.Position;
 import control.network.Connection;
 
 public class Ava implements Player {
 	private Connection con;
 	private int id;
 	private WriteIntoFile wif;
+	private WriteIntoFile wif_v2;
+	private Pathfinding p;
 
 	public Ava(Connection con) {
 		this.con = con;
-		wif = new WriteIntoFile(WriteIntoFile.FILEPATH + ".txt");
-		System.out.println(wif.clearFile());
+		wif = new WriteIntoFile(WriteIntoFile.FILEPATH + WriteIntoFile.FILEEXTENSION);
+		wif_v2 = new WriteIntoFile(WriteIntoFile.FILEPATH + "_v2" + WriteIntoFile.FILEEXTENSION);
+		wif.clearFile();
+		wif_v2.clearFile();
 		wif.write("Ava");
-		WriteIntoFile possPos = new WriteIntoFile("src/control/AI/ava/possPos.txt");
-		System.out.println(possPos.clearFile());
+		wif_v2.write("Ava");
 	}
 
 	public Ava() {
@@ -41,16 +43,20 @@ public class Ava implements Player {
 	public void receiveLoginReply(LoginReplyMessageType message) {
 		System.out.println("Ava receives a login reply");
 		id = message.getNewID();
+		p = new Pathfinding(id);
 	}
 
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
 		System.out.println("Ava receives an await move message");
 		wif.write("AWAIT MOVE MESSAGES");
+		wif_v2.write("AWAIT MOVE MESSAGES");
+		System.out.println(message.getTreasure());
 		Board b = new Board(message.getBoard());
-		Pathfinding p = new Pathfinding(b, id);
+		b.setTreasure(message.getTreasure());
+		p.setBoard(b);
+		p.setTreToGo(message.getTreasuresToGo());
 		PinPosHelp pph = p.start();
-//		PinPosHelp pph = p.ava(b.getPinPos(id), b.findTreasure(message.getTreasure()));
 		sendMoveMessage(id, pph.getCardHelp().getC(), pph.getCardHelp().getP(), pph.getPinPos());
 	}
 
@@ -60,11 +66,15 @@ public class Ava implements Player {
 		System.out.println("Ava receives a disconnect Message:");
 		System.out.println(message.getErrorCode());
 		wif.write(message.getErrorCode().toString());
+		wif_v2.write(message.getErrorCode().toString());
 	}
 
 	@Override
 	public void receiveWinMessage(WinMessageType message) {
 		System.out.println(message);
+		if (message.getWinner().getId() == id) {
+			con.sendWin(message.getWinner());
+		}
 	}
 
 	@Override
@@ -72,12 +82,14 @@ public class Ava implements Player {
 		System.out.println("Ava receives an Accept message");
 		System.out.println(message.getErrorCode());
 		wif.write(message.getErrorCode().toString());
+		wif_v2.write(message.getErrorCode().toString());
 		wif.writeNewLine(2);
+		wif_v2.writeNewLine(2);
 	}
 
 	@Override
 	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift, PositionType pin) {
-		wif.write("Send:\nShiftPos " + new Position(shift) + " PinPos " + new Position(pin) + "\n" + c);
+		System.out.println("wird gesendet:");
 		System.out.println("CardPos: " + shift);
 		System.out.println("PinPos: " + pin);
 		System.out.println(new Card(c));

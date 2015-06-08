@@ -4,23 +4,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.jaxb.CardType.Pin;
+import model.jaxb.TreasuresToGoType;
+import control.AI.ava.WriteIntoFile;
 import control.AI.ava.ownClasses.Board;
 import control.AI.ava.ownClasses.Card;
 import control.AI.ava.ownClasses.Position;
 
 public class Pathfinding {
 
-	private int x;
-	private int y;
+	private final int x = 7;
+	private final int y = 7;
 	private Board betterBoard;
 	private final int MARKER1 = 1;
 	private final int MARKER2 = 2;
 	private int PlayerID;
-	private int count;
 	private static WriteIntoFile wif;
 	private static WriteIntoFile possPos;
 	private static WriteIntoFile wif_v2;
+	private static WriteIntoFile wif_pin;
+	private static WriteIntoFile wif_board;
+	private List<TreasuresToGoType> list_treToGo;
 	private static final String FILEPATH = "src/control/AI/ava/possPos.txt";
+	private static int count = 0;
 
 	/**
 	 * PinPosHelp with diff from new PinPos to TreasurePos
@@ -31,33 +36,50 @@ public class Pathfinding {
 	 */
 	private List<PinPosHelp> list_PinPosHelp_v2;
 
-	public Pathfinding(Board b, int PlayerID) {
+	public Pathfinding(Board b, int PlayerID, List<TreasuresToGoType> list) {
+		this(PlayerID);
 		this.betterBoard = b;
-		this.PlayerID = PlayerID;
-		x = b.getRow().size();
-		y = b.getRow().get(0).getCol().size();
+		this.list_treToGo = list;
+	}
+
+	public Pathfinding(int PlayerID) {
 		list_PinPosHelp_v1 = new ArrayList<>();
 		list_PinPosHelp_v2 = new ArrayList<>();
 		wif = new WriteIntoFile(WriteIntoFile.FILEPATH + WriteIntoFile.FILEEXTENSION);
 		wif_v2 = new WriteIntoFile(WriteIntoFile.FILEPATH + "_v2" + WriteIntoFile.FILEEXTENSION);
+		wif_pin = new WriteIntoFile(WriteIntoFile.FILEPATH + "_pin" + WriteIntoFile.FILEEXTENSION);
+		wif_board = new WriteIntoFile(WriteIntoFile.FILEPATH + "_board" + WriteIntoFile.FILEEXTENSION);
 		possPos = new WriteIntoFile(FILEPATH);
+		possPos.clearFile();
+		wif_pin.clearFile();
+		wif_board.clearFile();
+		this.PlayerID = PlayerID;
+	}
+
+	public void setBoard(Board b) {
+		this.betterBoard = b;
+	}
+
+	public void setTreToGo(List<TreasuresToGoType> list) {
+		this.list_treToGo = list;
 	}
 
 	public PinPosHelp start() {
+		count = 0;
+		// wif_board.write(betterBoard.toString());
+		// wif_board.write(betterBoard.getShiftCard().toString());
 		Position trePos = betterBoard.findTreasure(betterBoard.getTreasure());
+		System.out.println(trePos);
+		System.out.println(betterBoard.getTreasure());
 		if (trePos == null) {
-			CardHelp ch = treIsOnShift();
-			if (ch == null) {
-				return ava(betterBoard.getPinPos(PlayerID), trePos);
-			}
-			return new PinPosHelp(trePos, ch);
+			return treIsOnShift();
 		} else {
 			return ava(betterBoard.getPinPos(PlayerID), trePos);
 		}
 	}
 
-	//TODO bei mehreren moeglichkeiten 
-	private CardHelp treIsOnShift() {
+	// TODO bei mehreren moeglichkeiten
+	private PinPosHelp treIsOnShift() {
 		List<Position> l = new ArrayList<>();
 		Board board;
 		Position oldPinPos;
@@ -81,49 +103,139 @@ public class Pathfinding {
 						l = findPossiblePos(board, l, oldPinPos);
 						ch = new CardHelp(c, shiftPos);
 						if (l.contains(shiftPos)) {
-							return ch;
+							return new PinPosHelp(shiftPos, ch);
 						}
 					}
 				}
 			}
 		}
-		return null;
-	}
-
-	// teasure on shiftCard
-	// forbidden (last turn was on the opposite)
-	public PinPosHelp ava(Position start, Position trePos) {
-		// if()
-		list_PinPosHelp_v1.clear();
-		list_PinPosHelp_v2.clear();
-		wif.write("PinPos: " + start + " TreasureToFindPos: " + trePos);
-		CardHelp ch = simpleSolution(trePos);
-		PinPosHelp pph = new PinPosHelp(trePos, ch);
-		System.out.println("CardHelp " + ch);
-		wif.write("CardHelp " + ch);
-		if (ch == null) {
-			System.out.println("no solution");
-			List<PinPosHelp> list = PinPosHelp.getSmallestDiff(list_PinPosHelp_v1);
-			List<PinPosHelp> list_rev = PinPosHelp.getSmallestDiff(list_PinPosHelp_v2);
-			if (list.size() == 1 && list_rev.size() == 1) {
-				if (list.get(0).equals(list_rev.get(0))) {
-					pph = list.get(0);
-				} else {
-					if (list_rev.get(0).getDiff() < 4) {
-						pph = list_rev.get(0);
+		List<Position> l_rev = new ArrayList<>();
+		list_c = betterBoard.getShiftCard().getPossibleRotations();
+		for (Card c : list_c) {
+			// wif_pin.write(c.toString());
+			for (int i = 1; i < 6; i += 2) {
+				for (int k = 0; k < 7; k += 6) {
+					for (int j = 0; j < 2; j++) {
+						board = (Board) betterBoard.clone();
+						c.setPin(new Pin());
+						shiftPos = new Position(k + (i - k) * j, i + (k - i) * j);
+						if (betterBoard.getForbidden() != null && shiftPos.equals(new Position(betterBoard.getForbidden()))) {
+							// wif_pin.write("ForbiddenPos: " + betterBoard.getForbidden());
+							continue;
+						}
+						board.proceedShift(shiftPos, c);
+						oldPinPos = board.getPinPos(PlayerID);
+						l.clear();
+						l = findPossiblePos(board, l, oldPinPos);
+						l_rev.clear();
+						l_rev = findPossiblePos(board, l_rev, shiftPos);
+						ch = new CardHelp(c, shiftPos);
+						if (l.contains(shiftPos)) {
+							wif_pin.write("Found it on shift should not happen: " + shiftPos);
+							return new PinPosHelp(shiftPos, ch);
+						}
+						calcData(oldPinPos, shiftPos, ch, l, l_rev);
 					}
 				}
-			} else {
-				list = chooseOrientation(list, trePos);
-				// if (ph.getPinPos().isGlued()) {
-				// pph = ph;
-				// // TODO nach Ausrichtung der Schatzkarte richten
-				// // TODO nur Rotationsunterschied? -> moeglichst unnuetz anbringen
-				//
-				// break;
-				// }
-				pph = list.get(0);
 			}
+		}
+		PinPosHelp pph;
+		List<PinPosHelp> list = PinPosHelp.getSmallestDiff(list_PinPosHelp_v1);
+		// wif.write(list.size());
+		// for (PinPosHelp ph : list) {
+		// wif.write(ph.toString());
+		// }
+		// wif.writeNewLCine(2);
+		List<PinPosHelp> list_rev = PinPosHelp.getSmallestDiff(list_PinPosHelp_v2);
+		// wif_v2.write(list_rev.size());
+		// for (PinPosHelp ph : list_rev) {
+		// wif_v2.write(ph.toString());
+		// }
+		// wif_v2.writeNewLine(2);
+		if (list.size() == 1 && list_rev.size() == 1) {
+			if (list.get(0).equals(list_rev.get(0))) {
+				pph = list.get(0);
+			} else {
+				if (list_rev.get(0).getPinPos().diff(list_rev.get(0).getCardHelp().getP()) <= list.get(0).getDiff() + (4 - list_treToGo.size())) {
+					pph = list_rev.get(0);
+				} else {
+					pph = list.get(0);
+				}
+			}
+		} else {
+			if (list_rev.get(0).getPinPos().diff(list_rev.get(0).getCardHelp().getP()) <= list.get(0).getDiff() + (4 - list_treToGo.size())) {
+
+			} else {
+
+			}
+			// list = chooseOrientation(list, trePos);
+			// if (ph.getPinPos().isGlued()) {
+			// pph = ph;
+			// // TODO nach Ausrichtung der Schatzkarte richten
+			// // TODO nur Rotationsunterschied? -> moeglichst unnuetz anbringen
+			//
+			// break;
+			// }
+			pph = list.get(0);
+		}
+		return pph;
+	}
+
+	public PinPosHelp ava(Position start, Position trePos) {
+		list_PinPosHelp_v1.clear();
+		list_PinPosHelp_v2.clear();
+		// wif.write("PinPos: " + start + " TreasureToFindPos: " + trePos);
+		// wif_v2.write("PinPos: " + start + " TreasureToFindPos: " + trePos);
+		CardHelp ch = simpleSolution(trePos);
+		PinPosHelp pph = new PinPosHelp(trePos, ch);
+		// System.out.println("CardHelp " + ch);
+		if (ch == null) {
+			System.out.println("no solution");
+			pph = nextStep(trePos);
+		}
+		return pph;
+	}
+
+	private PinPosHelp nextStep(Position trePos) {
+		PinPosHelp pph;
+		List<PinPosHelp> list = PinPosHelp.getSmallestDiff(list_PinPosHelp_v1);
+		// wif.write(list.size());
+		// for (PinPosHelp ph : list) {
+		// wif.write(ph.toString());
+		// }
+		// wif.writeNewLine(2);
+		List<PinPosHelp> list_rev = PinPosHelp.getSmallestDiff(list_PinPosHelp_v2);
+		// wif_v2.write(list_rev.size());
+		// for (PinPosHelp ph : list_rev) {
+		// wif_v2.write(ph.toString());
+		// }
+		// wif_v2.writeNewLine(2);
+		if (list.size() == 1 && list_rev.size() == 1) {
+			if (list.get(0).equals(list_rev.get(0))) {
+				pph = list.get(0);
+			} else {
+				if (list_rev.get(0).getPinPos().diff(trePos) <= list.get(0).getDiff() + (4 - list_treToGo.size())) {
+					pph = list_rev.get(0);
+				} else {
+					pph = list.get(0);
+				}
+			}
+		} else {
+			// abfragen auf list.size == 0
+//			if (list_rev.get(0).getPinPos().diff(trePos) <= list.get(0).getDiff() + (4 - list_treToGo.size())) {
+//
+//			} else {
+//
+//			}
+			list = chooseOrientation(list, trePos);
+			// if (ph.getPinPos().isGlued()) {
+			// pph = ph;
+			// // TODO nach Ausrichtung der Schatzkarte richten
+			// // TODO nur Rotationsunterschied? -> moeglichst unnuetz anbringen
+			//
+			// break;
+			// }
+			pph = list.get(0);
 		}
 		return pph;
 	}
@@ -142,34 +254,46 @@ public class Pathfinding {
 		return list;
 	}
 
-	private PinPosHelp shortestPath(List<Position> list, Position trePos) {
-		Position pos = null;
+	private List<PinPosHelp> shortestPath(List<Position> list, Position trePos) {
+		List<PinPosHelp> pos = new ArrayList<>();
+		// wif.write("------------------- " + list.size());
 		double diff = x * y;
 		for (Position p : list) {
 			double tmp = p.diff(trePos);
-			wif.write(p + " " + trePos + " " + tmp);
 			if (tmp < diff) {
 				diff = tmp;
-				pos = p;
+				pos.clear();
+				pos.add(new PinPosHelp(p, diff));
+				// wif.write(new PinPosHelp(p, diff).toString());
+			} else if (tmp == diff) {
+				pos.add(new PinPosHelp(p, tmp));
+				// wif.write("add " + new PinPosHelp(p, diff).toString());
 			}
 		}
-		return new PinPosHelp(pos, diff);
+		// wif.write("-------------------\n");
+		return pos;
 	}
 
-	private PinPosHelp shortestPath(List<Position> list, List<Position> list_rev) {
-		Position pos = null;
+	private List<PinPosHelp> shortestPath(List<Position> list, List<Position> list_rev) {
+		List<PinPosHelp> pos = new ArrayList<>();
+		// wif_v2.write("------------------- " + list.size() + " " + list_rev.size());
 		double diff = x * y;
 		for (Position p : list) {
 			for (Position pr : list_rev) {
 				double tmp = p.diff(pr);
-				wif_v2.write(p + " " + pr + " " + tmp);
 				if (tmp < diff) {
 					diff = tmp;
-					pos = p;
+					pos.clear();
+					pos.add(new PinPosHelp(p, diff));
+					// wif_v2.write(new PinPosHelp(p, diff).toString());
+				} else if (tmp == diff) {
+					pos.add(new PinPosHelp(p, tmp));
+					// wif_v2.write("add " + new PinPosHelp(p, diff).toString());
 				}
 			}
 		}
-		return new PinPosHelp(pos, diff);
+		// wif_v2.write("-------------------");
+		return pos;
 	}
 
 	private CardHelp simpleSolution(Position trePos) {
@@ -179,9 +303,13 @@ public class Pathfinding {
 		Position oldPinPos;
 		Position shiftPos;
 		CardHelp ch;
+		// wif_pin.write("ShiftCard:");
+		// wif_pin.write(betterBoard.getShiftCard().toString());
 
 		List<Card> list_c = betterBoard.getShiftCard().getPossibleRotations();
+		System.out.println(list_c.size() * 3 * 2 * 2);
 		for (Card c : list_c) {
+			wif_pin.write(c.toString());
 			for (int i = 1; i < 6; i += 2) {
 				for (int k = 0; k < 7; k += 6) {
 					for (int j = 0; j < 2; j++) {
@@ -189,25 +317,25 @@ public class Pathfinding {
 						c.setPin(new Pin());
 						shiftPos = new Position(k + (i - k) * j, i + (k - i) * j);
 						if (betterBoard.getForbidden() != null && shiftPos.equals(new Position(betterBoard.getForbidden()))) {
+							wif_pin.write("ForbiddenPos: " + betterBoard.getForbidden());
 							continue;
 						}
-						board.proceedShift(shiftPos, c);
+						board.proceedShift(shiftPos, new Card(c));
 						oldPinPos = board.getPinPos(PlayerID);
-						wif.writeNewLine(1);
-						wif.write("PinPos: " + oldPinPos + " " + "ShiftPos " + shiftPos);
 						l.clear();
 						l = findPossiblePos(board, l, oldPinPos);
 						l_rev.clear();
 						l_rev = findPossiblePos(board, l_rev, trePos);
-						possPos.write(board.toString());
-						possPos.write(oldPinPos.toString());
-						possPos.writeList(l);
-						possPos.writeNewLine(2);
 						ch = new CardHelp(c, shiftPos);
 						if (l.contains(trePos)) {
 							wif.write(board.toString());
 							wif.write(oldPinPos.toString());
 							wif.write("************************************************\n" + ch.toString() + "\n************************************************");
+							wif_pin.write("Found it: " + trePos);
+
+							wif_v2.write(board.toString());
+							wif_v2.write(betterBoard.getPinPos(PlayerID) + " " + oldPinPos.toString());
+							wif_v2.write("************************************************\n" + ch.toString() + "\n************************************************");
 							return ch;
 						}
 						calcData(oldPinPos, trePos, ch, l, l_rev);
@@ -219,12 +347,17 @@ public class Pathfinding {
 	}
 
 	private void calcData(Position start, Position trePos, CardHelp ch, List<Position> list, List<Position> list_rev) {
-		wif.write("PinPos: " + start + " " + ch.debug() + " " + list.size() + " " + list_rev.size());
-		PinPosHelp pph = shortestPath(list, trePos);
-		pph.setCardHelp(ch);
-		list_PinPosHelp_v1.add(pph);
-		pph = shortestPath(list, list_rev);
-		list_PinPosHelp_v2.add(pph);
+		// wif.write(list.size() + " " + list_rev.size());
+		List<PinPosHelp> lpph = shortestPath(list, trePos);
+		for (PinPosHelp pph : lpph) {
+			pph.setCardHelp(ch);
+		}
+		list_PinPosHelp_v1.addAll(lpph);
+		lpph = shortestPath(list, list_rev);
+		for (PinPosHelp pph : lpph) {
+			pph.setCardHelp(ch);
+		}
+		list_PinPosHelp_v2.addAll(lpph);
 	}
 
 	private List<Position> findPossiblePos(Board b, List<Position> list, Position start) {
@@ -237,28 +370,32 @@ public class Pathfinding {
 			p = new Position(row_start, col_start + 1);
 			if (!list.contains(p) && b.getCard(row_start, col_start + 1).getOpenings().isLeft() && c.getOpenings().isRight()) {
 				list.add(p);
-				list = findPossiblePos(b, list, p);
+				possPos.write("right " + list.size());
+				list = (findPossiblePos(b, list, p));
 			}
 		}
 		if (col_start > 0) {
 			p = new Position(row_start, col_start - 1);
 			if (!list.contains(p) && b.getCard(row_start, col_start - 1).getOpenings().isRight() && c.getOpenings().isLeft()) {
 				list.add(p);
-				list = findPossiblePos(b, list, p);
+				possPos.write("left " + list.size());
+				list = (findPossiblePos(b, list, p));
 			}
 		}
 		if (row_start > 0) {
 			p = new Position(row_start - 1, col_start);
 			if (!list.contains(p) && b.getCard(row_start - 1, col_start).getOpenings().isBottom() && c.getOpenings().isTop()) {
 				list.add(p);
-				list = findPossiblePos(b, list, p);
+				possPos.write("up " + list.size());
+				list = (findPossiblePos(b, list, p));
 			}
 		}
 		if (row_start < y - 1) {
 			p = new Position(row_start + 1, col_start);
 			if (!list.contains(p) && b.getCard(row_start + 1, col_start).getOpenings().isTop() && c.getOpenings().isBottom()) {
 				list.add(p);
-				list = findPossiblePos(b, list, p);
+				possPos.write("down " + list.size());
+				list = (findPossiblePos(b, list, p));
 			}
 		}
 		return list;
@@ -272,18 +409,13 @@ public class Pathfinding {
 			}
 		}
 		reachable[start.getRow()][start.getCol()] = MARKER1;
-		count = 0;
 		if (!tilTheEnd(reachable, start, end, MARKER1)) {
-			System.out.println("count " + count);
 			reachable[end.getRow()][end.getCol()] = MARKER2;
-			count = 0;
 			tilTheEnd(reachable, end, start, MARKER2);
-			System.out.println("count " + count);
 			// Path p = new Path(reachable);
 
 			// card is glued? -> false : shift to the other side?
 		} else {
-			System.out.println("count " + count);
 			// TODO
 			// find possible position for shifting Card without destroying the
 			// calculated path
@@ -320,10 +452,8 @@ public class Pathfinding {
 			List<PinPosHelp> res = new ArrayList<>();
 			double min = Double.MAX_VALUE;
 			double diff;
-			wif.write("-----------");
 			for (PinPosHelp pph : list) {
 				diff = pph.getDiff();
-				wif.write(pph.debug() + "\t" + min);
 				if (diff == min) {
 					res.add(pph);
 				}
@@ -333,11 +463,6 @@ public class Pathfinding {
 					res.add(pph);
 				}
 			}
-			wif.write("-----");
-			for (PinPosHelp pp : res) {
-				wif.write(pp.debug());
-			}
-			wif.write("-----------");
 			return res;
 		}
 
@@ -354,11 +479,19 @@ public class Pathfinding {
 		}
 
 		public String debug() {
-			return "PinPos: " + pinPos + " " + ch.debug() + "\t" + diff;
+			if (ch != null) {
+				return "PinPos: " + pinPos + " " + ch.debug() + "\t" + diff;
+			} else {
+				return "PinPos: " + pinPos + " " + " null\t" + diff;
+			}
 		}
 
 		public boolean equals(PinPosHelp pph) {
 			return pph.ch.equals(this.getCardHelp()) && this.pinPos.equals(pph.getPinPos());
+		}
+
+		public boolean equalsWithoutRot(PinPosHelp pph) {
+			return pph.getCardHelp().equalsWithoutRot(this.ch) && this.pinPos.equals(pph.getPinPos());
 		}
 	}
 
@@ -390,10 +523,13 @@ public class Pathfinding {
 		public boolean equals(CardHelp ch) {
 			return this.c.equals(ch.getC()) && this.p.equals(ch.getP());
 		}
+
+		public boolean equalsWithoutRot(CardHelp ch) {
+			return this.c.getShape() == ch.getC().getShape() && this.p.equals(ch.getP());
+		}
 	}
 
 	private boolean tilTheEnd(int[][] reachable, Position start, Position end, int marker) {
-		count++;
 		boolean res = false;
 		int col_start = start.getCol();
 		int row_start = start.getRow();

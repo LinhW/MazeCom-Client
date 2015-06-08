@@ -9,6 +9,7 @@ import model.jaxb.AcceptMessageType;
 import model.jaxb.AwaitMoveMessageType;
 import model.jaxb.CardType;
 import model.jaxb.DisconnectMessageType;
+import model.jaxb.ErrorType;
 import model.jaxb.LoginReplyMessageType;
 import model.jaxb.PositionType;
 import model.jaxb.WinMessageType;
@@ -84,11 +85,16 @@ public class LAMB implements Player {
 	@Override
 	public void receiveWinMessage(WinMessageType message) {
 		System.out.println("Player " + message.getWinner().getValue() + " (" + message.getWinner().getId() + ") has won the game!");
+		if (message.getWinner().getId() == playerID) {
+			connection.sendWin(message.getWinner());
+		}
 	}
 
 	@Override
 	public void receiveAcceptMessage(AcceptMessageType message) {
-		System.out.println(message.getErrorCode().value());
+		if (message.getErrorCode() != ErrorType.NOERROR) {
+			System.out.println(message.getErrorCode().value());
+		}
 	}
 
 	@Override

@@ -48,4 +48,17 @@ public class Position extends PositionType {
 		return Math.sqrt((p.row - p.getRow()) * (p.row - p.getRow()) + (p.col - p.getCol()) * (p.col - p.getCol()));
 	}
 
+	/**
+	 * Gibt die gegenueberliegende Position auf dem Spielbrett wieder
+	 */
+	public Position getOpposite() {
+		if (row % 6 == 0) {
+			return new Position((row + 6) % 12, col);
+		} else if (col % 6 == 0) {
+			return new Position(row, (col + 6) % 12);
+		} else {
+			return null;
+		}
+	}
+
 }
