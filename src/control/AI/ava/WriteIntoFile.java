@@ -45,6 +45,10 @@ public class WriteIntoFile {
 		return true;
 	}
 
+	public boolean write(int i) {
+		return write(i + "");
+	}
+
 	public void writeNewLine(int i) {
 		try {
 			FileWriter fw = new FileWriter(file.getAbsoluteFile(), true);
