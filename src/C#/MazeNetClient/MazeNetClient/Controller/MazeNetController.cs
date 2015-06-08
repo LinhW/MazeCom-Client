@@ -93,9 +93,7 @@ namespace MazeNetClient
 				break;
 			case MazeComType.WIN:
 				if (((WinMessageType)(com.mazeCom.Item)).winner.id == user.ID) {
-					for (int i = 0; i < 99999; i++) {
-						Console.Write ("WIN ");
-					}
+					Console.Write ("WINNERID=" + user.ID);
 				} else {
 					Console.Write ("STILL ALIVE ");
 				}

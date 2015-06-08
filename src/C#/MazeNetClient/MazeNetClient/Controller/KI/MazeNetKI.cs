@@ -78,10 +78,10 @@ namespace MazeNetClient
 												}
 												if (d == 0) {
 													tmpList.Add(MazeNetUtil.getMoveMessage (itreasure, mcp, tmpBoard, d)); 
-													Console.WriteLine ("d = " + d + " bei px = " + itreasure.X + " py = " + itreasure.Y + " und  ix = " + mcp.X + " iy = " + mcp.Y);
+													//Console.WriteLine ("d = " + d + " bei px = " + itreasure.X + " py = " + itreasure.Y + " und  ix = " + mcp.X + " iy = " + mcp.Y);
 												} else {
 													tmpList.Add(MazeNetUtil.getMoveMessage (pWay, mcp, tmpBoard, d)); 
-													Console.WriteLine ("d = " + d + " bei px = " + pWay.X + " py = " + pWay.Y + " und  ix = " + mcp.X + " iy = " + mcp.Y);
+													//Console.WriteLine ("d = " + d + " bei px = " + pWay.X + " py = " + pWay.Y + " und  ix = " + mcp.X + " iy = " + mcp.Y);
 												}
 
 											}
@@ -108,7 +108,17 @@ namespace MazeNetClient
 			Dictionary<MazeNetMessage, List<double>> calc = new Dictionary<MazeNetMessage, List<double>> ();
 			MazeNetMessage res = null;
 			foreach (var item in finalMoves) {
-				calc.Add(item, new List<double>());
+				MoveMessageType mt = (item.mazeCom.Item as MoveMessageType);
+				item.annoying = MazeNetUtil.CalculateAnnoyingness(MazeNetUtil.boardToMatrix(activeBoard), new MazeNetPosition(mt.shiftPosition.col, mt.shiftPosition.row, mt.shiftCard));
+				if (item.annoying == true) {
+					calc.Add(item, new List<double>());
+				}
+			}
+			if (calc.Count == 0) {
+				foreach (var item in finalMoves) {
+					MoveMessageType mt = (item.mazeCom.Item as MoveMessageType);
+					calc.Add(item, new List<double>());
+				}
 			}
 
 			Random r = new Random ();

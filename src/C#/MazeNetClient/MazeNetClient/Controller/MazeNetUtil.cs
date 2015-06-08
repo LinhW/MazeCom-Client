@@ -251,6 +251,36 @@ namespace MazeNetClient
 			return msg;
 		}
 
+		public static bool CalculateAnnoyingness(MazeNetPosition[][] board, MazeNetPosition shiftCard)
+		{
+			if (shiftCard.X == 0) {
+				for (int i = board.Length - 1; i > 0; i--) {
+					if (board [i] [shiftCard.Y].Card.pin.Length > 0) {
+						return true;
+					}
+				}
+			} else if (shiftCard.Y == 0) {
+				for (int i = board.Length - 1; i > 0; i--) {
+					if (board [shiftCard.X] [i].Card.pin.Length > 0) {
+						return true;
+					}
+				}
+			} else if (shiftCard.X == board.Length - 1) {
+				for (int i = 0; i < board.Length - 1; i++) {
+					if (board [i] [shiftCard.Y].Card.pin.Length > 0) {
+						return true;
+					}
+				}
+			} else if (shiftCard.Y == board.Length - 1) {
+				for (int i = 0; i < board.Length - 1; i++) {
+					if (board [shiftCard.X] [i].Card.pin.Length > 0) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
 		public static MazeNetMessage getMoveMessage(MazeNetPosition pinPosition, MazeNetPosition insertionCard, MazeNetPosition[][] board, double d)
 		{
 			MazeNetMessage move = getMoveMessage (pinPosition, insertionCard);
