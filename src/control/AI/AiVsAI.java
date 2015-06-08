@@ -1,6 +1,7 @@
 package control.AI;
 
 import java.awt.event.ActionEvent;
+import java.util.concurrent.TimeUnit;
 
 import model.jaxb.WinMessageType.Winner;
 import server.Game;
@@ -15,7 +16,7 @@ public class AiVsAI {
 	private int p1 = 0, p2 = 0, p3 = 0, p4 = 0;
 	private static int number = 0;
 	private WriteIntoFile wif;
-	private int count = 4;
+	private int count = 100;
 
 	public static void main(String[] args) {
 		AiVsAI a = new AiVsAI();
@@ -32,7 +33,13 @@ public class AiVsAI {
 		number++;
 		Server server = new Server();
 		server.start();
-		startClients(server, 1, 1, 0, 1, 0);
+		try {
+			TimeUnit.SECONDS.sleep(5);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		startClients(server, 0, 0, 0, 1, 1);
 	}
 
 	private void showResults() {

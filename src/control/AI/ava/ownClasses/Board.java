@@ -131,8 +131,14 @@ public class Board extends BoardType {
 	// Ausgabe des Spielbretts als AsciiArt
 	@Override
 	public String toString() {
+		String player = " [";
+		for (int i = 1; i < 5; i++) {
+			player += "Player" + i + ":" + getPinPos(i) + ", ";
+		}
+		player = player.substring(0, player.length() - 2);
+		player += "]";
 		StringBuilder sb = new StringBuilder();
-		sb.append("Board [currentTreasure=" + currentTreasure + "]\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("Board [currentTreasure=" + currentTreasure + "]" + player + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append("Spielbrett: \n"); //$NON-NLS-1$
 		sb.append(" ------ ------ ------ ------ ------ ------ ------ \n"); //$NON-NLS-1$
 		for (int i = 0; i < getRow().size(); i++) {

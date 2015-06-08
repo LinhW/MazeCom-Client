@@ -1,3 +1,2 @@
-Player3: 1 win
-Player3: 2 win
-Player3: 3 win
+Player1: 1 win
+Player1: 2 win
