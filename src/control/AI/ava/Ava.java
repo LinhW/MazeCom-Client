@@ -8,9 +8,11 @@ import model.jaxb.LoginReplyMessageType;
 import model.jaxb.PositionType;
 import model.jaxb.WinMessageType;
 import control.AI.Player;
+import control.AI.ava.Pathfinding.CardHelp;
 import control.AI.ava.Pathfinding.PinPosHelp;
 import control.AI.ava.ownClasses.Board;
 import control.AI.ava.ownClasses.Card;
+import control.AI.ava.ownClasses.Position;
 import control.network.Connection;
 
 public class Ava implements Player {
@@ -18,16 +20,19 @@ public class Ava implements Player {
 	private int id;
 	private WriteIntoFile wif;
 	private WriteIntoFile wif_v2;
+	private WriteIntoFile possPos;
 	private Pathfinding p;
 
 	public Ava(Connection con) {
 		this.con = con;
 		wif = new WriteIntoFile(WriteIntoFile.FILEPATH + WriteIntoFile.FILEEXTENSION);
 		wif_v2 = new WriteIntoFile(WriteIntoFile.FILEPATH + "_v2" + WriteIntoFile.FILEEXTENSION);
+		possPos = new WriteIntoFile("src/control/AI/ava/possPos.txt");
 		wif.clearFile();
 		wif_v2.clearFile();
 		wif.write("Ava");
 		wif_v2.write("Ava");
+		possPos.clearFile();
 	}
 
 	public Ava() {
@@ -93,6 +98,7 @@ public class Ava implements Player {
 		System.out.println("CardPos: " + shift);
 		System.out.println("PinPos: " + pin);
 		System.out.println(new Card(c));
+		possPos.write("sendet: " + new PinPosHelp(new Position(pin), new CardHelp(new Card(c), new Position(shift))).debug());
 		con.sendMoveMessage(PlayerID, c, shift, pin);
 	}
 
