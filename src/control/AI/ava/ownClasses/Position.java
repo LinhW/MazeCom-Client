@@ -45,7 +45,7 @@ public class Position extends PositionType {
 	}
 
 	public int diff(Position p) {
-		return (p.row - p.getRow() + p.col - p.getCol());
+		return (Math.abs(this.row - p.getRow()) + Math.abs(this.col - p.getCol()));
 	}
 
 	/**
