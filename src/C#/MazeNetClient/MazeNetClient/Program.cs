@@ -7,6 +7,10 @@ namespace MazeNetClient
 	{
 		public static void Main (string[] args)
 		{
+			int port = 5123;
+			if (args.Length == 1) {
+				port = Convert.ToInt32 (args [0]);
+			}
 			MazeNetUser user = new MazeNetUser ("HAL 9000", "KI");
 			IPAddress addr = IPAddress.Parse("127.0.0.1");
 			MazeNetController listener = new MazeNetController (addr, 5123, user);
