@@ -99,6 +99,7 @@ namespace MazeNetClient
 				} else {
 					Console.Write ("STILL ALIVE ");
 				}
+				System.Environment.Exit(1);
 				break;
 			default:
 				break;

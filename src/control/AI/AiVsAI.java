@@ -39,7 +39,7 @@ public class AiVsAI {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		startClients(server, 0, 0, 0, 1, 0, 1);
+		startClients(server, 0, 0, 0, 1, 1, 1);
 	}
 
 	private void showResults() {

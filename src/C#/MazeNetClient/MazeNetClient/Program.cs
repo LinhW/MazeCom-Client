@@ -13,7 +13,7 @@ namespace MazeNetClient
 			}
 			MazeNetUser user = new MazeNetUser ("HAL 9000", "KI");
 			IPAddress addr = IPAddress.Parse("127.0.0.1");
-			MazeNetController listener = new MazeNetController (addr, 5123, user);
+			MazeNetController listener = new MazeNetController (addr, port, user);
 			try {
 				listener.start();
 				Console.Write("Connection Established.\n");
