@@ -93,28 +93,28 @@ public class Pathfinding {
 	private PinPosHelp nextStep(TreasureType tre) {
 		PinPosHelp pph;
 		List<PinPosHelp> list = PinPosHelp.getSmallestDiff(list_PinPosHelp_v1);
-		wif.write(list.size());
-		for (PinPosHelp ph : list) {
-			wif.write(ph.toString());
-		}
-		wif.writeNewLine(2);
+		// wif.write(list.size());
+		// for (PinPosHelp ph : list) {
+		// wif.write(ph.toString());
+		// }
+		// wif.writeNewLine(2);
 		List<PinPosHelp> list_rev = PinPosHelp.getSmallestDiff(list_PinPosHelp_v2);
-		wif_v2.write(list_rev.size());
-		for (PinPosHelp ph : list_rev) {
-			wif_v2.write(ph.toString());
-		}
-		wif_v2.writeNewLine(2);
-		if (list.size() == 1) {
-			pph = list.get(0);
+		// wif_v2.write(list_rev.size());
+		// for (PinPosHelp ph : list_rev) {
+		// wif_v2.write(ph.toString());
+		// }
+		// wif_v2.writeNewLine(2);
+		if (list.size() == 1 && list_rev.size() == 1) {
+			if (list.get(0).equals(list_rev.get(0))) {
+				pph = list.get(0);
+			} else {
+				// if (list_rev.get(0).getPinPos().diff(trePos) <= list.get(0).getDiff() + (4 - list_treToGo.size())) {
+				// pph = list_rev.get(0);
+				// } else {
+				pph = list.get(0);
+				// }
+			}
 		} else {
-			if(list.size() == 0){
-				System.out.println("sonderfall");
-			}
-			for (PinPosHelp pp: list){
-				if(!list_rev.contains(pp)){
-					list.remove(pp);
-				}
-			}
 			// abfragen auf list.size == 0
 			// if (list_rev.get(0).getPinPos().diff(trePos) <= list.get(0).getDiff() + (4 - list_treToGo.size())) {
 			//
@@ -168,7 +168,7 @@ public class Pathfinding {
 		return pos;
 	}
 
-	private List<PinPosHelp> shortestPath(List<Position> list, List<Position> list_rev, Position trePos) {
+	private List<PinPosHelp> shortestPath(List<Position> list, List<Position> list_rev) {
 		List<PinPosHelp> pos = new ArrayList<>();
 		// wif_v2.write("------------------- " + list.size() + " " + list_rev.size());
 		double diff = x * y;
@@ -178,7 +178,7 @@ public class Pathfinding {
 				if (tmp < diff) {
 					diff = tmp;
 					pos.clear();
-					pos.add(new PinPosHelp(p, diff, trePos.diff(pr)));
+					pos.add(new PinPosHelp(p, diff));
 					// wif_v2.write(new PinPosHelp(p, diff).toString());
 				} else if (tmp == diff) {
 					pos.add(new PinPosHelp(p, tmp));
@@ -219,7 +219,7 @@ public class Pathfinding {
 						board.proceedShift(shiftPos, new Card(c));
 						oldPinPos = board.getPinPos(PlayerID);
 						trePos = board.findTreasure(tre);
-						if (trePos == null) {
+						if(trePos == null){
 							continue;
 						}
 						l.clear();
@@ -256,7 +256,7 @@ public class Pathfinding {
 		possPos.writeList(lpph);
 		possPos.writeNewLine(1);
 		list_PinPosHelp_v1.addAll(lpph);
-		lpph = shortestPath(list, list_rev, trePos);
+		lpph = shortestPath(list, list_rev);
 		for (PinPosHelp pph : lpph) {
 			pph.setCardHelp(ch);
 		}
@@ -332,16 +332,10 @@ public class Pathfinding {
 		private Position pinPos;
 		private double diff = Double.MAX_VALUE;
 		private CardHelp ch;
-		private double dist;
 
 		public PinPosHelp(Position pinPos, double diff) {
 			this.pinPos = pinPos;
 			this.diff = diff;
-		}
-		public PinPosHelp(Position pinPos, double diff, double dist) {
-			this.pinPos = pinPos;
-			this.diff = diff;
-			this.dist = dist;
 		}
 
 		public PinPosHelp(Position pinPos, CardHelp ch) {
@@ -401,14 +395,6 @@ public class Pathfinding {
 
 		public boolean equalsWithoutRot(PinPosHelp pph) {
 			return pph.getCardHelp().equalsWithoutRot(this.ch) && this.pinPos.equals(pph.getPinPos());
-		}
-
-		public double getDistance() {
-			return dist;
-		}
-
-		public void setDistance(double dist) {
-			this.dist = dist;
 		}
 	}
 
