@@ -24,10 +24,10 @@ public class MonoStarter {
 			pb.directory(new File(rpath + path));
 			Process proc = pb.start();
 		
-			 StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
+			 StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "HAL 9000 ERROR");
 
 			// any output?
-			 StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
+			 StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "HAL 9000 OUTPUT");
 
 			// start gobblers
 			 outputGobbler.start();
