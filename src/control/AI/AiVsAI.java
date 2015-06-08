@@ -39,7 +39,7 @@ public class AiVsAI {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		startClients(server, 0, 0, 0, 1, 1);
+		startClients(server, 0, 0, 0, 1, 0, 1);
 	}
 
 	private void showResults() {
@@ -79,12 +79,23 @@ public class AiVsAI {
 		}
 	}
 
-	private void startClients(Server server, int randomSimple, int randomAdvanced, int tryAndError, int ava, int lamb) {
-		int sum = randomSimple + randomAdvanced + tryAndError + ava + lamb;
+	private void startClients(Server server, 
+							int randomSimple, 
+							int randomAdvanced, 
+							int tryAndError, 
+							int ava, 
+							int lamb, 
+							int hal9000) 
+	{
+		int sum = randomSimple + randomAdvanced + tryAndError + ava + lamb + hal9000;
 		if (sum > 4) {
 			System.out.println("invalid number of players");
 		} else {
 			server.startGame(sum);
+			for (int i = 0; i < hal9000; i++) {
+				System.out.println("Starting HAL9000...");
+				System.out.println(MonoStarter.startHAL9000(config.Settings.PORT));
+			}
 			for (int i = 0; i < randomSimple; i++) {
 				Connection connection = new Connection(this);
 				new Client(new RandomAISimple(connection), connection).start();
@@ -105,6 +116,7 @@ public class AiVsAI {
 				Connection connection = new Connection(this);
 				new Client(new LAMB(connection), connection).start();
 			}
+			
 		}
 	}
 
