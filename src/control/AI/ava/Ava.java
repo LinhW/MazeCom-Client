@@ -11,7 +11,6 @@ import control.AI.Player;
 import control.AI.ava.Pathfinding.PinPosHelp;
 import control.AI.ava.ownClasses.Board;
 import control.AI.ava.ownClasses.Card;
-import control.AI.ava.ownClasses.Position;
 import control.network.Connection;
 
 public class Ava implements Player {
@@ -73,6 +72,9 @@ public class Ava implements Player {
 	@Override
 	public void receiveWinMessage(WinMessageType message) {
 		System.out.println(message);
+		if (message.getWinner().getId() == id) {
+			con.sendWin(message.getWinner());
+		}
 	}
 
 	@Override
