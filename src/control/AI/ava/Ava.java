@@ -77,6 +77,9 @@ public class Ava implements Player {
 	@Override
 	public void receiveWinMessage(WinMessageType message) {
 		System.out.println(message);
+		if (message.getWinner().getId() == id) {
+			con.sendWin(message.getWinner());
+		}
 	}
 
 	@Override
