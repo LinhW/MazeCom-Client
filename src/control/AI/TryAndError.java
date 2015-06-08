@@ -6,17 +6,16 @@ import java.util.Random;
 import model.Board;
 import model.Card;
 import model.Position;
-import model.Card.Orientation;
 import model.jaxb.AcceptMessageType;
 import model.jaxb.AwaitMoveMessageType;
 import model.jaxb.CardType;
+import model.jaxb.CardType.Pin;
 import model.jaxb.DisconnectMessageType;
 import model.jaxb.LoginReplyMessageType;
 import model.jaxb.MoveMessageType;
 import model.jaxb.PositionType;
 import model.jaxb.TreasureType;
 import model.jaxb.WinMessageType;
-import model.jaxb.CardType.Pin;
 import control.network.Connection;
 
 public class TryAndError implements Player {
@@ -145,7 +144,9 @@ public class TryAndError implements Player {
 	public void receiveWinMessage(WinMessageType message) {
 		System.out.println(message);
 		System.out.println(message.getWinner());
-		con.sendWin(message.getWinner());
+		if (message.getWinner().getId() == PlayerID) {
+			con.sendWin(message.getWinner());
+		}
 	}
 
 	@Override

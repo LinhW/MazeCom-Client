@@ -32,7 +32,7 @@ public class AiVsAI {
 		number++;
 		Server server = new Server();
 		server.start();
-		startClients(server, 0, 1, 1, 1, 0);
+		startClients(server, 1, 1, 0, 1, 0);
 	}
 
 	private void showResults() {
