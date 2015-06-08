@@ -189,7 +189,7 @@ public class Connection {
 
 	public void sendWin(Winner winner) {
 		if (aiai != null) {
-			aiai.updateWinnerStat(winner);
+			AiVsAI.updateWinnerStat(winner);
 		}
 	}
 

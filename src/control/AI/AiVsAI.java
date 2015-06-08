@@ -17,9 +17,10 @@ public class AiVsAI {
 	private static int number = 0;
 	private WriteIntoFile wif;
 	private int count = 100;
+	private static AiVsAI a;
 
 	public static void main(String[] args) {
-		AiVsAI a = new AiVsAI();
+		a = new AiVsAI();
 		a.init();
 	}
 
@@ -51,7 +52,11 @@ public class AiVsAI {
 		wif.write("Player4: " + p4 + " wins");
 	}
 
-	public void updateWinnerStat(Winner winner) {
+	public static void updateWinnerStat(Winner winner) {
+		a.update(winner);
+	}
+
+	private void update(Winner winner) {
 		switch (winner.getId()) {
 		case 1:
 			p1++;
