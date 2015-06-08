@@ -16,7 +16,7 @@ public class AiVsAI {
 	private int p1 = 0, p2 = 0, p3 = 0, p4 = 0;
 	private static int number = 0;
 	private WriteIntoFile wif;
-	private int count = 10;
+	private int count = 20;
 	private static AiVsAI a;
 
 	public static void main(String[] args) {

@@ -61,13 +61,13 @@ public class Ava implements Player {
 		b.setTreasure(message.getTreasure());
 		p.setBoard(b);
 		p.setTreToGo(message.getTreasuresToGo());
+		p.setFoundTreasures(message.getFoundTreasures());
 		PinPosHelp pph = p.start();
 		sendMoveMessage(id, pph.getCardHelp().getC(), pph.getCardHelp().getP(), pph.getPinPos());
 	}
 
 	@Override
 	public void receiveDisconnectMessage(DisconnectMessageType message) {
-		// TODO Auto-generated method stub
 		System.out.println("Ava receives a disconnect Message:");
 		System.out.println(message.getErrorCode());
 		wif.write(message.getErrorCode().toString());

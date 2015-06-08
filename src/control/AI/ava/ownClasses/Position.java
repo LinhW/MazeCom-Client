@@ -44,8 +44,8 @@ public class Position extends PositionType {
 		return "(" + row + "," + col + ")"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 	}
 
-	public double diff(Position p) {
-		return Math.sqrt((p.row - p.getRow()) * (p.row - p.getRow()) + (p.col - p.getCol()) * (p.col - p.getCol()));
+	public int diff(Position p) {
+		return (p.row - p.getRow() + p.col - p.getCol());
 	}
 
 	/**
