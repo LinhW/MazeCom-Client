@@ -77,9 +77,6 @@ public class Ava implements Player {
 	@Override
 	public void receiveWinMessage(WinMessageType message) {
 		System.out.println(message);
-		if (message.getWinner().getId() == id) {
-			con.sendWin(message.getWinner());
-		}
 	}
 
 	@Override
@@ -94,10 +91,10 @@ public class Ava implements Player {
 
 	@Override
 	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift, PositionType pin) {
-		System.out.println("wird gesendet:");
-		System.out.println("CardPos: " + shift);
-		System.out.println("PinPos: " + pin);
-		System.out.println(new Card(c));
+		// System.out.println("wird gesendet:");
+		// System.out.println("CardPos: " + shift);
+		// System.out.println("PinPos: " + pin);
+		// System.out.println(new Card(c));
 		possPos.write("sendet: " + new PinPosHelp(new Position(pin), new CardHelp(new Card(c), new Position(shift))).debug());
 		con.sendMoveMessage(PlayerID, c, shift, pin);
 	}

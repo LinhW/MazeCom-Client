@@ -105,7 +105,13 @@ public class Pathfinding {
 				// TODO annoy or look forward
 				pph = new PinPosHelp(betterBoard.getPinPos(PlayerID), new CardHelp(betterBoard.getShiftCard(), new Position(0, 1)));
 			}
-			
+			List<PinPosHelp> tmp_remove = new ArrayList<>();
+			for (PinPosHelp pp: list){
+				if(!map_PinPosHelp_v2.containsKey(pp.getCardHelp())){
+					tmp_remove.add(pp);
+				}
+			}
+			list.removeAll(tmp_remove);
 			// if (list_rev.get(0).getPinPos().diff(trePos) <= list.get(0).getDiff() + (4 - list_treToGo.size())) {
 			//
 			// } else {

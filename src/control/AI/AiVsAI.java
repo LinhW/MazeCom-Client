@@ -79,14 +79,7 @@ public class AiVsAI {
 		}
 	}
 
-	private void startClients(Server server, 
-							int randomSimple, 
-							int randomAdvanced, 
-							int tryAndError, 
-							int ava, 
-							int lamb, 
-							int hal9000) 
-	{
+	private void startClients(Server server, int randomSimple, int randomAdvanced, int tryAndError, int ava, int lamb, int hal9000) {
 		int sum = randomSimple + randomAdvanced + tryAndError + ava + lamb + hal9000;
 		if (sum > 4) {
 			System.out.println("invalid number of players");
@@ -116,7 +109,7 @@ public class AiVsAI {
 				Connection connection = new Connection(this);
 				new Client(new LAMB(connection), connection).start();
 			}
-			
+
 		}
 	}
 
