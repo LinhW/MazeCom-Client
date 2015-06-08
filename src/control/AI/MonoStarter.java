@@ -24,14 +24,14 @@ public class MonoStarter {
 			pb.directory(new File(rpath + path));
 			Process proc = pb.start();
 		
-			// StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
+			 StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
 
 			// any output?
-			// StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
+			 StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
 
 			// start gobblers
-			// outputGobbler.start();
-			// errorGobbler.start();
+			 outputGobbler.start();
+			 errorGobbler.start();
 		} catch (IOException e) {
 			//e.printStackTrace();
 			System.out.println("Bitte Pfad in \"control.AI.MonoStarter.java\" kontrollieren");
