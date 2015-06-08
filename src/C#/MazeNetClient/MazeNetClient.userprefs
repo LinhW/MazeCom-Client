@@ -1,0 +1,40 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="MazeNetClient/Controller/KI/MazeNetKI.cs">
+    <Files>
+      <File FileName="MazeNetClient/Model/MazeNetPosition.cs" Line="1" Column="1" />
+      <File FileName="MazeNetClient/Controller/MazeNetController.cs" Line="1" Column="1" />
+      <File FileName="MazeNetClient/Controller/KI/MazeNetKI.cs" Line="73" Column="3" />
+      <File FileName="MazeNetClient/Controller/MazeNetUtil.cs" Line="254" Column="140" />
+      <File FileName="MazeNetClient/Controller/MazeNetListener.cs" Line="1" Column="1" />
+      <File FileName="MazeNetClient/Model/XSD/mazeCom.cs" Line="386" Column="29" />
+      <File FileName="MazeNetClient/Model/MazeNetMessage.cs" Line="29" Column="25" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="MazeNetClient" expanded="True">
+            <Node name="References" expanded="True" />
+            <Node name="Controller" expanded="True">
+              <Node name="KI" expanded="True">
+                <Node name="MazeNetKI.cs" selected="True" />
+              </Node>
+            </Node>
+            <Node name="Model" expanded="True">
+              <Node name="XSD" expanded="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+      <Pad Id="ClassPad">
+        <State expanded="True" selected="True" />
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches>
+    <Watch file="MazeNetClient/Controller/KI/MazeNetKI.cs" line="48" offsetX="908" offsetY="777" expression="activeBoard.shiftCard.pin" liveUpdate="False" />
+  </MonoDevelop.Ide.DebuggingService.PinnedWatches>
+</Properties>
