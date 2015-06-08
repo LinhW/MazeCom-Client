@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import model.jaxb.WinMessageType.Winner;
+
 public class MonoStarter {
 	
 	//Hier Pfad zu der exe eintragen
@@ -56,8 +58,15 @@ class StreamGobbler extends Thread {
             InputStreamReader isr = new InputStreamReader(is);
             BufferedReader br = new BufferedReader(isr);
             String line = null;
-            while ((line = br.readLine()) != null)
+            while ((line = br.readLine()) != null){
                 System.out.println(type + "> " + line);
+                if (line.contains("WINNERID=")) {
+					int wID =  Integer.parseInt(line.substring(line.indexOf("WINNERID=") + 9, line.indexOf("WINNERID=") + 10));
+					Winner w = new Winner();
+					w.setId(wID);
+					AiVsAI.updateWinnerStat(w);
+                }
+            }
         }
         catch (IOException ioe) {
             ioe.printStackTrace();
