@@ -1,2 +1,0 @@
-Player1: 1 win
-Player1: 2 win
