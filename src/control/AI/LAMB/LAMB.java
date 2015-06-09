@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.concurrent.locks.ReentrantLock;
 
 import model.Board;
+import model.Position;
 import model.jaxb.AcceptMessageType;
 import model.jaxb.AwaitMoveMessageType;
 import model.jaxb.CardType;
@@ -12,11 +13,9 @@ import model.jaxb.DisconnectMessageType;
 import model.jaxb.ErrorType;
 import model.jaxb.LoginReplyMessageType;
 import model.jaxb.PositionType;
+import model.jaxb.TreasuresToGoType;
 import model.jaxb.WinMessageType;
 import control.AI.Player;
-import control.AI.LAMB.AnalyseThread;
-import control.AI.LAMB.Move;
-import control.AI.LAMB.Parameter;
 import control.network.Connection;
 
 public class LAMB implements Player {
@@ -24,6 +23,8 @@ public class LAMB implements Player {
 	private Parameter parameter;
 	private final Connection connection;
 	private ReentrantLock moveLock;
+	private ArrayList<Position> lastPos;
+	private boolean loop;
 
 	public LAMB(Connection connection) {
 		this.connection = connection;
@@ -47,7 +48,14 @@ public class LAMB implements Player {
 			}
 		}
 		threads.clear();
-		Move bestMove = Collections.max(moves);
+		Move bestMove;
+		if (loop) {
+			moves.remove(Collections.max(moves));
+			bestMove = Collections.max(moves);
+		}
+		else {
+			bestMove = Collections.max(moves);
+		}
 		moves.clear();
 		sendMoveMessage(playerID, bestMove.getShiftCard(), bestMove.getShiftPosition(), bestMove.getMovePosition());
 	}
@@ -74,6 +82,26 @@ public class LAMB implements Player {
 		parameter.setBoard(new Board(message.getBoard()));
 		parameter.setTreasuresToGo(message.getTreasuresToGo());
 		parameter.setTreasuresFound(message.getFoundTreasures());
+		if (lastPos == null) {
+			loop = false;
+			lastPos = new ArrayList<Position>();
+			for (TreasuresToGoType ttg : message.getTreasuresToGo()) {
+				lastPos.add(new Position(parameter.getBoard().findPlayer(ttg.getPlayer())));
+			}
+			lastPos.trimToSize();
+			for (TreasuresToGoType ttg : message.getTreasuresToGo()) {
+				lastPos.set(ttg.getPlayer() - 1, new Position(parameter.getBoard().findPlayer(ttg.getPlayer())));
+			}
+		}
+		else {
+			loop = true;
+			for (TreasuresToGoType ttg : message.getTreasuresToGo()) {
+				if (!lastPos.get(ttg.getPlayer() - 1).equals(parameter.getBoard().findPlayer(ttg.getPlayer()))) {
+					loop = false;
+					break;
+				}
+			}
+		}
 		calculateMove();
 	}
 

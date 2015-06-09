@@ -36,37 +36,74 @@ public class AnalyseThread extends Thread {
 		this.side = side;
 	}
 	
-	private Move analyseBoard(Board board, PositionType shiftPos, Card shiftCard) {
+	private Move analyseBoard(Board board, Position shiftPos, Card shiftCard) {
+		// Initialization
 		Move move = new Move();
 		int boardValue = 0;
 		int posValue = Integer.MIN_VALUE;
-		move.setShiftCard(new Card(shiftCard));
-		move.setShiftPosition(new Position(shiftPos));
+		move.setShiftCard(shiftCard);
+		move.setShiftPosition(shiftPos);
 		MoveMessageType moveMessage = new MoveMessageType();
 		moveMessage.setShiftCard(shiftCard);
 		moveMessage.setShiftPosition(shiftPos);
 		board.proceedShift(moveMessage);
+		
 		// Calculate board value
 		for (TreasuresToGoType ttg : p.getTreasuresToGo()) {
 			PositionType playerPos = board.findPlayer(ttg.getPlayer());
 			List<PositionType> reachablePos = board.getAllReachablePositions(playerPos);
 			if (ttg.getPlayer() == p.getPlayerID()) {
-				continue;
-			}
-			// Count reachable treasures of opponent in relation to full number of treasures
-			int treasureCounter = 0;
-			for (PositionType pos : reachablePos) {
-				TreasureType ttype = board.getCard(pos.getRow(), pos.getCol()).getTreasure();
-				if ((ttype != null) && (ttype != p.getTreasure()) && p.getTreasuresFound().contains(ttype)) {
-					treasureCounter++;
+				if (ttg.getTreasures() == 1) {
+					// Check if player can end the game with this move
+					for (PositionType pos : reachablePos) {
+						if (new Position(board.findTreasure(TreasureType.fromValue("Start0" + p.getPlayerID()))).equals(new Position(pos))) {
+							move.setMovePosition(new Position(pos));
+							move.setValue(Points.OWN_START.value);
+							return move;
+						}
+					}
 				}
-			}			boardValue += (int) (1.0 * treasureCounter / ttg.getTreasures()) * Points.OTHER_TREASURE_REACHABLE.value;
-			
+				else {
+					// Count own reachable treasures in relation to full number of remaining treasures
+					int treasureCounter = 0;
+					for (PositionType pos : reachablePos) {
+						TreasureType ttype = board.getCard(pos.getRow(), pos.getCol()).getTreasure();
+						if ((ttype != null) && (ttype != p.getTreasure()) && !p.getTreasuresFound().contains(ttype)) {
+							treasureCounter++;
+						}
+					}
+					boardValue -= (int) (2.0 * treasureCounter / ttg.getTreasures()) * Points.OTHER_TREASURE_REACHABLE.value;
+				}
+			}
+			else {
+				if (ttg.getTreasures() == 1) {
+					// Check if opponent might have the chance to win after this move
+					for (PositionType pos : reachablePos) {
+						if (new Position(board.findTreasure(TreasureType.fromValue("START_0" + ttg.getPlayer()))).equals(new Position(pos))) {
+							boardValue += Points.OTHER_START_OPEN.value;
+						}
+					}
+				}
+				else {
+					// Count reachable treasures of opponent in relation to full number of treasures
+					int treasureCounter = 0;
+					for (PositionType pos : reachablePos) {
+						TreasureType ttype = board.getCard(pos.getRow(), pos.getCol()).getTreasure();
+						if ((ttype != null) && (ttype != p.getTreasure()) && !p.getTreasuresFound().contains(ttype)) {
+							treasureCounter++;
+						}
+					}
+					boardValue += (int) (1.0 * treasureCounter / ttg.getTreasures()) * Points.OTHER_TREASURE_REACHABLE.value;
+				}
+			}
 		}
-		// calculate position value
+		
+		// Calculate position value
 		PositionType tPos = board.findTreasure(p.getTreasure());
 		for (PositionType pos : board.getAllReachablePositions(board.findPlayer(p.getPlayerID()))) {
-			int tempValue = board.getAllReachablePositions(pos).size();
+			// Initialize with number of reachable positions after this move
+			int tempValue = 2 * board.getAllReachablePositions(pos).size();
+			// Calculate the distance to currently needed target
 			if (tPos != null) {
 				int dist = (12 - Math.abs(pos.getCol() - tPos.getCol()) - Math.abs(pos.getRow() - tPos.getRow()));
 				if (dist == 12) {
@@ -89,16 +126,20 @@ public class AnalyseThread extends Thread {
 	}
 	
 	public void run() {
+		// Initialize
 		Card shiftCard = new Card(p.getBoard().getShiftCard());
 		Move bestMove = new Move();
 		Move tempMove;
 		bestMove.setValue(Integer.MIN_VALUE);
-		PositionType shiftPos = new PositionType();
-		PositionType forbidden = p.getBoard().getForbidden();
-		if (forbidden == null) {
-			forbidden = new PositionType();
+		Position shiftPos = new Position();
+		Position forbidden;
+		if (p.getBoard().getForbidden() == null) {
+			forbidden = new Position();
 			forbidden.setCol(-1);
 			forbidden.setRow(-1);
+		}
+		else {
+			forbidden = new Position(p.getBoard().getForbidden());
 		}
 		switch (side) {
 		case UP:
@@ -116,6 +157,8 @@ public class AnalyseThread extends Thread {
 		default:
 			throw new IllegalStateException("Side state not allowed!");
 		}
+		
+		// Iteration
 		outer:
 		for (int i = 1; i < 6; i += 2) {
 			if ((side == Side.UP) || (side == Side.DOWN)) {
@@ -124,10 +167,9 @@ public class AnalyseThread extends Thread {
 			else {
 				shiftPos.setRow(i);
 			}
-			if ((shiftPos.getCol() == forbidden.getCol()) && (shiftPos.getRow() == forbidden.getRow())) {
+			if (shiftPos.equals(forbidden)) {
 				continue;
 			}
-//			System.out.println("ShiftPos: " + new Position(shiftPos).toString());
 			for (Card tempCard : shiftCard.getPossibleRotations()) {
 				tempMove = analyseBoard((Board) p.getBoard().clone(), shiftPos, tempCard);
 				if (tempMove.compareTo(bestMove) == 1) {
@@ -139,6 +181,8 @@ public class AnalyseThread extends Thread {
 			}
 			
 		}
+		
+		// Add move
 		p.getLock().lock();
 		p.getMoves().add(bestMove);
 		p.getLock().unlock();
