@@ -79,7 +79,7 @@ public class AnalyseThread extends Thread {
 				if (ttg.getTreasures() == 1) {
 					// Check if opponent might have the chance to win after this move
 					for (PositionType pos : reachablePos) {
-						if (new Position(board.findTreasure(TreasureType.fromValue("START_0" + ttg.getPlayer()))).equals(new Position(pos))) {
+						if (new Position(board.findTreasure(TreasureType.fromValue("Start0" + ttg.getPlayer()))).equals(new Position(pos))) {
 							boardValue += Points.OTHER_START_OPEN.value;
 						}
 					}
