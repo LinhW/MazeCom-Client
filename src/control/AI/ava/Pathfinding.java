@@ -266,15 +266,14 @@ public class Pathfinding {
 	}
 
 	private List<CardHelp> lastChance() {
+		//TODO korrekt?
 		List<CardHelp> list_ch = lastChance(nextPlayer);
 		if (list_ch.size() == 0) {
 			List<Position> l = new ArrayList<>();
 			List<CardHelp> l_sol = new ArrayList<>();
 			Board board;
 			Position end = null;
-			Position oldPinPos;
-			Position shiftPos;
-			CardHelp ch;
+
 
 			switch (nextPlayer) {
 			case 1:
@@ -292,24 +291,47 @@ public class Pathfinding {
 			}
 
 			List<Card> list_c = betterBoard.getShiftCard().getPossibleRotations();
+			boolean pos = true;
 			for (Card c : list_c) {
 				for (int i = 1; i < 6; i += 2) {
 					for (int k = 0; k < 7; k += 6) {
 						for (int j = 0; j < 2; j++) {
 							board = (Board) betterBoard.clone();
-							shiftPos = new Position(k + (i - k) * j, i + (k - i) * j);
+							Position shiftPos = new Position(k + (i - k) * j, i + (k - i) * j);
 							if (betterBoard.getForbidden() != null && shiftPos.equals(new Position(betterBoard.getForbidden()))) {
 								continue;
 							}
 							board.proceedShift(shiftPos, new Card(c));
-							oldPinPos = board.getPinPos(nextPlayer);
+							Position oldPinPos = board.getPinPos(nextPlayer);
 							l.clear();
 							l = findPossiblePos(board, l, oldPinPos);
-							ch = new CardHelp(c, shiftPos);
-							// wif_v2.write(board.toString());
-							// wif_v2.write(betterBoard.getPinPos(PlayerID) + " " + oldPinPos.toString() + " " + trePos.toString());
+							CardHelp ch = new CardHelp(c, shiftPos);
 							if (!l.contains(end)) {
-								l_sol.add(ch);
+								List<Card> list_c2 = betterBoard.getCard(shiftPos.getOpposite()).getPossibleRotations();
+								outer: for (Card c2 : list_c2) {
+									for (int i2 = 1; i2 < 6; i2 += 2) {
+										for (int k2 = 0; k2 < 7; k2 += 6) {
+											for (int j2 = 0; j2 < 2; j2++) {
+												Board board2 = (Board) board.clone();
+												Position shiftPos2 = new Position(k2 + (i2 - k2) * j2, i2 + (k2 - i2) * j2);
+												if (shiftPos2.equals(new Position(board.getForbidden()))) {
+													continue;
+												}
+												board2.proceedShift(shiftPos2, new Card(c2));
+												Position oldPinPos2 = board2.getPinPos(nextPlayer);
+												l.clear();
+												l = findPossiblePos(board2, l, oldPinPos2);
+												if (l.contains(end)) {
+													pos = false;
+													break outer;
+												}
+											}
+										}
+									}
+								}
+								if (pos) {
+									l_sol.add(ch);
+								}
 							}
 						}
 					}
