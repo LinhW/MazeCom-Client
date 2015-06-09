@@ -46,6 +46,7 @@ public class AiVsAI {
 
 	private void showResults() {
 		wif.writeNewLine(2);
+		wif.write(System.nanoTime() + "");
 		wif.write("-----------Stats--------------");
 		wif.write("Player1: " + p1 + " wins");
 		wif.write("Player2: " + p2 + " wins");
@@ -61,19 +62,19 @@ public class AiVsAI {
 		switch (winner.getId()) {
 		case 1:
 			p1++;
-			wif.write("Player1: " + p1 + " win");
+			wif.write(System.nanoTime() + "\tPlayer1: " + p1 + " win");
 			break;
 		case 2:
 			p2++;
-			wif.write("Player2: " + p2 + " win");
+			wif.write(System.nanoTime() + "\tPlayer2: " + p2 + " win");
 			break;
 		case 3:
 			p3++;
-			wif.write("Player3: " + p3 + " win");
+			wif.write(System.nanoTime() + "\tPlayer3: " + p3 + " win");
 			break;
 		case 4:
 			p4++;
-			wif.write("Player4: " + p4 + " win");
+			wif.write(System.nanoTime() + "\tPlayer4: " + p4 + " win");
 			break;
 		}
 		if (number < count) {
@@ -90,13 +91,13 @@ public class AiVsAI {
 	}
 
 	private void dc(ErrorType error, int id) {
-		wif.write("Player " + id + " has a disconnect. Reason: " + error.toString());
+		wif.write(System.nanoTime() + "\tPlayer " + id + " has a disconnect. Reason: " + error.toString());
 	}
 
 	private void startClients(Server server, int randomSimple, int randomAdvanced, int tryAndError, int ava, int lamb, int hal9000) {
 		int sum = randomSimple + randomAdvanced + tryAndError + ava + lamb + hal9000;
 		if (sum > 4) {
-			System.out.println("invalid number of players");
+			System.err.println("invalid number of players");
 		} else {
 			server.startGame(sum);
 			for (int i = 0; i < hal9000; i++) {

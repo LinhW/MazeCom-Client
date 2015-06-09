@@ -127,7 +127,7 @@ public class AnalyseThread extends Thread {
 			if ((shiftPos.getCol() == forbidden.getCol()) && (shiftPos.getRow() == forbidden.getRow())) {
 				continue;
 			}
-			System.out.println("ShiftPos: " + new Position(shiftPos).toString());
+//			System.out.println("ShiftPos: " + new Position(shiftPos).toString());
 			for (Card tempCard : shiftCard.getPossibleRotations()) {
 				tempMove = analyseBoard((Board) p.getBoard().clone(), shiftPos, tempCard);
 				if (tempMove.compareTo(bestMove) == 1) {
