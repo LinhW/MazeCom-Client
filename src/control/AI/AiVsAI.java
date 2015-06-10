@@ -165,9 +165,9 @@ public class AiVsAI {
 			userinterface.MIStartActionPerformed(new ActionEvent(this, 1, "ai"));
 		}
 
-		public void stopGame() {
-			userinterface.MIStartActionPerformed(new ActionEvent(this, 1, "ai"));
-		}
+//		public void stopGame() {
+//			userinterface.MIStartActionPerformed(new ActionEvent(this, 1, "ai"));
+//		}
 	}
 
 }

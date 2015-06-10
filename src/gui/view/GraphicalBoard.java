@@ -13,7 +13,6 @@ import javax.swing.JPanel;
 
 import model.Board;
 import model.Card;
-import model.Position;
 
 public class GraphicalBoard extends JPanel {
 
