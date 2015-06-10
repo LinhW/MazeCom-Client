@@ -8,6 +8,8 @@ import model.Board;
 import model.Card;
 import model.Position;
 import model.jaxb.MoveMessageType;
+import model.jaxb.PositionType;
+import model.jaxb.TreasureType;
 import model.jaxb.TreasuresToGoType;
 
 public class Assist {
@@ -70,21 +72,78 @@ public class Assist {
 					MoveMessageType moveMessage = new MoveMessageType();
 					moveMessage.setShiftCard(shiftRotation);
 					moveMessage.setShiftPosition(shiftPosition);
+					board.proceedShift(moveMessage);
+					int boardValue = calculateBoardValue(lamb.getPlayerID(), board, lamb.getTreasuresToGo(), lamb.getTreasuresFound(), lamb.getTreasure());
+					for (PositionType position : board.getAllReachablePositions(board.findPlayer(lamb.getPlayerID()))) {
+						Move tempMove = new Move();
+						tempMove.setShiftCard(shiftRotation);
+						tempMove.setShiftPosition(shiftPosition);
+						tempMove.setMovePosition(new Position(position));
+						tempMove.setValue(boardValue + calculatePositionValue(lamb.getPlayerID(), board, new Position(position), new Position(board.findTreasure(lamb.getTreasure()))));
+						moves.add(tempMove);
+					}
 				}
 			}
 		}
 		return Collections.max(moves);
 	}
 	
-	public static int calculateBoardValue(int playerID, Board board, List<TreasuresToGoType> ttgo) {
+	public static int calculateBoardValue(int playerID, Board board, List<TreasuresToGoType> ttgo, List<TreasureType> tfound, TreasureType treasure) {
 		int boardValue = 0;
-		
+		for (TreasuresToGoType ttg : ttgo) {
+			PositionType playerPos = board.findPlayer(ttg.getPlayer());
+			List<PositionType> reachablePos = board.getAllReachablePositions(playerPos);
+			if (ttg.getPlayer() == playerID) {
+					// Count own reachable treasures in relation to full number of remaining treasures
+					int treasureCounter = 0;
+					for (PositionType pos : reachablePos) {
+						TreasureType ttype = board.getCard(pos.getRow(), pos.getCol()).getTreasure();
+						if ((ttype != null) && (ttype != treasure) && !tfound.contains(ttype)) {
+							treasureCounter++;
+						}
+					}
+					boardValue -= (int) (2.0 * treasureCounter / ttg.getTreasures()) * Points.OTHER_TREASURE_REACHABLE.value();
+			}
+			else {
+				if (ttg.getTreasures() == 1) {
+					// Check if opponent might have the chance to win after this move
+					for (PositionType pos : reachablePos) {
+						if (new Position(board.findTreasure(TreasureType.fromValue("Start0" + ttg.getPlayer()))).equals(new Position(pos))) {
+							boardValue += Points.OTHER_START_OPEN.value();
+						}
+					}
+				}
+				else {
+					// Count reachable treasures of opponent in relation to full number of treasures
+					int treasureCounter = 0;
+					for (PositionType pos : reachablePos) {
+						TreasureType ttype = board.getCard(pos.getRow(), pos.getCol()).getTreasure();
+						if ((ttype != null) && (ttype != treasure) && !tfound.contains(ttype)) {
+							treasureCounter++;
+						}
+					}
+					boardValue += (int) (1.0 * treasureCounter / ttg.getTreasures()) * Points.OTHER_TREASURE_REACHABLE.value();
+				}
+			}
+		}
 		return boardValue;
 	}
 	
-	public static int calculatePositionValue(int playerID, Board board, Position position) {
-		int positionValue = 0;
-		
+	public static int calculatePositionValue(int playerID, Board board, Position position, Position tPosition) {
+		int positionValue = 2 * board.getAllReachablePositions(position).size();
+		// Calculate the distance to currently needed target
+		if (tPosition != null) {
+			int dist = (12 - Math.abs(position.getCol() - tPosition.getCol()) - Math.abs(position.getRow() - tPosition.getRow()));
+			if (dist == 12) {
+				positionValue += Points.OWN_TARGET.value();
+			}
+			else {
+				positionValue += 2 * dist;
+			}
+		}
+		else {
+			positionValue += Points.TARGET_MISSING.value();
+		}
 		return positionValue;
 	}
 }
