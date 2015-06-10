@@ -1,11 +1,8 @@
 package control.AI.LAMB;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.concurrent.locks.ReentrantLock;
 
 import model.Board;
-import model.Position;
 import model.jaxb.AcceptMessageType;
 import model.jaxb.AwaitMoveMessageType;
 import model.jaxb.CardType;
@@ -13,51 +10,22 @@ import model.jaxb.DisconnectMessageType;
 import model.jaxb.ErrorType;
 import model.jaxb.LoginReplyMessageType;
 import model.jaxb.PositionType;
+import model.jaxb.TreasureType;
 import model.jaxb.TreasuresToGoType;
 import model.jaxb.WinMessageType;
 import control.AI.Player;
 import control.network.Connection;
 
 public class LAMB implements Player {
-	private int playerID;
-	private Parameter parameter;
 	private final Connection connection;
-	private ReentrantLock moveLock;
-	private ArrayList<Position> lastPos;
-	private boolean loop;
+	private int playerID;
+	private int playerCount = 0;
+	private ArrayList<TreasureType> treasuresFound;
+	private ArrayList<TreasuresToGoType> treasuresToGo;
+	private Board board;
 
 	public LAMB(Connection connection) {
 		this.connection = connection;
-	}
-
-	private void calculateMove() {
-		/* -------------------- INITIALIZATION -------------------- */
-		ArrayList<Move> moves = new ArrayList<Move>();
-		ArrayList<AnalyseThread> threads = new ArrayList<AnalyseThread>();
-		parameter.setMoves(moves);
-		/* --------------------- CALCULATIONS --------------------- */
-		for (Assist.Side s : Assist.Side.values()) {
-			threads.add(new AnalyseThread(parameter, s));
-			threads.get(threads.size() - 1).start();
-		}
-		for (AnalyseThread t : threads) {
-			try {
-				t.join();
-			} catch (InterruptedException e) {
-				System.err.println("Thread " + t.getId() + " has been interrupted!");
-			}
-		}
-		threads.clear();
-		Move bestMove;
-		if (loop) {
-			moves.remove(Collections.max(moves));
-			bestMove = Collections.max(moves);
-		}
-		else {
-			bestMove = Collections.max(moves);
-		}
-		moves.clear();
-		sendMoveMessage(playerID, bestMove.getShiftCard(), bestMove.getShiftPosition(), bestMove.getMovePosition());
 	}
 
 	@Override
@@ -68,41 +36,21 @@ public class LAMB implements Player {
 	@Override
 	public void receiveLoginReply(LoginReplyMessageType message) {
 		this.playerID = message.getNewID();
-		moveLock = new ReentrantLock();
-		parameter = new Parameter();
-		parameter.setLock(moveLock);
-		parameter.setPlayerID(playerID);
 		System.out.println("Login successful.");
 	}
 
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
-		parameter.setPlayerCount(message.getTreasuresToGo().size());
-		parameter.setTreasure(message.getTreasure());
-		parameter.setBoard(new Board(message.getBoard()));
-		parameter.setTreasuresToGo(message.getTreasuresToGo());
-		parameter.setTreasuresFound(message.getFoundTreasures());
-		if (lastPos == null) {
-			loop = false;
-			lastPos = new ArrayList<Position>();
-			for (TreasuresToGoType ttg : message.getTreasuresToGo()) {
-				lastPos.add(new Position(parameter.getBoard().findPlayer(ttg.getPlayer())));
-			}
-			lastPos.trimToSize();
-			for (TreasuresToGoType ttg : message.getTreasuresToGo()) {
-				lastPos.set(ttg.getPlayer() - 1, new Position(parameter.getBoard().findPlayer(ttg.getPlayer())));
-			}
+		if (playerCount == 0) {
+			playerCount = message.getTreasuresToGo().size();
 		}
-		else {
-			loop = true;
-			for (TreasuresToGoType ttg : message.getTreasuresToGo()) {
-				if (!lastPos.get(ttg.getPlayer() - 1).equals(parameter.getBoard().findPlayer(ttg.getPlayer()))) {
-					loop = false;
-					break;
-				}
-			}
-		}
-		calculateMove();
+		board = new Board(message.getBoard());
+		treasuresToGo = new ArrayList<TreasuresToGoType>(message.getTreasuresToGo());
+		treasuresToGo.trimToSize();
+		treasuresFound = new ArrayList<TreasureType>(message.getFoundTreasures());
+		treasuresFound.trimToSize();
+		Move move = Assist.calculateMove(this);
+		sendMoveMessage(playerID, move.getShiftCard(), move.getShiftPosition(), move.getMovePosition());
 	}
 
 	@Override
@@ -129,6 +77,46 @@ public class LAMB implements Player {
 	@Override
 	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift, PositionType pin) {
 		connection.sendMoveMessage(PlayerID, c, shift, pin);
+	}
+
+	public int getPlayerID() {
+		return playerID;
+	}
+
+	public void setPlayerID(int playerID) {
+		this.playerID = playerID;
+	}
+
+	public int getPlayerCount() {
+		return playerCount;
+	}
+
+	public void setPlayerCount(int playerCount) {
+		this.playerCount = playerCount;
+	}
+
+	public ArrayList<TreasureType> getTreasuresFound() {
+		return treasuresFound;
+	}
+
+	public void setTreasuresFound(ArrayList<TreasureType> treasuresFound) {
+		this.treasuresFound = treasuresFound;
+	}
+
+	public ArrayList<TreasuresToGoType> getTreasuresToGo() {
+		return treasuresToGo;
+	}
+
+	public void setTreasuresToGo(ArrayList<TreasuresToGoType> treasuresToGo) {
+		this.treasuresToGo = treasuresToGo;
+	}
+
+	public Board getBoard() {
+		return board;
+	}
+
+	public void setBoard(Board board) {
+		this.board = board;
 	}
 
 }
