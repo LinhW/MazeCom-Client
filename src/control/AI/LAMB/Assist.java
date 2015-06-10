@@ -15,7 +15,7 @@ import model.jaxb.TreasuresToGoType;
 public class Assist {
 	public enum Side {UP, RIGHT, DOWN, LEFT}
 	public enum Points {
-		OWN_START(Integer.MAX_VALUE),
+		OWN_START(5000),
 		OWN_TARGET(100),
 		TARGET_MISSING(-10),
 		OTHER_START_OPEN(-50),
@@ -67,6 +67,9 @@ public class Assist {
 				else {
 					shiftPosition.setRow(positionAxis);
 				}
+				if (shiftPosition.equals(forbiddenPosition)) {
+					continue;
+				}
 				for (Card shiftRotation : new Card(lboard.getShiftCard()).getPossibleRotations()) {
 					Board board = (Board) lboard.clone();
 					MoveMessageType moveMessage = new MoveMessageType();
@@ -79,12 +82,14 @@ public class Assist {
 						tempMove.setShiftCard(shiftRotation);
 						tempMove.setShiftPosition(shiftPosition);
 						tempMove.setMovePosition(new Position(position));
-						tempMove.setValue(boardValue + calculatePositionValue(lamb.getPlayerID(), board, new Position(position), new Position(board.findTreasure(lamb.getTreasure()))));
+						tempMove.setValue(boardValue + calculatePositionValue(lamb.getPlayerID(), board, new Position(position), board.findTreasure(lamb.getTreasure())));
 						moves.add(tempMove);
+//						System.out.println(tempMove);
 					}
 				}
 			}
 		}
+//		System.out.println(Collections.max(moves));
 		return Collections.max(moves);
 	}
 	
@@ -129,7 +134,7 @@ public class Assist {
 		return boardValue;
 	}
 	
-	public static int calculatePositionValue(int playerID, Board board, Position position, Position tPosition) {
+	public static int calculatePositionValue(int playerID, Board board, Position position, PositionType tPosition) {
 		int positionValue = 2 * board.getAllReachablePositions(position).size();
 		// Calculate the distance to currently needed target
 		if (tPosition != null) {
