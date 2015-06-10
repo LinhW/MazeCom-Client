@@ -15,6 +15,7 @@ import control.AI.ava.ownClasses.Position;
 public class Pathfinding {
 
 	// TODO difference between treasure is glued or not?
+	// TODO create at the beginning a list with the order of the players, beginning with nextPlayer
 	private final int x = 7;
 	private final int y = 7;
 	private Board betterBoard;
@@ -382,6 +383,7 @@ public class Pathfinding {
 		Map<CardHelp, ReverseHelp> map = ReverseHelp.getValueableDiff(map_PinPosHelp_v2, list_treToGo.size());
 		if (list.size() == 1) {
 			List<List<CardHelp>> tmp = new ArrayList<>();
+			//TODO startet bei nextPlayer, geht weiter zu den anderen
 			for (TreasuresToGoType ttgt : list_treToGo) {
 				if (ttgt.getTreasures() == 1 && ttgt.getPlayer() == nextPlayer) {
 					List<CardHelp> list_ch = lastChance();
@@ -420,7 +422,6 @@ public class Pathfinding {
 				return new PinPosHelp(betterBoard.getPinPos(PlayerID), new CardHelp(betterBoard.getShiftCard(), new Position(0, 1)));
 			}
 			List<PinPosHelp> tmp_remove = new ArrayList<>();
-			System.out.println(list.size());
 			for (PinPosHelp pp : list) {
 				if (!map.containsKey(pp.getCardHelp())) {
 					tmp_remove.add(pp);
