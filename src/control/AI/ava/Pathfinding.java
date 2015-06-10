@@ -16,8 +16,6 @@ import control.AI.ava.ownClasses.Position;
 public class Pathfinding {
 
 	// TODO difference between treasure is glued or not?
-	// TODO create at the beginning a list with the order of the players,
-	// beginning with nextPlayer
 	private final int x = 7;
 	private final int y = 7;
 	private Board betterBoard;
@@ -152,22 +150,14 @@ public class Pathfinding {
 			Card shift = ch.getC();
 			Position shiftPos = ch.getP();
 			b.proceedShift(shiftPos, new Card(shift));
-			for (int i = 1; i < list_treToGo.size(); i++) {
-				// FIXME
-				int number = (PlayerID + i) % list_treToGo.size();
-				if (number == 0) {
-					number = list_treToGo.size();
-				}
-				Position next = b.getPinPos(number);
+			outer:
+			for (int i = 1; i < nextPlayer.length; i++) {
+				Position next = b.getPinPos(nextPlayer[i]);
 				if (shiftPos.getRow() % 6 != 0 && shiftPos.getRow() == next.getRow() || (shiftPos.getCol() % 6 != 0 && shiftPos.getCol() == next.getCol())) {
-					c++;
 					if (i == 1 && analyse(b, next)) {
-						continue;
+						break outer;
 					}
-				} else {
-					if (i == 1) {
-						continue;
-					}
+					c+= (nextPlayer.length - i + 1);
 				}
 			}
 			if (c == count) {
@@ -409,6 +399,7 @@ public class Pathfinding {
 
 	private PinPosHelp emergencyPlan(List<CardHelp> list, TreasureType tre) {
 		List<PinPosHelp> list_pph = simpleSolution(list, tre);
+		return bestMove(list_pph);
 	}
 
 	/**
@@ -425,15 +416,19 @@ public class Pathfinding {
 				System.out.println("Player " + nextPlayer[0] + " will win. I admit my defeat");
 				return new PinPosHelp(betterBoard.getPinPos(PlayerID), new CardHelp(betterBoard.getShiftCard(), new Position(0, 1)));
 			case 1:
-				List<PinPosHelp> list_pph = simpleSolution(list_ch, tre); 
-				//TODO wenn liste == 0 dann shorteestpath
-				shortestPath(list_ch);
+				List<PinPosHelp> list_pph = simpleSolution(list_ch, tre);
+				switch (list_pph.size()) {
+				case 0:
+					list_pph = shortestPath(list_ch);
+					break;
+				case 1:
+					return list_pph.get(0);
+				}
 				return bestMove(list_pph);
 			default:
 				return emergencyPlan(list_ch, tre);
 			}
 		}
-		// TODO
 
 		PinPosHelp pph;
 		List<PinPosHelp> list = PinPosHelp.getSmallestDiff(list_PinPosHelp_v1);
