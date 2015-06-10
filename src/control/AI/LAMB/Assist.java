@@ -18,7 +18,7 @@ public class Assist {
 		OWN_START(5000),
 		OWN_TARGET(100),
 		TARGET_MISSING(-10),
-		OTHER_START_OPEN(-50),
+		OTHER_START_OPEN(-100),
 		OTHER_TREASURE_REACHABLE(-25);
 		
 		private final int value;
@@ -82,7 +82,7 @@ public class Assist {
 						tempMove.setShiftCard(shiftRotation);
 						tempMove.setShiftPosition(shiftPosition);
 						tempMove.setMovePosition(new Position(position));
-						tempMove.setValue(boardValue + calculatePositionValue(lamb.getPlayerID(), board, new Position(position), board.findTreasure(lamb.getTreasure())));
+						tempMove.setValue(boardValue + calculatePositionValue(lamb.getPlayerID(), board, new Position(position), board.findTreasure(lamb.getTreasure()), lamb.getTreasure()));
 						moves.add(tempMove);
 //						System.out.println(tempMove);
 					}
@@ -130,24 +130,27 @@ public class Assist {
 					boardValue += (int) (1.0 * treasureCounter / ttg.getTreasures()) * Points.OTHER_TREASURE_REACHABLE.value();
 				}
 			}
+			if (board.findTreasure(treasure) == null) {
+				boardValue += Points.TARGET_MISSING.value();
+			}
 		}
 		return boardValue;
 	}
 	
-	public static int calculatePositionValue(int playerID, Board board, Position position, PositionType tPosition) {
+	public static int calculatePositionValue(int playerID, Board board, Position position, PositionType tPosition, TreasureType treasure) {
 		int positionValue = 2 * board.getAllReachablePositions(position).size();
 		// Calculate the distance to currently needed target
 		if (tPosition != null) {
-			int dist = (12 - Math.abs(position.getCol() - tPosition.getCol()) - Math.abs(position.getRow() - tPosition.getRow()));
-			if (dist == 12) {
+			int dist = Math.abs(position.getCol() - tPosition.getCol()) - Math.abs(position.getRow() - tPosition.getRow());
+			if (dist == 0) {
 				positionValue += Points.OWN_TARGET.value();
 			}
 			else {
-				positionValue += 2 * dist;
+				positionValue += 2 * (12 - dist);
 			}
 		}
-		else {
-			positionValue += Points.TARGET_MISSING.value();
+		if (treasure.name().startsWith("Start0") && position.equals(tPosition)) {
+			positionValue += Points.OWN_START.value();
 		}
 		return positionValue;
 	}
