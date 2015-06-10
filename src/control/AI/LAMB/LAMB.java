@@ -36,7 +36,7 @@ public class LAMB implements Player {
 		ArrayList<AnalyseThread> threads = new ArrayList<AnalyseThread>();
 		parameter.setMoves(moves);
 		/* --------------------- CALCULATIONS --------------------- */
-		for (AnalyseThread.Side s : AnalyseThread.Side.values()) {
+		for (Assist.Side s : Assist.Side.values()) {
 			threads.add(new AnalyseThread(parameter, s));
 			threads.get(threads.size() - 1).start();
 		}

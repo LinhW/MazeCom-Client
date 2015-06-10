@@ -18,6 +18,24 @@ public class Parameter {
 	private List<TreasureType> treasuresFound;
 	private ReentrantLock lock;
 	
+	public Parameter() {
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Parameter(Parameter p) {
+		this.board = (Board) p.board.clone();
+		this.playerID = p.playerID;
+		this.playerCount = p.playerCount;
+		this.treasure = p.treasure;
+		this.moves = (ArrayList<Move>) p.moves.clone();
+		this.treasuresToGo = new ArrayList<TreasuresToGoType>();
+		this.treasuresToGo.addAll(p.treasuresToGo);
+		this.treasuresFound = new ArrayList<TreasureType>();
+		this.treasuresFound.addAll(p.treasuresFound);
+		this.lock = new ReentrantLock();
+	}
+	
 	public Board getBoard() {
 		return board;
 	}
