@@ -15,7 +15,10 @@ import control.AI.ava.ownClasses.Position;
 
 public class Pathfinding {
 
+	// naechster spieler gewinnt, wird nicht korrekt erkannt
+	//orientation funktioniert nicht korrekt oder wird nicht aufgerufen. 
 	// TODO difference between treasure is glued or not?
+	// TODO lastChance fuer die anderen spieler. seal startfeld
 	private final int x = 7;
 	private final int y = 7;
 	private Board betterBoard;
@@ -410,9 +413,9 @@ public class Pathfinding {
 			List<CardHelp> list_ch = lastChance();
 			switch (list_ch.size()) {
 			case 0:
-				System.out.println("Player " + nextPlayer[0] + " will win. I admit my defeat");
-				wif.write("Player " + nextPlayer[0] + " will win. I admit my defeat");
-				return new PinPosHelp(betterBoard.getPinPos(PlayerID), new CardHelp(betterBoard.getShiftCard(), new Position(0, 1)));
+				System.out.println("Player " + nextPlayer[0] + " will win. I (" + PlayerID + ") admit my defeat");
+				wif.write("Player " + nextPlayer[0] + " will win. I (" + PlayerID + ") admit my defeat");
+				return new PinPosHelp(betterBoard.getPinPos(PlayerID), new CardHelp(betterBoard.getShiftCard(), new Position(betterBoard.getForbidden()).getOpposite()));
 			case 1:
 				List<PinPosHelp> list_pph = simpleSolution(list_ch, tre);
 				switch (list_pph.size()) {
