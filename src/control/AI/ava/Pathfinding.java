@@ -1,7 +1,6 @@
 package control.AI.ava;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -377,10 +376,13 @@ public class Pathfinding {
 	 * @return
 	 */
 	private PinPosHelp bestMove(List<PinPosHelp> list) {
+		System.out.println("bestMove " + list.size());
 		if (list.size() == 1) {
 			return list.get(0);
 		} else {
+			System.out.println("choose Orientation1 " + list.size());
 			list = chooseOrientation(list);
+			System.out.println("choose Orientation2 " + list.size());
 			if (list.size() == 1) {
 				return list.get(0);
 			} else {
@@ -389,6 +391,7 @@ public class Pathfinding {
 					return list_tmp.get(0);
 				} else {
 					if (list_tmp.size() == 0) {
+						// TODO Nullpointer
 						list.get(0);
 					}
 					list_tmp = sealAway(list_tmp);
@@ -444,8 +447,6 @@ public class Pathfinding {
 	 * @return PinPosHelp
 	 */
 	private PinPosHelp nextStep(TreasureType tre) {
-
-		PinPosHelp pph;
 		List<PinPosHelp> list = PinPosHelp.getSmallestDiff(list_PinPosHelp_v1);
 		Map<CardHelp, ReverseHelp> map = ReverseHelp.getValueableDiff(map_PinPosHelp_v2, list_treToGo.size());
 		switch (list.size()) {
@@ -486,75 +487,50 @@ public class Pathfinding {
 	 * @return
 	 */
 	private List<PinPosHelp> chooseOrientation(List<PinPosHelp> list) {
-		List<PinPosHelp> tmp1 = new ArrayList<>();
-		List<PinPosHelp> tmp2 = new ArrayList<>();
+		// TODO eins in richtung schatz und dasselbe vom schatz zur pinpos > zwei in richtung, keins vom schatz
+		//TODO korrekt?
+		System.err.println("chooseOrientation err " + list.size());
+		ArrayList[] arr = {new ArrayList<PinPosHelp>(),new ArrayList<PinPosHelp>(),new ArrayList<PinPosHelp>(),new ArrayList<PinPosHelp>()};
 		for (PinPosHelp pph : list) {
 			Position p = pph.getPinPos();
 			Board b = (Board) betterBoard.clone();
 			b.proceedShift(pph.getCardHelp().getP(), new Card(pph.getCardHelp().getC()));
 			Card c = b.getCard(pph.getPinPos());
+			Card tre = new Card(betterBoard.getCard(betterBoard.findTreasure(betterBoard.getTreasure())));
 			int count = 0;
 			if (pph.getTrePos().getCol() <= p.getCol() && c.getOpenings().isTop()) {
 				count++;
+				if (tre.getOpenings().isBottom()) {
+					count++;
+				}
 			}
 			if (pph.getTrePos().getCol() >= p.getCol() && c.getOpenings().isBottom()) {
 				count++;
+				if (tre.getOpenings().isTop()) {
+					count++;
+				}
 			}
 			if (pph.getTrePos().getRow() <= p.getRow() && c.getOpenings().isLeft()) {
 				count++;
+				if (tre.getOpenings().isRight()) {
+					count++;
+				}
 			}
 			if (pph.getTrePos().getRow() >= p.getRow() && c.getOpenings().isRight()) {
 				count++;
+				if (tre.getOpenings().isLeft()) {
+					count++;
+				}
 			}
-			if (count == 2) {
-				tmp2.add(pph);
-			} else if (count == 1) {
-				tmp1.add(pph);
-			} else if (count != 0) {
-				wif_error.write("Openings: " + count + " " + c + " " + b.getCard(pph.getPinPos()));
+			arr[count -1].add(pph);
+		}
+
+		for (int i = arr.length-1; i >= 0 ; i--){
+			if(arr[0].size() != 0){
+				return arr[i];
 			}
 		}
-		if (tmp2.size() == 0) {
-			if (tmp1.size() == 0) {
-				return list;
-			}
-			return tmp1;
-		} else {
-			list = tmp2;
-			tmp1.clear();
-			tmp2.clear();
-			for (PinPosHelp pph : list) {
-				Position p = pph.getPinPos();
-				int count = 0;
-				Card tre = new Card(betterBoard.getCard(betterBoard.findTreasure(betterBoard.getTreasure())));
-				if (pph.getTrePos().getCol() <= p.getCol() && tre.getOpenings().isBottom()) {
-					count++;
-				}
-				if (pph.getTrePos().getCol() >= p.getCol() && tre.getOpenings().isTop()) {
-					count++;
-				}
-				if (pph.getTrePos().getRow() <= p.getRow() && tre.getOpenings().isRight()) {
-					count++;
-				}
-				if (pph.getTrePos().getRow() >= p.getRow() && tre.getOpenings().isLeft()) {
-					count++;
-				}
-				if (count == 2) {
-					tmp2.add(pph);
-				} else if (count == 1) {
-					tmp1.add(pph);
-				} else if (count != 0) {
-					wif_error.write("Openings: " + count + " " + pph.getPinPos() + " " + pph.getTrePos() + " " + tre);
-				}
-			}
-		}
-		if (tmp2.size() == 0) {
-			if (tmp1.size() == 0) {
-				return list;
-			}
-			return tmp1;
-		}
-		return tmp2;
+		return list;
 	}
 
 	/**

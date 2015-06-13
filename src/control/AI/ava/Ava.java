@@ -41,7 +41,7 @@ public class Ava implements Player {
 
 	@Override
 	public String login() {
-		return "Ava";
+		return "Humpf";
 	}
 
 	@Override
