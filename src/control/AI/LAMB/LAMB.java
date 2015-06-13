@@ -24,6 +24,7 @@ public class LAMB implements Player {
 	private ArrayList<TreasuresToGoType> treasuresToGo;
 	private TreasureType treasure;
 	private Board board;
+	private Assist assist;
 
 	public LAMB(Connection connection) {
 		this.connection = connection;
@@ -38,20 +39,19 @@ public class LAMB implements Player {
 	public void receiveLoginReply(LoginReplyMessageType message) {
 		this.playerID = message.getNewID();
 		System.out.println("Login successful.");
+		assist = new Assist(this);
 	}
 
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
-		if (playerCount == 0) {
-			playerCount = message.getTreasuresToGo().size();
-		}
+		playerCount = message.getTreasuresToGo().size();
 		board = new Board(message.getBoard());
 		treasuresToGo = new ArrayList<TreasuresToGoType>(message.getTreasuresToGo());
 		treasuresToGo.trimToSize();
 		treasuresFound = new ArrayList<TreasureType>(message.getFoundTreasures());
 		treasuresFound.trimToSize();
 		treasure = message.getTreasure();
-		Move move = Assist.calculateMove(this);
+		Move move = assist.calculateMove();
 		sendMoveMessage(playerID, move.getShiftCard(), move.getShiftPosition(), move.getMovePosition());
 	}
 

@@ -67,7 +67,7 @@ public class Move implements Comparable<Object> {
 	}
 	
 	public String toString() {
-		return "SC: (" + shiftCard.getShape() + "" + shiftCard.getOrientation() +
+		return "VAL: " + value + " SC: (" + shiftCard.getShape() + "" + shiftCard.getOrientation() +
 				") SP: (" + shiftPosition.getRow() +"," + shiftPosition.getCol() + 
 				") MP: (" + movePosition.getRow() +"," + movePosition.getCol() + ")";
 	}

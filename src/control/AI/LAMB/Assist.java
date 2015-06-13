@@ -19,7 +19,7 @@ public class Assist {
 		OWN_TARGET(100),
 		TARGET_MISSING(-10),
 		OTHER_START_OPEN(-100),
-		OTHER_TREASURE_REACHABLE(-25);
+		TREASURE_REACHABLE(25);
 		
 		private final int value;
 		
@@ -32,17 +32,52 @@ public class Assist {
 		}
 	}
 	
-	public static Move calculateMove(LAMB lamb) {
+	private LAMB lamb;
+	private boolean[] canFindTreasure;
+	private int depth;
+	private int maxDepth;
+	private ArrayList<TreasureType> allTreasures;
+	private ArrayList<TreasureType> tempFound;
+	
+	public Assist(LAMB lamb) {
+		this.lamb = lamb;
+		this.depth = 1;
+		this.maxDepth = 2;
+		this.allTreasures = new ArrayList<TreasureType>();
+		for (TreasureType treasure : TreasureType.values()) {
+			allTreasures.add(treasure);
+		}
+		this.tempFound = new ArrayList<TreasureType>();
+	}
+	
+	public Move calculateMove() {
+//		maxDepth = (int) (lamb.getPlayerCount() * 1.5);
+//		System.out.println("MAXDEPTH: " + maxDepth);
+		canFindTreasure = new boolean[lamb.getPlayerCount()];
+		tempFound.clear();
+		return calculateMove(lamb.getPlayerID(), lamb.getBoard(), lamb.getTreasuresToGo(), lamb.getTreasuresFound(), lamb.getTreasure());
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Move calculateMove(int playerID, Board oldBoard, List<TreasuresToGoType> ttgo, List<TreasureType> tfound, TreasureType treasure) {
+		canFindTreasure[playerID - 1] = false;
 		ArrayList<Move> moves = new ArrayList<Move>();
-		Board lboard = lamb.getBoard();
+		if (treasure == null) {
+			ArrayList<TreasureType> notFound = (ArrayList<TreasureType>) allTreasures.clone();
+			notFound.removeAll(tfound);
+			notFound.remove(tempFound);
+			notFound.remove(lamb.getTreasure());
+			Collections.shuffle(notFound);
+			treasure = notFound.get(0);
+		}
 		Position forbiddenPosition;
-		if (lboard.getForbidden() == null) {
+		if (oldBoard.getForbidden() == null) {
 			forbiddenPosition = new Position();
 			forbiddenPosition.setCol(-1);
 			forbiddenPosition.setRow(-1);
 		}
 		else {
-			forbiddenPosition = new Position(lboard.getForbidden());
+			forbiddenPosition = new Position(oldBoard.getForbidden());
 		}
 		for (Side side : Side.values()) {
 			Position shiftPosition = new Position();
@@ -70,30 +105,64 @@ public class Assist {
 				if (shiftPosition.equals(forbiddenPosition)) {
 					continue;
 				}
-				for (Card shiftRotation : new Card(lboard.getShiftCard()).getPossibleRotations()) {
-					Board board = (Board) lboard.clone();
+				for (Card shiftRotation : new Card(oldBoard.getShiftCard()).getPossibleRotations()) {
+					Board board = (Board) oldBoard.clone();
 					MoveMessageType moveMessage = new MoveMessageType();
 					moveMessage.setShiftCard(shiftRotation);
 					moveMessage.setShiftPosition(shiftPosition);
 					board.proceedShift(moveMessage);
-					int boardValue = calculateBoardValue(lamb.getPlayerID(), board, lamb.getTreasuresToGo(), lamb.getTreasuresFound(), lamb.getTreasure());
-					for (PositionType position : board.getAllReachablePositions(board.findPlayer(lamb.getPlayerID()))) {
+					PositionType tPosition = board.findTreasure(treasure);
+					int boardValue = calculateBoardValue(playerID, board, ttgo, tfound, treasure);
+					for (PositionType position : board.getAllReachablePositions(board.findPlayer(playerID))) {
 						Move tempMove = new Move();
+						int positionValue = calculatePositionValue(playerID, board, new Position(position), tPosition, treasure);
 						tempMove.setShiftCard(shiftRotation);
 						tempMove.setShiftPosition(shiftPosition);
 						tempMove.setMovePosition(new Position(position));
-						tempMove.setValue(boardValue + calculatePositionValue(lamb.getPlayerID(), board, new Position(position), board.findTreasure(lamb.getTreasure()), lamb.getTreasure()));
+						tempMove.setValue(boardValue + positionValue);
+//						System.out.println(tempMove);
 						moves.add(tempMove);
 //						System.out.println(tempMove);
 					}
 				}
 			}
 		}
+		if (!canFindTreasure[playerID - 1] && (depth < maxDepth)) {
+			depth++;
+			System.out.println(depth);
+			for (Move m : moves) {
+				calculateNewMove(playerID, oldBoard, m);
+			}
+			depth--;
+		}
 //		System.out.println(Collections.max(moves));
+//		System.out.println("----------------------> " + Collections.max(moves));
 		return Collections.max(moves);
 	}
 	
-	public static int calculateBoardValue(int playerID, Board board, List<TreasuresToGoType> ttgo, List<TreasureType> tfound, TreasureType treasure) {
+	private void calculateNewMove(int playerID, Board oldBoard, Move oldMove) {
+		Board board = (Board) oldBoard.clone();
+		MoveMessageType moveMessage = new MoveMessageType();
+		Move tempMove;
+		moveMessage.setShiftCard(oldMove.getShiftCard());
+		moveMessage.setShiftPosition(oldMove.getShiftPosition());
+		board.proceedShift(moveMessage);
+		for (int i = 1; i < lamb.getPlayerCount(); i++) {
+			int tempID = playerID + i;
+			if (tempID > lamb.getPlayerCount()) {
+				tempID -= lamb.getPlayerCount();
+			}
+			tempMove = calculateMove(tempID, board, lamb.getTreasuresToGo(), lamb.getTreasuresFound(), null);
+			moveMessage = new MoveMessageType();
+			moveMessage.setShiftCard(tempMove.getShiftCard());
+			moveMessage.setShiftPosition(tempMove.getShiftPosition());
+			board.proceedShift(moveMessage);
+		}
+		tempMove = calculateMove(playerID, board, lamb.getTreasuresToGo(), lamb.getTreasuresFound(), lamb.getTreasure());
+		oldMove.setValue(oldMove.getValue() + tempMove.getValue());
+	}
+	
+	private int calculateBoardValue(int playerID, Board board, List<TreasuresToGoType> ttgo, List<TreasureType> tfound, TreasureType treasure) {
 		int boardValue = 0;
 		for (TreasuresToGoType ttg : ttgo) {
 			PositionType playerPos = board.findPlayer(ttg.getPlayer());
@@ -107,19 +176,21 @@ public class Assist {
 							treasureCounter++;
 						}
 					}
-					boardValue -= (int) (2.0 * treasureCounter / ttg.getTreasures()) * Points.OTHER_TREASURE_REACHABLE.value();
+//					System.out.println("BOARD: +" + (int) (2.0 * treasureCounter / ttg.getTreasures()) * Points.TREASURE_REACHABLE.value());
+					boardValue += (int) (2.0 * treasureCounter / ttg.getTreasures()) * Points.TREASURE_REACHABLE.value();
 			}
 			else {
 				if (ttg.getTreasures() == 1) {
 					// Check if opponent might have the chance to win after this move
 					for (PositionType pos : reachablePos) {
 						if (new Position(board.findTreasure(TreasureType.fromValue("Start0" + ttg.getPlayer()))).equals(new Position(pos))) {
+//							System.out.println("BOARD: +" + Points.OTHER_START_OPEN.value());
 							boardValue += Points.OTHER_START_OPEN.value();
 						}
 					}
 				}
 				else {
-					// Count reachable treasures of opponent in relation to full number of treasures
+					// Count reachable treasures of opponent in relation to full number of remaining treasures
 					int treasureCounter = 0;
 					for (PositionType pos : reachablePos) {
 						TreasureType ttype = board.getCard(pos.getRow(), pos.getCol()).getTreasure();
@@ -127,30 +198,37 @@ public class Assist {
 							treasureCounter++;
 						}
 					}
-					boardValue += (int) (1.0 * treasureCounter / ttg.getTreasures()) * Points.OTHER_TREASURE_REACHABLE.value();
+//					System.out.println("BOARD: -" + (int) (1.0 * treasureCounter / ttg.getTreasures()) * Points.TREASURE_REACHABLE.value());
+					boardValue -= (int) (1.0 * treasureCounter / ttg.getTreasures()) * Points.TREASURE_REACHABLE.value();
 				}
 			}
-			if (board.findTreasure(treasure) == null) {
-				boardValue += Points.TARGET_MISSING.value();
-			}
+		}
+		if (board.findTreasure(treasure) == null) {
+			boardValue += Points.TARGET_MISSING.value();
+//			System.out.println("BOARD +" + Points.TARGET_MISSING.value());
 		}
 		return boardValue;
 	}
 	
-	public static int calculatePositionValue(int playerID, Board board, Position position, PositionType tPosition, TreasureType treasure) {
+	private int calculatePositionValue(int playerID, Board board, Position position, PositionType tPosition, TreasureType treasure) {
 		int positionValue = 2 * board.getAllReachablePositions(position).size();
+//		System.out.println("POSITION: +" + 2 * board.getAllReachablePositions(position).size());
 		// Calculate the distance to currently needed target
 		if (tPosition != null) {
-			int dist = Math.abs(position.getCol() - tPosition.getCol()) - Math.abs(position.getRow() - tPosition.getRow());
-			if (dist == 0) {
+			if (position.equals(tPosition)) {
 				positionValue += Points.OWN_TARGET.value();
+//				System.out.println("POSITION: +" + Points.OWN_TARGET.value());
+				canFindTreasure[playerID - 1] = true;
+				tempFound.add(treasure);
 			}
 			else {
-				positionValue += 2 * (12 - dist);
+				positionValue += 2 * (12 - Math.abs(position.getCol() - tPosition.getCol()) - Math.abs(position.getRow() - tPosition.getRow()));
+//				System.out.println("POSITION: + " + 2 * (12 - Math.abs(position.getCol() - tPosition.getCol()) - Math.abs(position.getRow() - tPosition.getRow())));
 			}
 		}
 		if (treasure.name().startsWith("Start0") && position.equals(tPosition)) {
 			positionValue += Points.OWN_START.value();
+//			System.out.println("POSITION: +" + Points.OWN_START.value());
 		}
 		return positionValue;
 	}
