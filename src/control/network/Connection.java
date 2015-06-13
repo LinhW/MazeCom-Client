@@ -81,6 +81,7 @@ public class Connection {
 				break;
 			case WIN:
 				ctrl_event.receiveWinMessage(message.getWinMessage());
+				shutdown();
 				break;
 			default:
 				break;

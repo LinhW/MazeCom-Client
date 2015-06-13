@@ -65,4 +65,10 @@ public class Move implements Comparable<Object> {
 			return -1;
 		}
 	}
+	
+	public String toString() {
+		return "SC: (" + shiftCard.getShape() + "" + shiftCard.getOrientation() +
+				") SP: (" + shiftPosition.getRow() +"," + shiftPosition.getCol() + 
+				") MP: (" + movePosition.getRow() +"," + movePosition.getCol() + ")";
+	}
 }

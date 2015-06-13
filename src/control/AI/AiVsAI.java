@@ -41,7 +41,7 @@ public class AiVsAI {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		startClients(server, 0, 0, 0, 1, 1, 1);
+		startClients(server, 0, 0, 2, 0, 2, 0);
 	}
 
 	private void showResults() {
@@ -165,9 +165,9 @@ public class AiVsAI {
 			userinterface.MIStartActionPerformed(new ActionEvent(this, 1, "ai"));
 		}
 
-		public void stopGame() {
-			userinterface.MIStartActionPerformed(new ActionEvent(this, 1, "ai"));
-		}
+//		public void stopGame() {
+//			userinterface.MIStartActionPerformed(new ActionEvent(this, 1, "ai"));
+//		}
 	}
 
 }
