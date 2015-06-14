@@ -53,13 +53,14 @@ public class Assist {
 	public Move calculateMove() {
 //		maxDepth = (int) (lamb.getPlayerCount() * 1.5);
 //		System.out.println("MAXDEPTH: " + maxDepth);
-		canFindTreasure = new boolean[lamb.getPlayerCount()];
+		canFindTreasure = new boolean[4];
 		tempFound.clear();
 		return calculateMove(lamb.getPlayerID(), lamb.getBoard(), lamb.getTreasuresToGo(), lamb.getTreasuresFound(), lamb.getTreasure());
 	}
 	
 	@SuppressWarnings("unchecked")
-	public Move calculateMove(int playerID, Board oldBoard, List<TreasuresToGoType> ttgo, List<TreasureType> tfound, TreasureType treasure) {
+	private Move calculateMove(int playerID, Board oldBoard, List<TreasuresToGoType> ttgo, List<TreasureType> tfound, TreasureType treasure) {
+//		System.out.println("CALCULATE MOVE ----------- " + playerID);
 		canFindTreasure[playerID - 1] = false;
 		ArrayList<Move> moves = new ArrayList<Move>();
 		if (treasure == null) {
@@ -129,7 +130,7 @@ public class Assist {
 		}
 		if (!canFindTreasure[playerID - 1] && (depth < maxDepth)) {
 			depth++;
-			System.out.println(depth);
+//			System.out.println("NEW DEPTH: " + depth);
 			for (Move m : moves) {
 				calculateNewMove(playerID, oldBoard, m);
 			}
@@ -137,16 +138,19 @@ public class Assist {
 		}
 //		System.out.println(Collections.max(moves));
 //		System.out.println("----------------------> " + Collections.max(moves));
+//		System.out.println("CALCULATE MOVE END ------- " + playerID);
 		return Collections.max(moves);
 	}
 	
 	private void calculateNewMove(int playerID, Board oldBoard, Move oldMove) {
+//		System.out.println("CALCULATE NEW MOVE ------- " + playerID);
 		Board board = (Board) oldBoard.clone();
 		MoveMessageType moveMessage = new MoveMessageType();
 		Move tempMove;
 		moveMessage.setShiftCard(oldMove.getShiftCard());
 		moveMessage.setShiftPosition(oldMove.getShiftPosition());
 		board.proceedShift(moveMessage);
+		movePlayer(playerID, board, oldMove.getMovePosition().getRow(), oldMove.getMovePosition().getCol());
 		for (int i = 1; i < lamb.getPlayerCount(); i++) {
 			int tempID = playerID + i;
 			if (tempID > lamb.getPlayerCount()) {
@@ -157,9 +161,11 @@ public class Assist {
 			moveMessage.setShiftCard(tempMove.getShiftCard());
 			moveMessage.setShiftPosition(tempMove.getShiftPosition());
 			board.proceedShift(moveMessage);
+			movePlayer(tempID, board, tempMove.getMovePosition().getRow(), tempMove.getMovePosition().getCol());
 		}
 		tempMove = calculateMove(playerID, board, lamb.getTreasuresToGo(), lamb.getTreasuresFound(), lamb.getTreasure());
 		oldMove.setValue(oldMove.getValue() + tempMove.getValue());
+//		System.out.println("CALCULATE NEW MOVE END --- " + playerID);
 	}
 	
 	private int calculateBoardValue(int playerID, Board board, List<TreasuresToGoType> ttgo, List<TreasureType> tfound, TreasureType treasure) {
@@ -231,5 +237,15 @@ public class Assist {
 //			System.out.println("POSITION: +" + Points.OWN_START.value());
 		}
 		return positionValue;
+	}
+	
+	private void movePlayer(int playerID, Board board, int row, int col) {
+		Position p = new Position(board.findPlayer(playerID));
+//		System.out.println(p);
+		List<Integer> pinPlayer = board.getCard(p.getRow(), p.getCol()).getPin().getPlayerID();
+		pinPlayer.remove(pinPlayer.indexOf(playerID));
+		board.getCard(row, col).getPin().getPlayerID().add(playerID);
+		p = new Position(board.findPlayer(playerID));
+//		System.out.println(p);
 	}
 }

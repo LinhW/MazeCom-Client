@@ -38,7 +38,7 @@ public class LAMB implements Player {
 	@Override
 	public void receiveLoginReply(LoginReplyMessageType message) {
 		this.playerID = message.getNewID();
-		System.out.println("Login successful.");
+		System.out.println("LAMB logged in with ID " + this.playerID);
 		assist = new Assist(this);
 	}
 
