@@ -111,7 +111,7 @@ public class Pathfinding {
 			if (l_pph.size() == 1) {
 				return l_pph.get(0);
 			}
-			pph = sealAway(l_pph, nextPlayer[0]).get(0);
+			pph = sealAway(l_pph).get(0);
 		}
 		return pph;
 	}
@@ -124,6 +124,18 @@ public class Pathfinding {
 			}
 		}
 		return list_pph;
+	}
+	
+	/**
+	 * proceed turn that the next opponent is sealed at his current position
+	 * 
+	 * @param list
+	 *            of solutions
+	 * @return list of solutions with sealed factor
+	 */
+	private List<PinPosHelp> sealAway(List<PinPosHelp> list) {
+		// TODO
+		return list;
 	}
 
 	/**
@@ -208,59 +220,6 @@ public class Pathfinding {
 		} else {
 			return false;
 		}
-	}
-
-	private List<CardHelp> lastChance(int id) {
-		Position end = null;
-		Position shiftPos;
-		Board b;
-		List<Position> list_shiftPos = new ArrayList<>();
-		List<Position> tmp = new ArrayList<>();
-		List<CardHelp> list = new ArrayList<>();
-		int size = Integer.MAX_VALUE;
-		Card shiftCard = betterBoard.getShiftCard();
-		List<Card> list_C = shiftCard.getPossibleRotations();
-		switch (id) {
-		case 1:
-			end = new Position(0, 0);
-			break;
-		case 4:
-			end = new Position(6, 6);
-			break;
-		case 2:
-			end = new Position(0, 6);
-			break;
-		case 3:
-			end = new Position(6, 0);
-			break;
-		}
-
-		for (int i = 0; i < 2; i++) {
-			shiftPos = new Position((end.getRow() + (-end.getRow() / 3 + 1) * i), (end.getCol() + (-end.getCol() / 3 + 1) * (1 - i)));
-			list_shiftPos.add(shiftPos);
-			list_shiftPos.add(shiftPos.getOpposite());
-		}
-		list_shiftPos.remove(betterBoard.getForbidden());
-
-		for (Card c : list_C) {
-			for (Position pos : list_shiftPos) {
-				b = (Board) betterBoard.clone();
-				b.proceedShift(pos, new Card(c));
-				tmp = findPossiblePos(b, tmp, end);
-				if (!tmp.contains(end)) {
-					if (tmp.size() == size) {
-						list.add(new CardHelp(c, pos, id, size));
-					} else {
-						if (tmp.size() < size) {
-							size = tmp.size();
-							list.clear();
-							list.add(new CardHelp(c, pos, id, size));
-						}
-					}
-				}
-			}
-		}
-		return list;
 	}
 
 	private List<CardHelp> lastChance() {
@@ -358,7 +317,7 @@ public class Pathfinding {
 						// TODO index out of bounds exception
 						list.get(0);
 					}
-					list_tmp = sealAway(list_tmp, nextPlayer[0]);
+					list_tmp = sealAway(list_tmp);
 					return list.get(0);
 				}
 			}
@@ -582,7 +541,7 @@ public class Pathfinding {
 					if (l_pph.size() == 1) {
 						return l_pph.get(0);
 					}
-					return sealAway(l_pph, nextPlayer[0]).get(0);
+					return sealAway(l_pph).get(0);
 				}
 			case 1:
 				List<PinPosHelp> list_pph = simpleSolution(list_ch, tre, PlayerID);
