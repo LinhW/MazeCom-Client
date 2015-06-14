@@ -8,11 +8,8 @@ import model.jaxb.LoginReplyMessageType;
 import model.jaxb.PositionType;
 import model.jaxb.WinMessageType;
 import control.AI.Player;
-import control.AI.ava.Pathfinding.CardHelp;
 import control.AI.ava.Pathfinding.PinPosHelp;
 import control.AI.ava.ownClasses.Board;
-import control.AI.ava.ownClasses.Card;
-import control.AI.ava.ownClasses.Position;
 import control.network.Connection;
 
 public class Ava implements Player {
@@ -56,7 +53,6 @@ public class Ava implements Player {
 //		System.out.println("Ava receives an await move message");
 		wif.write("AWAIT MOVE MESSAGES");
 		wif_v2.write("AWAIT MOVE MESSAGES");
-//		System.out.println(message.getTreasure());
 		Board b = new Board(message.getBoard());
 		b.setTreasure(message.getTreasure());
 		p.setBoard(b);
@@ -84,8 +80,6 @@ public class Ava implements Player {
 
 	@Override
 	public void receiveAcceptMessage(AcceptMessageType message) {
-//		System.out.println("Ava receives an Accept message");
-//		System.out.println(message.getErrorCode());
 		wif.write(message.getErrorCode().toString());
 		wif_v2.write(message.getErrorCode().toString());
 		wif.writeNewLine(2);
@@ -94,11 +88,6 @@ public class Ava implements Player {
 
 	@Override
 	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift, PositionType pin) {
-		// System.out.println("wird gesendet:");
-		// System.out.println("CardPos: " + shift);
-		// System.out.println("PinPos: " + pin);
-		// System.out.println(new Card(c));
-		possPos.write("sendet: " + new PinPosHelp(new Position(pin), new CardHelp(new Card(c), new Position(shift))).debug());
 		con.sendMoveMessage(PlayerID, c, shift, pin);
 	}
 
