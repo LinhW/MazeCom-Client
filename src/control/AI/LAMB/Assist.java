@@ -136,6 +136,7 @@ public class Assist {
 				median += m.getValue();
 			}
 			median = median / moves.size();
+			median = (Collections.max(moves).getValue() + median) / 2;
 			for (int i = 0; i < moves.size(); i++) {
 				Move m = moves.get(i);
 				if (m.getValue() > median) {
