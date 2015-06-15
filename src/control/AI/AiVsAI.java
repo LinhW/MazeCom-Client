@@ -56,7 +56,7 @@ public class AiVsAI {
 	/**
 	 * number of games
 	 */
-	private final int count = 3;
+	private final int count = 50;
 	/**
 	 * case false: just one constellation. case true: sum of all ai's which should fight factorial multiply with count
 	 */
@@ -109,9 +109,7 @@ public class AiVsAI {
 				if (lamb > 0) {
 					order.add(LA + "");
 				}
-				System.out.println(order);
 				initAllComb(order);
-				System.out.println(order);
 				startClients(server);
 			}
 
@@ -169,7 +167,7 @@ public class AiVsAI {
 	private void update(Winner winner) {
 		PlayerStat ps = map.get(winner.getId()).incWins();
 		map.put(winner.getId(), ps);
-		wif.write("no." + number + " " + System.nanoTime() + "\tPlayer" + winner.getId() + ": " + map.get(winner.getId()).getWins() + ". win");
+		wif.write("no." + number + "\t" + System.nanoTime() + "\tPlayer" + winner.getId() + ": " + map.get(winner.getId()).getWins() + ". win");
 		if (number < count) {
 			config.Settings.PORT++;
 			control.Settings.PORT = config.Settings.PORT;
