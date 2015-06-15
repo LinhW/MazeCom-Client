@@ -1,7 +1,9 @@
 package control.AI;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -17,36 +19,48 @@ import control.network.Connection;
 
 public class AiVsAI {
 	private WriteIntoFile wif;
-	private static int number = 0;
+	private static int number = 1;
 	private static AiVsAI a;
 	private WriteIntoFile wif_error;
 	private Server server;
 	private Map<Integer, PlayerStat> map;
+	private List<String> order;
 	private int sum;
+
+	private final int H9 = 0;
+	private final int RS = 1;
+	private final int RA = 2;
+	private final int TE = 3;
+	private final int AV = 4;
+	private final int LA = 5;
 
 	// name of ai's. Value of the specified string can be changed by oneself
 	// count how many instances the specified ai shall start
 	private final String RANDOMSIMPLE = "randomSimple";
-	private final int randomSimple = 0;
+	private int randomSimple = 0;
 
 	private final String RANDOMADVANCED = "randomAdvanced";
-	private final int randomAdvanced = 0;
+	private int randomAdvanced = 0;
 
 	private final String TRYANDERROR = "TryAndError";
-	private final int tryAndError = 0;
+	private int tryAndError = 0;
 
 	private final String AVA = "Humpf";
-	private final int ava = 1;
+	private int ava = 1;
 
 	private final String LAMB = "Lamb";
-	private final int lamb = 1;
+	private int lamb = 1;
 
 	private final String HAL9000 = "hal9000";
-	private final int hal9000 = 1;
+	private int hal9000 = 1;
 	/**
 	 * number of games
 	 */
-	private final int count = 100;
+	private final int count = 3;
+	/**
+	 * case false: just one constellation. case true: sum of all ai's which should fight factorial multiply with count
+	 */
+	private boolean allCombination = true;
 	/**
 	 * file path for the statistics. port will automatically attached
 	 */
@@ -64,47 +78,67 @@ public class AiVsAI {
 		wif_error.clearFile();
 		map = new HashMap<>();
 		sum = randomSimple + randomAdvanced + tryAndError + ava + lamb + hal9000;
-		if (sum > 4) {
-			System.err.println("invalid number of players");
-		} else {
-			initMap();
-			control.Settings.PORT = config.Settings.PORT;
-			server = new Server();
-			server.start();
-			try {
-				TimeUnit.SECONDS.sleep(5);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		if (sum > 0) {
+			if (sum > 4) {
+				System.err.println("invalid number of players");
+			} else {
+				control.Settings.PORT = config.Settings.PORT;
+				server = new Server();
+				server.start();
+				try {
+					TimeUnit.SECONDS.sleep(5);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				order = new ArrayList<>();
+				if (hal9000 > 0) {
+					order.add(H9 + "");
+				}
+				if (randomSimple > 0) {
+					order.add(RS + "");
+				}
+				if (randomAdvanced > 0) {
+					order.add(RA + "");
+				}
+				if (tryAndError > 0) {
+					order.add(TE + "");
+				}
+				if (ava > 0) {
+					order.add(AV + "");
+				}
+				if (lamb > 0) {
+					order.add(LA + "");
+				}
+				System.out.println(order);
+				initAllComb(order);
+				System.out.println(order);
+				startClients(server);
 			}
-			startClients(server);
+
 		}
 	}
-	private void initMap(){
-		int tmp = 0;
-		for (int i = 0; i < hal9000; i++) {
-			tmp++;
-			map.put(tmp, new PlayerStat(this.HAL9000));
+
+	/**
+	 * starts all possible combinations with the given players. Is just comparable with unique player. So you cannot start an AI multiple.
+	 */
+	private void initAllComb(List<String> ai) {
+		order = new ArrayList<>();
+		order = perm(order, ai, "");
+	}
+
+	private List<String> perm(List<String> list, List<String> digit, String s) {
+		if (s.length() == sum) {
+			list.add(s);
+			return list;
 		}
-		for (int i = 0; i < randomSimple; i++) {
-			tmp++;
-			map.put(tmp, new PlayerStat(this.RANDOMSIMPLE));
+		for (int i = 0; i < digit.size(); i++) {
+			String f = s;
+			List<String> copy_digit = new ArrayList<String>(digit);
+			f += copy_digit.get(i);
+			copy_digit.remove(i);
+			list = perm(list, copy_digit, f);
 		}
-		for (int i = 0; i < randomAdvanced; i++) {
-			tmp++;
-			map.put(tmp, new PlayerStat(this.RANDOMADVANCED));
-		}
-		for (int i = 0; i < tryAndError; i++) {
-			tmp++;
-			map.put(tmp, new PlayerStat(this.TRYANDERROR));
-		}
-		for (int i = 0; i < ava; i++) {
-			tmp++;
-			map.put(tmp, new PlayerStat(this.AVA));
-		}
-		for (int i = 0; i < lamb; i++) {
-			tmp++;
-			map.put(tmp, new PlayerStat(this.LAMB));
-		}
+		return list;
 	}
 
 	private void start() {
@@ -135,13 +169,28 @@ public class AiVsAI {
 	private void update(Winner winner) {
 		PlayerStat ps = map.get(winner.getId()).incWins();
 		map.put(winner.getId(), ps);
-		wif.write(System.nanoTime() + "\tPlayer" + winner.getId() + ": " + map.get(winner.getId()).getWins() + ". win");
+		wif.write("no." + number + " " + System.nanoTime() + "\tPlayer" + winner.getId() + ": " + map.get(winner.getId()).getWins() + ". win");
 		if (number < count) {
 			config.Settings.PORT++;
 			control.Settings.PORT = config.Settings.PORT;
 			start();
 		} else {
 			showResults();
+			order.remove(0);
+			if (order.size() == 0) {
+				allCombination = false;
+			}
+			if (allCombination) {
+				number = 0;
+				config.Settings.PORT++;
+				control.Settings.PORT = config.Settings.PORT;
+				wif = new WriteIntoFile(FILENAME + "_" + config.Settings.PORT + WriteIntoFile.FILEEXTENSION);
+				wif.clearFile();
+				wif_error = new WriteIntoFile(WriteIntoFile.FILEPATH + "_error" + WriteIntoFile.FILEEXTENSION);
+				wif_error.clearFile();
+				map = new HashMap<>();
+				start();
+			}
 		}
 	}
 
@@ -161,34 +210,65 @@ public class AiVsAI {
 
 	private void startClients(Server server) {
 		server.startGame(sum);
-		for (int i = 0; i < hal9000; i++) {
-			System.out.println("Starting HAL9000...");
-			System.out.println(MonoStarter.startHAL9000(config.Settings.PORT));
-		}
-		try {
-			TimeUnit.SECONDS.sleep(2);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		for (int i = 0; i < randomSimple; i++) {
-			Connection connection = new Connection(this);
-			new Client(new RandomAISimple(connection), connection).start();
-		}
-		for (int i = 0; i < randomAdvanced; i++) {
-			Connection connection = new Connection(this);
-			new Client(new RandomAIAdvanced(connection), connection).start();
-		}
-		for (int i = 0; i < tryAndError; i++) {
-			Connection connection = new Connection(this);
-			new Client(new TryAndError(connection), connection).start();
-		}
-		for (int i = 0; i < ava; i++) {
-			Connection connection = new Connection(this);
-			new Client(new Ava(connection), connection).start();
-		}
-		for (int i = 0; i < lamb; i++) {
-			Connection connection = new Connection(this);
-			new Client(new LAMB(connection), connection).start();
+		String s = order.get(0);
+		int tmp = 0;
+		for (int j = 0; j < s.length(); j++) {
+			Connection connection;
+			switch (Integer.parseInt(s.charAt(j) + "")) {
+			case H9:
+				System.out.println("Starting HAL9000...");
+				System.out.println(MonoStarter.startHAL9000(config.Settings.PORT));
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.HAL9000));
+				}
+				break;
+			case RS:
+				connection = new Connection(this);
+				new Client(new RandomAISimple(connection), connection).start();
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.RANDOMSIMPLE));
+				}
+				break;
+			case RA:
+				connection = new Connection(this);
+				new Client(new RandomAIAdvanced(connection), connection).start();
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.RANDOMADVANCED));
+				}
+				break;
+			case TE:
+				connection = new Connection(this);
+				new Client(new TryAndError(connection), connection).start();
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.TRYANDERROR));
+				}
+				break;
+			case AV:
+				connection = new Connection(this);
+				new Client(new Ava(connection), connection).start();
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.AVA));
+				}
+				break;
+			case LA:
+				connection = new Connection(this);
+				new Client(new LAMB(connection), connection).start();
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.LAMB));
+				}
+				break;
+			}
+			try {
+				TimeUnit.SECONDS.sleep(4);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
