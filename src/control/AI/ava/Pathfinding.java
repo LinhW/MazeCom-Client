@@ -130,6 +130,7 @@ public class Pathfinding {
 
 	private List<PinPosHelp> checkLastButOne(List<PinPosHelp> list) {
 		for (TreasuresToGoType ttgt : list_treToGo) {
+			System.out.println(betterBoard.getShiftCard() == null);
 			TreasureType tre = betterBoard.getShiftCard().getTreasure();
 			if (tre != null) {
 				if (ttgt.getPlayer() == PlayerID && ttgt.getTreasures() == 2 && tre.equals(betterBoard.getTreasure())) {
@@ -145,7 +146,7 @@ public class Pathfinding {
 	private List<PinPosHelp> checkOtherPlayer(List<PinPosHelp> list_pph) {
 		for (TreasuresToGoType ttgt : list_treToGo) {
 			if (ttgt.getPlayer() == nextPlayer[1] && ttgt.getTreasures() == 1) {
-				list_pph = sealAway(list_pph, nextPlayer[1]);
+				list_pph = sealEndPos(list_pph, nextPlayer[1]);
 				break;
 			}
 		}
@@ -187,8 +188,7 @@ public class Pathfinding {
 	 * @return list of solutions with sealed factor
 	 */
 	private List<PinPosHelp> sealAway(List<PinPosHelp> list) {
-		// TODO
-		return list;
+		return sealAway(list, nextPlayer[0]);
 	}
 
 	/**
@@ -199,8 +199,42 @@ public class Pathfinding {
 	 * @return list of solutions with sealed factor
 	 */
 	private List<PinPosHelp> sealAway(List<PinPosHelp> list, int ID) {
-		// TODO
-		return list;
+		Position pinPos;
+		Map<Integer, List<PinPosHelp>> map = new HashMap<>();
+		for (PinPosHelp pph : list) {
+			Board board = (Board) betterBoard.clone();
+			pinPos = board.getPinPos(ID);
+			List<Position> l = new ArrayList<>();
+			l = findPossiblePos(board, l, pinPos);
+			if (map.containsKey(l.size())) {
+				map.get(l.size()).add(pph);
+			} else {
+				List<PinPosHelp> tmp = new ArrayList<>();
+				tmp.add(pph);
+				map.put(l.size(), tmp);
+			}
+
+		}
+		return map.get(Collections.min(map.keySet()));
+	}
+
+	private List<PinPosHelp> sealEndPos(List<PinPosHelp> list, int ID) {
+		Map<Integer, List<PinPosHelp>> map = new HashMap<>();
+		Position endPos = betterBoard.findTreasure(TreasureType.valueOf("START_0" + ID));
+		for (PinPosHelp pph : list) {
+			Board board = (Board) betterBoard.clone();
+			List<Position> l = new ArrayList<>();
+			l = findPossiblePos(board, l, endPos);
+			if (map.containsKey(l.size())) {
+				map.get(l.size()).add(pph);
+			} else {
+				List<PinPosHelp> tmp = new ArrayList<>();
+				tmp.add(pph);
+				map.put(l.size(), tmp);
+			}
+
+		}
+		return map.get(Collections.min(map.keySet()));
 	}
 
 	/**
