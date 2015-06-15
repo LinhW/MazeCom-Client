@@ -33,7 +33,7 @@ public class AiVsAI {
 	/**
 	 * number of games
 	 */
-	private final int count = 100;
+	private final int count = 10;
 	/**
 	 * file path for the statistics
 	 */
@@ -80,7 +80,7 @@ public class AiVsAI {
 
 	private void update(Winner winner) {
 		map.get(winner.getId()).incWins();
-		wif.write(System.nanoTime() + "\tPlayer" + winner.getId() + ": " + map.get(winner.getId()) + ". win");
+		wif.write(System.nanoTime() + "\tPlayer" + winner.getId() + ": " + map.get(winner.getId()).getWins() + ". win");
 		if (number < count) {
 			config.Settings.PORT++;
 			control.Settings.PORT = config.Settings.PORT;
