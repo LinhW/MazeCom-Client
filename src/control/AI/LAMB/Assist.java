@@ -136,12 +136,14 @@ public class Assist {
 				median += m.getValue();
 			}
 			median = median / moves.size();
-			for (Move m : moves) {
+			for (int i = 0; i < moves.size(); i++) {
+				Move m = moves.get(i);
 				if (m.getValue() > median) {
 					calculateNewMove(playerID, oldBoard, m);
 				}
 				else {
-					moves.remove(m);
+					moves.remove(i);
+					i--;
 				}
 			}
 			depth--;
