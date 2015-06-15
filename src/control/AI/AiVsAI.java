@@ -19,6 +19,8 @@ public class AiVsAI {
 	private WriteIntoFile wif;
 	private int count = 600;
 	private static AiVsAI a;
+	private WriteIntoFile wif_error;
+	private Server server;
 
 	public static void main(String[] args) {
 		a = new AiVsAI();
@@ -28,20 +30,21 @@ public class AiVsAI {
 	public void init() {
 		wif = new WriteIntoFile("WinnerStat.txt");
 		wif.clearFile();
+		wif_error = new WriteIntoFile(WriteIntoFile.FILEPATH + "_error" + WriteIntoFile.FILEEXTENSION);
+		wif_error.clearFile();
 		start();
 	}
 
 	public void start() {
 		number++;
-		Server server = new Server();
+		server = new Server();
 		server.start();
 		try {
 			TimeUnit.SECONDS.sleep(5);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		startClients(server, 0, 0, 0, 2, 2, 0);
+		startClients(server, 0, 0, 0, 1, 1, 1);
 	}
 
 	private void showResults() {
@@ -84,6 +87,12 @@ public class AiVsAI {
 		} else {
 			showResults();
 		}
+	}
+
+	//TODO an error occurred
+	public void stop() {
+		server.stopGame();
+		start();
 	}
 
 	public static void disconnect(ErrorType error, int id) {
@@ -165,9 +174,9 @@ public class AiVsAI {
 			userinterface.MIStartActionPerformed(new ActionEvent(this, 1, "ai"));
 		}
 
-//		public void stopGame() {
-//			userinterface.MIStartActionPerformed(new ActionEvent(this, 1, "ai"));
-//		}
+		public void stopGame() {
+			userinterface.MIStartActionPerformed(new ActionEvent(this, 1, "ai"));
+		}
 	}
 
 }
