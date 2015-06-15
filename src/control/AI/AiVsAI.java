@@ -37,7 +37,7 @@ public class AiVsAI {
 	/**
 	 * file path for the statistics
 	 */
-	private final String FILEPATH = "WinnerStat3" + WriteIntoFile.FILEEXTENSION;
+	private final String FILEPATH = "WinnerStat" + WriteIntoFile.FILEEXTENSION;
 
 	public static void main(String[] args) {
 		a = new AiVsAI();
