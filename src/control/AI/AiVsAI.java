@@ -100,11 +100,8 @@ public class AiVsAI {
 	}
 
 	private void update(Winner winner) {
-		System.out.println("update1 " + map.get(winner.getId()));
 		PlayerStat ps = map.get(winner.getId()).incWins();
-		System.out.println("update2 " + ps.wins);
 		map.put(winner.getId(), ps);
-		System.out.println("update3 " + map.get(winner.getId()));
 		wif.write(System.nanoTime() + "\tPlayer" + winner.getId() + ": " + map.get(winner.getId()).getWins() + ". win");
 		if (number < count) {
 			config.Settings.PORT++;
