@@ -131,8 +131,18 @@ public class Assist {
 		if (!canFindTreasure[playerID - 1] && (depth < maxDepth)) {
 			depth++;
 //			System.out.println("NEW DEPTH: " + depth);
+			int median = 0;
 			for (Move m : moves) {
-				calculateNewMove(playerID, oldBoard, m);
+				median += m.getValue();
+			}
+			median = median / moves.size();
+			for (Move m : moves) {
+				if (m.getValue() > median) {
+					calculateNewMove(playerID, oldBoard, m);
+				}
+				else {
+					moves.remove(m);
+				}
 			}
 			depth--;
 		}
