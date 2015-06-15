@@ -254,9 +254,7 @@ public class AiVsAI {
 		}
 
 		public PlayerStat incWins() {
-			System.out.println("vorher " + wins);
 			++wins;
-			System.out.println("nachher " + wins);
 			return this;
 		}
 
