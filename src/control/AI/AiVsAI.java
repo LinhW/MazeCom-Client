@@ -109,9 +109,7 @@ public class AiVsAI {
 				if (lamb > 0) {
 					order.add(LA + "");
 				}
-				System.out.println(order);
 				initAllComb(order);
-				System.out.println(order);
 				startClients(server);
 			}
 
