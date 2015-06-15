@@ -3,6 +3,7 @@ package control.AI.LAMB;
 import java.util.ArrayList;
 
 import model.Board;
+import model.Position;
 import model.jaxb.AcceptMessageType;
 import model.jaxb.AwaitMoveMessageType;
 import model.jaxb.CardType;
@@ -25,6 +26,7 @@ public class LAMB implements Player {
 	private TreasureType treasure;
 	private Board board;
 	private Assist assist;
+	private Move move;
 
 	public LAMB(Connection connection) {
 		this.connection = connection;
@@ -51,7 +53,7 @@ public class LAMB implements Player {
 		treasuresFound = new ArrayList<TreasureType>(message.getFoundTreasures());
 		treasuresFound.trimToSize();
 		treasure = message.getTreasure();
-		Move move = assist.calculateMove();
+		move = assist.calculateMove();
 		sendMoveMessage(playerID, move.getShiftCard(), move.getShiftPosition(), move.getMovePosition());
 	}
 
@@ -73,6 +75,8 @@ public class LAMB implements Player {
 	public void receiveAcceptMessage(AcceptMessageType message) {
 		if (message.getErrorCode() != ErrorType.NOERROR) {
 			System.out.println(message.getErrorCode().value());
+			System.out.println("LAST MOVE:\nCARD: " + move.getShiftCard().getShape().name() + " " + move.getShiftCard().getOrientation().name() + 
+					"\nPOS: " + new Position(move.getShiftPosition()) + "\nMOVE: " + new Position(move.getMovePosition()));
 		}
 	}
 
