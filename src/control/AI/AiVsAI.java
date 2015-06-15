@@ -17,7 +17,7 @@ import control.network.Connection;
 
 public class AiVsAI {
 	private WriteIntoFile wif;
-	private static int number = 1;
+	private static int number = 0;
 	private static AiVsAI a;
 	private WriteIntoFile wif_error;
 	private Server server;
@@ -36,17 +36,17 @@ public class AiVsAI {
 	private final int tryAndError = 0;
 
 	private final String AVA = "Humpf";
-	private final int ava = 4;
+	private final int ava = 1;
 
 	private final String LAMB = "Lamb";
-	private final int lamb = 0;
+	private final int lamb = 1;
 
 	private final String HAL9000 = "hal9000";
-	private final int hal9000 = 0;
+	private final int hal9000 = 1;
 	/**
 	 * number of games
 	 */
-	private final int count = 2;
+	private final int count = 100;
 	/**
 	 * file path for the statistics. port will automatically attached
 	 */
@@ -63,18 +63,51 @@ public class AiVsAI {
 		wif_error = new WriteIntoFile(WriteIntoFile.FILEPATH + "_error" + WriteIntoFile.FILEEXTENSION);
 		wif_error.clearFile();
 		map = new HashMap<>();
-		control.Settings.PORT = config.Settings.PORT;
-		server = new Server();
-		server.start();
-		try {
-			TimeUnit.SECONDS.sleep(5);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		sum = randomSimple + randomAdvanced + tryAndError + ava + lamb + hal9000;
+		if (sum > 4) {
+			System.err.println("invalid number of players");
+		} else {
+			initMap();
+			control.Settings.PORT = config.Settings.PORT;
+			server = new Server();
+			server.start();
+			try {
+				TimeUnit.SECONDS.sleep(5);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			startClients(server);
 		}
-		startClients_init(server, randomSimple, randomAdvanced, tryAndError, ava, lamb, hal9000);
+	}
+	private void initMap(){
+		int tmp = 0;
+		for (int i = 0; i < hal9000; i++) {
+			tmp++;
+			map.put(tmp, new PlayerStat(this.HAL9000));
+		}
+		for (int i = 0; i < randomSimple; i++) {
+			tmp++;
+			map.put(tmp, new PlayerStat(this.RANDOMSIMPLE));
+		}
+		for (int i = 0; i < randomAdvanced; i++) {
+			tmp++;
+			map.put(tmp, new PlayerStat(this.RANDOMADVANCED));
+		}
+		for (int i = 0; i < tryAndError; i++) {
+			tmp++;
+			map.put(tmp, new PlayerStat(this.TRYANDERROR));
+		}
+		for (int i = 0; i < ava; i++) {
+			tmp++;
+			map.put(tmp, new PlayerStat(this.AVA));
+		}
+		for (int i = 0; i < lamb; i++) {
+			tmp++;
+			map.put(tmp, new PlayerStat(this.LAMB));
+		}
 	}
 
-	public void start() {
+	private void start() {
 		number++;
 		server = new Server();
 		server.start();
@@ -83,7 +116,7 @@ public class AiVsAI {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		startClients(server, randomSimple, randomAdvanced, tryAndError, ava, lamb, hal9000);
+		startClients(server);
 	}
 
 	private void showResults() {
@@ -126,7 +159,7 @@ public class AiVsAI {
 		wif.write(System.nanoTime() + "\tPlayer " + id + " has a disconnect. Reason: " + error.toString());
 	}
 
-	private void startClients(Server server, int randomSimple, int randomAdvanced, int tryAndError, int ava, int lamb, int hal9000) {
+	private void startClients(Server server) {
 		server.startGame(sum);
 		for (int i = 0; i < hal9000; i++) {
 			System.out.println("Starting HAL9000...");
@@ -156,58 +189,6 @@ public class AiVsAI {
 		for (int i = 0; i < lamb; i++) {
 			Connection connection = new Connection(this);
 			new Client(new LAMB(connection), connection).start();
-		}
-	}
-
-	private void startClients_init(Server server, int randomSimple, int randomAdvanced, int tryAndError, int ava, int lamb, int hal9000) {
-		sum = randomSimple + randomAdvanced + tryAndError + ava + lamb + hal9000;
-		if (sum > 4) {
-			System.err.println("invalid number of players");
-		} else {
-			server.startGame(sum);
-			int tmp = 0;
-			for (int i = 0; i < hal9000; i++) {
-				System.out.println("Starting HAL9000...");
-				System.out.println(MonoStarter.startHAL9000(config.Settings.PORT));
-				tmp++;
-				map.put(tmp, new PlayerStat(this.HAL9000));
-			}
-			try {
-				TimeUnit.SECONDS.sleep(2);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			for (int i = 0; i < randomSimple; i++) {
-				Connection connection = new Connection(this);
-				new Client(new RandomAISimple(connection), connection).start();
-				tmp++;
-				map.put(tmp, new PlayerStat(this.RANDOMSIMPLE));
-			}
-			for (int i = 0; i < randomAdvanced; i++) {
-				Connection connection = new Connection(this);
-				new Client(new RandomAIAdvanced(connection), connection).start();
-				tmp++;
-				map.put(tmp, new PlayerStat(this.RANDOMADVANCED));
-			}
-			for (int i = 0; i < tryAndError; i++) {
-				Connection connection = new Connection(this);
-				new Client(new TryAndError(connection), connection).start();
-				tmp++;
-				map.put(tmp, new PlayerStat(this.TRYANDERROR));
-			}
-			for (int i = 0; i < ava; i++) {
-				Connection connection = new Connection(this);
-				new Client(new Ava(connection), connection).start();
-				tmp++;
-				map.put(tmp, new PlayerStat(this.AVA));
-			}
-			for (int i = 0; i < lamb; i++) {
-				Connection connection = new Connection(this);
-				new Client(new LAMB(connection), connection).start();
-				tmp++;
-				map.put(tmp, new PlayerStat(this.LAMB));
-			}
-
 		}
 	}
 
