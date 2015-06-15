@@ -314,7 +314,6 @@ public class Pathfinding {
 					return list_tmp.get(0);
 				} else {
 					if (list_tmp.size() == 0) {
-						// TODO index out of bounds exception
 						list.get(0);
 					}
 					list_tmp = sealAway(list_tmp);
@@ -1004,11 +1003,6 @@ public class Pathfinding {
 		private int diff = Integer.MAX_VALUE;
 		private CardHelp ch;
 		private Position trePos;
-
-		// public PinPosHelp(Position pinPos, CardHelp ch) {
-		// this.pinPos = pinPos;
-		// this.ch = ch;
-		// }
 
 		public PinPosHelp(Position trePos, Position PinPos, CardHelp ch) {
 			this(trePos, PinPos, ch, Integer.MAX_VALUE);

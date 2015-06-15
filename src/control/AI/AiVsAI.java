@@ -17,27 +17,40 @@ import control.network.Connection;
 
 public class AiVsAI {
 	private WriteIntoFile wif;
-	private static int number = 0;
+	private static int number = 1;
 	private static AiVsAI a;
 	private WriteIntoFile wif_error;
 	private Server server;
 	private Map<Integer, PlayerStat> map;
+	private int sum;
 
 	// name of ai's. Value of the specified string can be changed by oneself
-	private final String HAL9000 = "hal9000";
+	// count how many instances the specified ai shall start
 	private final String RANDOMSIMPLE = "randomSimple";
+	private final int randomSimple = 0;
+
 	private final String RANDOMADVANCED = "randomAdvanced";
+	private final int randomAdvanced = 0;
+
 	private final String TRYANDERROR = "TryAndError";
+	private final int tryAndError = 0;
+
 	private final String AVA = "Humpf";
+	private final int ava = 4;
+
 	private final String LAMB = "Lamb";
+	private final int lamb = 0;
+
+	private final String HAL9000 = "hal9000";
+	private final int hal9000 = 0;
 	/**
 	 * number of games
 	 */
-	private final int count = 10;
+	private final int count = 2;
 	/**
-	 * file path for the statistics
+	 * file path for the statistics. port will automatically attached
 	 */
-	private final String FILEPATH = "WinnerStat" + WriteIntoFile.FILEEXTENSION;
+	private final String FILENAME = "WinnerStat";
 
 	public static void main(String[] args) {
 		a = new AiVsAI();
@@ -45,12 +58,20 @@ public class AiVsAI {
 	}
 
 	public void init() {
-		wif = new WriteIntoFile(FILEPATH);
+		wif = new WriteIntoFile(FILENAME + "_" + config.Settings.PORT + WriteIntoFile.FILEEXTENSION);
 		wif.clearFile();
 		wif_error = new WriteIntoFile(WriteIntoFile.FILEPATH + "_error" + WriteIntoFile.FILEEXTENSION);
 		wif_error.clearFile();
 		map = new HashMap<>();
-		start();
+		control.Settings.PORT = config.Settings.PORT;
+		server = new Server();
+		server.start();
+		try {
+			TimeUnit.SECONDS.sleep(5);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		startClients_init(server, randomSimple, randomAdvanced, tryAndError, ava, lamb, hal9000);
 	}
 
 	public void start() {
@@ -62,7 +83,7 @@ public class AiVsAI {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		startClients(server, 0, 0, 0, 1, 1, 1);
+		startClients(server, randomSimple, randomAdvanced, tryAndError, ava, lamb, hal9000);
 	}
 
 	private void showResults() {
@@ -70,7 +91,7 @@ public class AiVsAI {
 		wif.write(System.nanoTime() + "");
 		wif.write("-----------Stats--------------");
 		for (Integer key : map.keySet()) {
-			wif.write("Player1 (" + map.get(key).getName() + "): " + map.get(key).getWins() + " wins");
+			wif.write("Player" + key + " (" + map.get(key).getName() + "): " + map.get(key).getWins() + " wins");
 		}
 	}
 
@@ -79,7 +100,11 @@ public class AiVsAI {
 	}
 
 	private void update(Winner winner) {
-		map.get(winner.getId()).incWins();
+		System.out.println("update1 " + map.get(winner.getId()));
+		PlayerStat ps = map.get(winner.getId()).incWins();
+		System.out.println("update2 " + ps.wins);
+		map.put(winner.getId(), ps);
+		System.out.println("update3 " + map.get(winner.getId()));
 		wif.write(System.nanoTime() + "\tPlayer" + winner.getId() + ": " + map.get(winner.getId()).getWins() + ". win");
 		if (number < count) {
 			config.Settings.PORT++;
@@ -105,7 +130,40 @@ public class AiVsAI {
 	}
 
 	private void startClients(Server server, int randomSimple, int randomAdvanced, int tryAndError, int ava, int lamb, int hal9000) {
-		int sum = randomSimple + randomAdvanced + tryAndError + ava + lamb + hal9000;
+		server.startGame(sum);
+		for (int i = 0; i < hal9000; i++) {
+			System.out.println("Starting HAL9000...");
+			System.out.println(MonoStarter.startHAL9000(config.Settings.PORT));
+		}
+		try {
+			TimeUnit.SECONDS.sleep(2);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		for (int i = 0; i < randomSimple; i++) {
+			Connection connection = new Connection(this);
+			new Client(new RandomAISimple(connection), connection).start();
+		}
+		for (int i = 0; i < randomAdvanced; i++) {
+			Connection connection = new Connection(this);
+			new Client(new RandomAIAdvanced(connection), connection).start();
+		}
+		for (int i = 0; i < tryAndError; i++) {
+			Connection connection = new Connection(this);
+			new Client(new TryAndError(connection), connection).start();
+		}
+		for (int i = 0; i < ava; i++) {
+			Connection connection = new Connection(this);
+			new Client(new Ava(connection), connection).start();
+		}
+		for (int i = 0; i < lamb; i++) {
+			Connection connection = new Connection(this);
+			new Client(new LAMB(connection), connection).start();
+		}
+	}
+
+	private void startClients_init(Server server, int randomSimple, int randomAdvanced, int tryAndError, int ava, int lamb, int hal9000) {
+		sum = randomSimple + randomAdvanced + tryAndError + ava + lamb + hal9000;
 		if (sum > 4) {
 			System.err.println("invalid number of players");
 		} else {
@@ -120,7 +178,6 @@ public class AiVsAI {
 			try {
 				TimeUnit.SECONDS.sleep(2);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			for (int i = 0; i < randomSimple; i++) {
@@ -218,8 +275,15 @@ public class AiVsAI {
 			this.wins = wins;
 		}
 
-		public void incWins() {
-			this.wins++;
+		public PlayerStat incWins() {
+			System.out.println("vorher " + wins);
+			++wins;
+			System.out.println("nachher " + wins);
+			return this;
+		}
+
+		public String toString() {
+			return name + ": " + wins;
 		}
 
 	}
