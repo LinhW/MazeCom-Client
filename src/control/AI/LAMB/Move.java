@@ -2,6 +2,7 @@ package control.AI.LAMB;
 
 import model.Card;
 import model.Position;
+import model.jaxb.CardType;
 import model.jaxb.PositionType;
 
 public class Move implements Comparable<Object> {
@@ -21,23 +22,23 @@ public class Move implements Comparable<Object> {
 		this.value = value;
 	}
 
-	public void setShiftPosition(Position shiftPosition) {
+	public void setShiftPosition(PositionType shiftPosition) {
 		this.shiftPosition = new Position(shiftPosition);
 	}
 
-	public void setMovePosition(Position movePosition) {
-		this.movePosition = movePosition;
+	public void setMovePosition(PositionType movePosition) {
+		this.movePosition = new Position(movePosition);
 	}
 
-	public void setShiftCard(Card shiftCard) {
+	public void setShiftCard(CardType shiftCard) {
 		this.shiftCard = new Card(shiftCard);
 	}
 
-	public PositionType getShiftPosition() {
+	public Position getShiftPosition() {
 		return shiftPosition;
 	}
 
-	public PositionType getMovePosition() {
+	public Position getMovePosition() {
 		return movePosition;
 	}
 	

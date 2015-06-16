@@ -27,6 +27,7 @@ public class LAMB implements Player {
 	private Board board;
 	private Assist assist;
 	private Move move;
+	private ArrayList<Position> lastPositions;
 
 	public LAMB(Connection connection) {
 		this.connection = connection;
@@ -42,6 +43,7 @@ public class LAMB implements Player {
 		this.playerID = message.getNewID();
 		System.out.println("LAMB logged in with ID " + this.playerID);
 		assist = new Assist(this);
+		lastPositions = new ArrayList<Position>();
 	}
 
 	@Override
@@ -53,7 +55,17 @@ public class LAMB implements Player {
 		treasuresFound = new ArrayList<TreasureType>(message.getFoundTreasures());
 		treasuresFound.trimToSize();
 		treasure = message.getTreasure();
+		long t = System.nanoTime();
 		move = assist.calculateMove();
+		t = (System.nanoTime() - t) / (1000 * 1000 * 1000);
+		if (t >= 20) {
+			System.out.println("LAMB NEEDED " + t + " SECONDS!");
+		}
+		if (lastPositions.size() == 2) {
+			lastPositions.remove(0);
+			lastPositions.ensureCapacity(2);
+		}
+		lastPositions.add(move.getMovePosition());
 		sendMoveMessage(playerID, move.getShiftCard(), move.getShiftPosition(), move.getMovePosition());
 	}
 
@@ -131,6 +143,14 @@ public class LAMB implements Player {
 
 	public void setBoard(Board board) {
 		this.board = board;
+	}
+
+	public ArrayList<Position> getLastPositions() {
+		return lastPositions;
+	}
+
+	public void setLastPositions(ArrayList<Position> lastPositions) {
+		this.lastPositions = lastPositions;
 	}
 
 }
