@@ -50,7 +50,6 @@ public class Ava implements Player {
 
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
-//		System.out.println("Ava receives an await move message");
 		wif.write("AWAIT MOVE MESSAGES");
 		wif_v2.write("AWAIT MOVE MESSAGES");
 		Board b = new Board(message.getBoard());
