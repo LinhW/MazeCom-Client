@@ -51,7 +51,7 @@ public class Assist {
 		this.tempFound = new ArrayList<TreasureType>();
 	}
 
-	public Move randomMove(Board oldBoard, int playerID) {
+	public Move randomMove(Board oldBoard, int playerID, TreasureType treasure) {
 		Move finalMove = new Move();
 		ArrayList<Position> shiftPositions = getShiftPositions(oldBoard);
 		Collections.shuffle(shiftPositions);
@@ -62,8 +62,13 @@ public class Assist {
 		moveMessage.setShiftPosition(shiftPositions.get(0));
 		Board b = oldBoard.fakeShift(moveMessage);
 		List<PositionType> positions = b.getAllReachablePositions(b.findPlayer(playerID));
-		Collections.shuffle(positions);
-		finalMove.setMovePosition(new Position(positions.get(0)));
+		int distance = 12;
+		PositionType treasurePosition = oldBoard.findTreasure(treasure);
+		for (PositionType movePosition : positions) {
+			if (getDistance(treasurePosition, movePosition) < distance) {
+				finalMove.setMovePosition(movePosition);
+			}
+		}
 		return finalMove;
 	}
 	
@@ -85,7 +90,7 @@ public class Assist {
 		}
 		ArrayList<Position> lp = lamb.getLastPositions();
 		if (lp.size() == 2 && lp.get(0).equals(finalMove.getMovePosition()) && lp.get(1).equals(finalMove.getMovePosition())) {
-			finalMove = randomMove(lamb.getBoard(), lamb.getPlayerID());
+			finalMove = randomMove(lamb.getBoard(), lamb.getPlayerID(), lamb.getTreasure());
 		}
 		return finalMove;
 	}
@@ -166,11 +171,12 @@ public class Assist {
 					moveMessage.setShiftCard(shiftRotation);
 					moveMessage.setShiftPosition(shiftPosition);
 					board.proceedShift(moveMessage);
-					PositionType playerPosition = board.findPlayer(playerID);
-					for (PositionType movePosition : board.getAllReachablePositions(playerPosition)) {
-						if (getDistance(movePosition, playerPosition) <= distance) {
-							if (getDistance(movePosition, playerPosition) < distance) {
+					PositionType treasurePosition = board.findTreasure(treasure);
+					for (PositionType movePosition : board.getAllReachablePositions(board.findPlayer(playerID))) {
+						if (getDistance(movePosition, treasurePosition) <= distance) {
+							if (getDistance(movePosition, treasurePosition) < distance) {
 								shortestMoves.clear();
+								distance = getDistance(movePosition, treasurePosition);
 							}
 							Move temp = new Move();
 							temp.setShiftCard(shiftRotation);
