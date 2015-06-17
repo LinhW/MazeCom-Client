@@ -715,31 +715,63 @@ public class Pathfinding {
 		return list;
 	}
 
+	/**
+	 * returns max 
+	 * @param start
+	 * @param end
+	 * @param board
+	 * @return
+	 */
 	private int chooseOrientation(Position start, Position end, Board board) {
 		Card cstart = new Card(board.getCard(start));
 		Card cend = new Card(board.getCard(end));
 		int count = 0;
-		if (start.getCol() <= end.getCol() && cstart.getOpenings().isBottom()) {
-			count++;
-			if (cend.getOpenings().isTop()) {
+		if (start.getRow() == end.getRow()) {
+			if (start.getCol() > end.getCol() && cstart.getOpenings().isLeft()) {
+				count++;
+				if (cend.getOpenings().isRight()) {
+					count++;
+				}
+			} else if (start.getCol() < end.getCol() && cstart.getOpenings().isRight()) {
+				count++;
+				if (cend.getOpenings().isLeft()) {
+					count++;
+				}
+			}
+		} else
+
+		if (start.getCol() == end.getCol()) {
+			if (start.getRow() > end.getRow() && cstart.getOpenings().isTop()) {
+				count++;
+				if (cend.getOpenings().isBottom()) {
+					count++;
+				}
+			} else if (start.getRow() < end.getRow() && cstart.getOpenings().isBottom()) {
+				count++;
+				if (cend.getOpenings().isTop()) {
+					count++;
+				}
+			}
+		} else
+
+		if (start.getCol() > end.getCol()) {
+			if (cstart.getOpenings().isTop()) {
 				count++;
 			}
-		}
-		if (start.getCol() >= end.getCol() && cstart.getOpenings().isTop()) {
-			count++;
-			if (cend.getOpenings().isBottom()) {
+			if (start.getRow() > end.getRow() && cstart.getOpenings().isLeft()) {
+				count++;
+			} else if (start.getRow() > end.getRow() && cstart.getOpenings().isRight()) {
 				count++;
 			}
-		}
-		if (start.getRow() <= end.getRow() && cstart.getOpenings().isRight()) {
-			count++;
-			if (cend.getOpenings().isLeft()) {
+		} else
+
+		if (start.getCol() < end.getCol()) {
+			if (cstart.getOpenings().isBottom()) {
 				count++;
 			}
-		}
-		if (start.getRow() >= end.getRow() && cstart.getOpenings().isLeft()) {
-			count++;
-			if (cend.getOpenings().isRight()) {
+			if (start.getRow() > end.getRow() && cstart.getOpenings().isLeft()) {
+				count++;
+			} else if (start.getRow() > end.getRow() && cstart.getOpenings().isRight()) {
 				count++;
 			}
 		}
