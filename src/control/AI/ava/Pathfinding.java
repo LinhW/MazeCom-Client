@@ -14,9 +14,9 @@ import control.AI.ava.ownClasses.Card;
 import control.AI.ava.ownClasses.Position;
 
 public class Pathfinding {
-	// TODO schleifenabbruch?
-	// TODO lastChance fuer die anderen spieler. seal startfeld
-	// TODO check ob imnaechsten zug ein shift auf die andere seite moeglich und sinnvoll ist um an den schatz zu kommen
+	// TODO schleifenabbruch? -> zukunfts denken
+	//( TODO check ob im naechsten zug ein shift auf die andere seite moeglich und sinnvoll ist um an den schatz zu kommen)
+	// TODO check ob im uebernaechsten zug mithilfe von shiften der schatz erreicht werden kann
 	private final int x = 7;
 	private final int y = 7;
 	private Board betterBoard;
@@ -649,9 +649,7 @@ public class Pathfinding {
 			return list.get(0);
 		case 0:
 			System.out.println("player" + PlayerID + " sonderfall " + list_PinPosHelp_v1.size());
-			// TODO annoy or look forward
-			// TODO endlosschleife
-			return new PinPosHelp(null, betterBoard.getPinPos(id), new CardHelp(betterBoard.getShiftCard(), new Position(0, 1)));
+			return deadEnd();
 		default:
 			List<PinPosHelp> tmp_remove = new ArrayList<>();
 			for (PinPosHelp pp : list) {
@@ -674,6 +672,15 @@ public class Pathfinding {
 				return bestMove(list);
 			}
 		}
+	}
+	
+	/**
+	 * in case of a dead end although every possible shift position with each possible rotation of the shift Card was checked
+	 * @return
+	 */
+	private PinPosHelp deadEnd(){
+		//TODO  wenn der pin in einer sackgasse ist -> next zug mit zukunfsberechnung
+		return new PinPosHelp(null, betterBoard.getPinPos(PlayerID), new CardHelp(betterBoard.getShiftCard(), new Position(0, 1)));
 	}
 
 	/**

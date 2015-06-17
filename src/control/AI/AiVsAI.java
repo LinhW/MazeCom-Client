@@ -92,22 +92,52 @@ public class AiVsAI {
 				}
 				order = new ArrayList<>();
 				if (hal9000 > 0) {
-					order.add(H9 + "");
+					if (hal9000 > 1) {
+						allCombination = false;
+						addMultiply(hal9000, H9);
+					} else {
+						order.add(H9 + "");
+					}
 				}
 				if (randomSimple > 0) {
-					order.add(RS + "");
+					if (randomSimple > 1) {
+						allCombination = false;
+						addMultiply(randomSimple, RS);
+					} else {
+						order.add(RS + "");
+					}
 				}
 				if (randomAdvanced > 0) {
-					order.add(RA + "");
+					if (randomAdvanced > 1) {
+						allCombination = false;
+						addMultiply(randomAdvanced, RA);
+					} else {
+						order.add(RA + "");
+					}
 				}
 				if (tryAndError > 0) {
-					order.add(TE + "");
+					if (tryAndError > 1) {
+						allCombination = false;
+						addMultiply(tryAndError, TE);
+					} else {
+						order.add(TE + "");
+					}
 				}
 				if (ava > 0) {
-					order.add(AV + "");
+					if (ava > 1) {
+						allCombination = false;
+						addMultiply(ava, AV);
+					} else {
+						order.add(AV + "");
+					}
 				}
 				if (lamb > 0) {
-					order.add(LA + "");
+					if (lamb > 1) {
+						allCombination = false;
+						addMultiply(lamb, LA);
+					} else {
+						order.add(LA + "");
+					}
 				}
 				initAllComb(order);
 				startClients(server);
@@ -283,6 +313,12 @@ public class AiVsAI {
 		public Client(Player player, Connection connection) {
 			this.player = player;
 			this.con = connection;
+		}
+	}
+
+	private void addMultiply(int count, int ai) {
+		for (int i = 0; i < count; i++) {
+			order.add(ai + "");
 		}
 	}
 
