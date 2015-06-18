@@ -21,7 +21,7 @@ import control.network.Connection;
 public class MNA_S implements Player {
 	private final Connection connection;
 	private int playerID;
-	
+
 	private int playerCount = 0;
 	private ArrayList<TreasureType> treasuresFound;
 	private ArrayList<TreasuresToGoType> treasuresToGo;
@@ -29,11 +29,13 @@ public class MNA_S implements Player {
 	private Board board;
 	private Assist assist;
 	private Move lastMove;
+	
+	private static final long timeout = 20 * 1000;
 
 	// ################################################# //
 	// ---------------- LOGICAL METHODS ---------------- //
 	// ################################################# //
-	
+
 	@Override
 	public String login() {
 		return "MNA_S";
@@ -42,23 +44,35 @@ public class MNA_S implements Player {
 	@Override
 	public void receiveLoginReply(LoginReplyMessageType message) {
 		this.playerID = message.getNewID();
+		this.assist = new Assist(this);
 	}
 
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
-		Move finalMove = assist.calculateMove();
-		sendMoveMessage(playerID, finalMove.getShiftCard(), finalMove.getShiftPosition(), finalMove.getMovePosition());
+		long time = System.nanoTime();
+		
+		Move finalMove = assist.getMove();
+		
+		time = (System.nanoTime() - time) / 1000000;
+		if (time > (timeout - 1000)) {
+			System.out.println("MNA_S needed " + time / 1000 + " seconds!");
+		}
+		
+		sendMoveMessage(playerID, finalMove.getShiftCard(),
+				finalMove.getShiftPosition(), finalMove.getMovePosition());
 	}
 
 	@Override
 	public void receiveDisconnectMessage(DisconnectMessageType message) {
-		System.out.println("I have been disconnected! Reason: " + message.getErrorCode().name());
+		System.out.println("I have been disconnected! Reason: "
+				+ message.getErrorCode().name());
 		connection.sendDisconnect(message.getErrorCode(), playerID);
 	}
 
 	@Override
 	public void receiveWinMessage(WinMessageType message) {
-		System.out.println("Player " + message.getWinner().getValue() + " (" + message.getWinner().getId() + ") has won the game!");
+		System.out.println("Player " + message.getWinner().getValue() + " ("
+				+ message.getWinner().getId() + ") has won the game!");
 		if (message.getWinner().getId() == playerID) {
 			connection.sendWin(message.getWinner());
 		}
@@ -68,20 +82,24 @@ public class MNA_S implements Player {
 	public void receiveAcceptMessage(AcceptMessageType message) {
 		if (message.getErrorCode() != ErrorType.NOERROR) {
 			System.out.println(message.getErrorCode().value());
-			System.out.println("LAST MOVE:\nCARD: " + lastMove.getShiftCard().getShape().name() + " " + lastMove.getShiftCard().getOrientation().name() + 
-					"\nPOS: " + new Position(lastMove.getShiftPosition()) + "\nMOVE: " + new Position(lastMove.getMovePosition()));
+			System.out.println("LAST MOVE:\nCARD: "
+					+ lastMove.getShiftCard().getShape().name() + " "
+					+ lastMove.getShiftCard().getOrientation().name()
+					+ "\nPOS: " + new Position(lastMove.getShiftPosition())
+					+ "\nMOVE: " + new Position(lastMove.getMovePosition()));
 		}
 	}
 
 	@Override
-	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift, PositionType pin) {
+	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift,
+			PositionType pin) {
 		connection.sendMoveMessage(PlayerID, c, shift, pin);
 	}
-	
+
 	// ################################################# //
 	// ---------------- DEFAULT METHODS ---------------- //
 	// ################################################# //
-	
+
 	public MNA_S(Connection connection) {
 		this.connection = connection;
 	}

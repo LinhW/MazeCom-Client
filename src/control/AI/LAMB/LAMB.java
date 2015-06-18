@@ -50,9 +50,11 @@ public class LAMB implements Player {
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
 		playerCount = message.getTreasuresToGo().size();
 		board = new Board(message.getBoard());
-		treasuresToGo = new ArrayList<TreasuresToGoType>(message.getTreasuresToGo());
+		treasuresToGo = new ArrayList<TreasuresToGoType>(
+				message.getTreasuresToGo());
 		treasuresToGo.trimToSize();
-		treasuresFound = new ArrayList<TreasureType>(message.getFoundTreasures());
+		treasuresFound = new ArrayList<TreasureType>(
+				message.getFoundTreasures());
 		treasuresFound.trimToSize();
 		treasure = message.getTreasure();
 		long t = System.nanoTime();
@@ -66,7 +68,8 @@ public class LAMB implements Player {
 			lastPositions.ensureCapacity(2);
 		}
 		lastPositions.add(move.getMovePosition());
-		sendMoveMessage(playerID, move.getShiftCard(), move.getShiftPosition(), move.getMovePosition());
+		sendMoveMessage(playerID, move.getShiftCard(), move.getShiftPosition(),
+				move.getMovePosition());
 	}
 
 	@Override
@@ -77,7 +80,8 @@ public class LAMB implements Player {
 
 	@Override
 	public void receiveWinMessage(WinMessageType message) {
-		System.out.println("Player " + message.getWinner().getValue() + " (" + message.getWinner().getId() + ") has won the game!");
+		System.out.println("Player " + message.getWinner().getValue() + " ("
+				+ message.getWinner().getId() + ") has won the game!");
 		if (message.getWinner().getId() == playerID) {
 			connection.sendWin(message.getWinner());
 		}
@@ -87,13 +91,17 @@ public class LAMB implements Player {
 	public void receiveAcceptMessage(AcceptMessageType message) {
 		if (message.getErrorCode() != ErrorType.NOERROR) {
 			System.out.println(message.getErrorCode().value());
-			System.out.println("LAST MOVE:\nCARD: " + move.getShiftCard().getShape().name() + " " + move.getShiftCard().getOrientation().name() + 
-					"\nPOS: " + new Position(move.getShiftPosition()) + "\nMOVE: " + new Position(move.getMovePosition()));
+			System.out.println("LAST MOVE:\nCARD: "
+					+ move.getShiftCard().getShape().name() + " "
+					+ move.getShiftCard().getOrientation().name() + "\nPOS: "
+					+ new Position(move.getShiftPosition()) + "\nMOVE: "
+					+ new Position(move.getMovePosition()));
 		}
 	}
 
 	@Override
-	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift, PositionType pin) {
+	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift,
+			PositionType pin) {
 		connection.sendMoveMessage(PlayerID, c, shift, pin);
 	}
 
@@ -128,11 +136,11 @@ public class LAMB implements Player {
 	public void setTreasuresToGo(ArrayList<TreasuresToGoType> treasuresToGo) {
 		this.treasuresToGo = treasuresToGo;
 	}
-	
+
 	public TreasureType getTreasure() {
 		return treasure;
 	}
-	
+
 	public void setTreasure(TreasureType treasure) {
 		this.treasure = treasure;
 	}
