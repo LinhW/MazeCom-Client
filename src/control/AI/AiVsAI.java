@@ -11,17 +11,21 @@ import model.jaxb.ErrorType;
 import model.jaxb.WinMessageType.Winner;
 import server.Game;
 import server.userInterface.BetterUI;
+import tools.LoggedPrintStream;
+import tools.WriteIntoFile;
 import config.Settings;
 import control.AI.LAMB.LAMB;
 import control.AI.ava.Ava;
-import control.AI.ava.WriteIntoFile;
 import control.network.Connection;
 
 public class AiVsAI {
 	private WriteIntoFile wif;
+	private WriteIntoFile wif_err;
+	private WriteIntoFile wif_out;
+	private LoggedPrintStream lps_out;
+	private LoggedPrintStream lps_err;
 	private static int number = 1;
 	private static AiVsAI a;
-	private WriteIntoFile wif_error;
 	private Server server;
 	private Map<Integer, PlayerStat> map;
 	private List<String> order;
@@ -40,7 +44,7 @@ public class AiVsAI {
 	private int randomSimple = 0;
 
 	private final String RANDOMADVANCED = "randomAdvanced";
-	private int randomAdvanced = 0;
+	private int randomAdvanced = 1;
 
 	private final String TRYANDERROR = "TryAndError";
 	private int tryAndError = 0;
@@ -52,11 +56,11 @@ public class AiVsAI {
 	private int lamb = 1;
 
 	private final String HAL9000 = "hal9000";
-	private int hal9000 = 1;
+	private int hal9000 = 0;
 	/**
 	 * number of games
 	 */
-	private final int count = 50;
+	private final int count = 2;
 	/**
 	 * case false: just one constellation. case true: sum of all ai's which should fight factorial multiply with count
 	 */
@@ -72,24 +76,17 @@ public class AiVsAI {
 	}
 
 	public void init() {
-		wif = new WriteIntoFile(FILENAME + "_" + config.Settings.PORT + WriteIntoFile.FILEEXTENSION);
-		wif.clearFile();
-		wif_error = new WriteIntoFile(WriteIntoFile.FILEPATH + "_error" + WriteIntoFile.FILEEXTENSION);
-		wif_error.clearFile();
-		map = new HashMap<>();
+		config.Settings.PORT--;
+		lps_out = LoggedPrintStream.create(System.out);
+		lps_err = LoggedPrintStream.create(System.err);
+		System.setOut(lps_out);
+		System.setErr(lps_err);
+		refresh();
 		sum = randomSimple + randomAdvanced + tryAndError + ava + lamb + hal9000;
 		if (sum > 0) {
 			if (sum > 4) {
 				System.err.println("invalid number of players");
 			} else {
-				control.Settings.PORT = config.Settings.PORT;
-				server = new Server();
-				server.start();
-				try {
-					TimeUnit.SECONDS.sleep(5);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
 				order = new ArrayList<>();
 				if (hal9000 > 0) {
 					if (hal9000 > 1) {
@@ -140,7 +137,12 @@ public class AiVsAI {
 					}
 				}
 				initAllComb(order);
-				startClients(server);
+				try {
+					TimeUnit.SECONDS.sleep(4);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				start();
 			}
 
 		}
@@ -173,20 +175,19 @@ public class AiVsAI {
 		number++;
 		server = new Server();
 		server.start();
-		try {
-			TimeUnit.SECONDS.sleep(5);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		System.err.println("\n");
+		System.err.println("Game No. " + number);
+		System.out.println("\n");
+		System.out.println("Game No. " + number);
 		startClients(server);
 	}
 
 	private void showResults() {
 		wif.writeNewLine(2);
-		wif.write(System.nanoTime() + "");
-		wif.write("-----------Stats--------------");
+		wif.writeln(System.nanoTime() + "");
+		wif.writeln("-----------Stats--------------");
 		for (Integer key : map.keySet()) {
-			wif.write("Player" + key + " (" + map.get(key).getName() + "): " + map.get(key).getWins() + " wins");
+			wif.writeln("Player" + key + " (" + map.get(key).getName() + "): " + map.get(key).getWins() + " wins");
 		}
 	}
 
@@ -197,7 +198,12 @@ public class AiVsAI {
 	private void update(Winner winner) {
 		PlayerStat ps = map.get(winner.getId()).incWins();
 		map.put(winner.getId(), ps);
-		wif.write("no." + number + "\t" + System.nanoTime() + "\tPlayer" + winner.getId() + ": " + map.get(winner.getId()).getWins() + ". win");
+		wif.writeln("no." + number + "\t" + System.nanoTime() + "\tPlayer" + winner.getId() + "(" + winner.getValue() + "): " + map.get(winner.getId()).getWins() + ". win");
+		wif_err.clearFile();
+		wif_out.clearFile();
+		wif_err.writeln(lps_err.getBuf().toString());
+		wif_out.writeln(lps_out.getBuf().toString());
+
 		if (number < count) {
 			config.Settings.PORT++;
 			control.Settings.PORT = config.Settings.PORT;
@@ -209,17 +215,23 @@ public class AiVsAI {
 				allCombination = false;
 			}
 			if (allCombination) {
-				number = 0;
-				config.Settings.PORT++;
-				control.Settings.PORT = config.Settings.PORT;
-				wif = new WriteIntoFile(FILENAME + "_" + config.Settings.PORT + WriteIntoFile.FILEEXTENSION);
-				wif.clearFile();
-				wif_error = new WriteIntoFile(WriteIntoFile.FILEPATH + "_error" + WriteIntoFile.FILEEXTENSION);
-				wif_error.clearFile();
-				map = new HashMap<>();
+				refresh();
 				start();
 			}
 		}
+	}
+
+	private void refresh() {
+		number = 0;
+		config.Settings.PORT++;
+		control.Settings.PORT = config.Settings.PORT;
+		wif = new WriteIntoFile(FILENAME + "_" + config.Settings.PORT + WriteIntoFile.FILEEXTENSION);
+		wif.clearFile();
+		wif_err = new WriteIntoFile("Output_err_" + config.Settings.PORT + WriteIntoFile.FILEEXTENSION);
+		wif_err.clearFile();
+		wif_out = new WriteIntoFile("Output_out_" + config.Settings.PORT + WriteIntoFile.FILEEXTENSION);
+		wif_out.clearFile();
+		map = new HashMap<>();
 	}
 
 	// TODO an error occurred
@@ -233,11 +245,16 @@ public class AiVsAI {
 	}
 
 	private void dc(ErrorType error, int id) {
-		wif.write(System.nanoTime() + "\tPlayer " + id + " has a disconnect. Reason: " + error.toString());
+		wif.writeln(System.nanoTime() + "\tPlayer " + id + " has a disconnect. Reason: " + error.toString());
 	}
 
 	private void startClients(Server server) {
 		server.startGame(sum);
+		try {
+			TimeUnit.SECONDS.sleep(7);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		String s = order.get(0);
 		int tmp = 0;
 		for (int j = 0; j < s.length(); j++) {
@@ -293,7 +310,7 @@ public class AiVsAI {
 				break;
 			}
 			try {
-				TimeUnit.SECONDS.sleep(4);
+				TimeUnit.SECONDS.sleep(3);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

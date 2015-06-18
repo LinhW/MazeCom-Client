@@ -1,4 +1,4 @@
-package control.AI.ava;
+package tools;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,14 +23,17 @@ public class WriteIntoFile {
 			bw.write("");
 			bw.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
 		return true;
 	}
+	
+	public String getFilename() {
+		return file.getName();
+	}
 
-	public boolean write(String content) {
+	public boolean writeln(String content) {
 		try {
 			FileWriter fw = new FileWriter(file.getAbsoluteFile(), true);
 			bwriter = new BufferedWriter(fw);
@@ -44,9 +47,23 @@ public class WriteIntoFile {
 		}
 		return true;
 	}
+	
+	public boolean write(String content) {
+		try {
+			FileWriter fw = new FileWriter(file.getAbsoluteFile(), true);
+			bwriter = new BufferedWriter(fw);
+			bwriter.write(content);
+			bwriter.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
 
 	public boolean write(int i) {
-		return write(i + "");
+		return writeln(i + "");
 	}
 
 	public void writeNewLine(int i) {

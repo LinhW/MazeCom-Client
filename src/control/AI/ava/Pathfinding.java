@@ -142,7 +142,6 @@ public class Pathfinding {
 
 	private List<PinPosHelp> checkLastButOne(List<PinPosHelp> list) {
 		for (TreasuresToGoType ttgt : list_treToGo) {
-			System.out.println(betterBoard.getShiftCard() == null);
 			TreasureType tre = betterBoard.getShiftCard().getTreasure();
 			if (tre != null) {
 				if (ttgt.getPlayer() == PlayerID && ttgt.getTreasures() == 2 && tre.equals(betterBoard.getTreasure())) {

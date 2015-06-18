@@ -1,5 +1,6 @@
 package control.AI.ava;
 
+import tools.WriteIntoFile;
 import model.jaxb.AcceptMessageType;
 import model.jaxb.AwaitMoveMessageType;
 import model.jaxb.CardType;
@@ -26,9 +27,8 @@ public class Ava implements Player {
 		wif_v2 = new WriteIntoFile(WriteIntoFile.FILEPATH + "_v2" + WriteIntoFile.FILEEXTENSION);
 		possPos = new WriteIntoFile("src/control/AI/ava/possPos.txt");
 		wif.clearFile();
-		wif_v2.clearFile();
-		wif.write("Ava");
-		wif_v2.write("Ava");
+		wif.writeln("Ava");
+		wif_v2.writeln("Ava");
 		possPos.clearFile();
 	}
 
@@ -50,8 +50,8 @@ public class Ava implements Player {
 
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
-		wif.write("AWAIT MOVE MESSAGES");
-		wif_v2.write("AWAIT MOVE MESSAGES");
+		wif.writeln("AWAIT MOVE MESSAGES");
+		wif_v2.writeln("AWAIT MOVE MESSAGES");
 		Board b = new Board(message.getBoard());
 		b.setTreasure(message.getTreasure());
 		p.setBoard(b);
@@ -66,8 +66,8 @@ public class Ava implements Player {
 		System.out.println("Ava receives a disconnect Message:");
 		System.out.println(message.getErrorCode());
 		con.sendDisconnect(message.getErrorCode(), id);
-		wif.write(message.getErrorCode().toString());
-		wif_v2.write(message.getErrorCode().toString());
+		wif.writeln(message.getErrorCode().toString());
+		wif_v2.writeln(message.getErrorCode().toString());
 	}
 
 	@Override
@@ -79,8 +79,8 @@ public class Ava implements Player {
 
 	@Override
 	public void receiveAcceptMessage(AcceptMessageType message) {
-		wif.write(message.getErrorCode().toString());
-		wif_v2.write(message.getErrorCode().toString());
+		wif.writeln(message.getErrorCode().toString());
+		wif_v2.writeln(message.getErrorCode().toString());
 		wif.writeNewLine(2);
 		wif_v2.writeNewLine(2);
 	}
