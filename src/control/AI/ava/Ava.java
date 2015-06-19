@@ -26,6 +26,7 @@ public class Ava implements Player {
 		wif = new WriteIntoFile(FILEPATH + WriteIntoFile.FILEEXTENSION);
 		wif_v2 = new WriteIntoFile(FILEPATH + "_v2" + WriteIntoFile.FILEEXTENSION);
 		wif.clearFile();
+		wif_v2.clearFile();
 		wif.writeln("Ava");
 		wif_v2.writeln("Ava");
 	}
@@ -56,7 +57,6 @@ public class Ava implements Player {
 		p.setTreToGo(message.getTreasuresToGo());
 		p.setFoundTreasures(message.getFoundTreasures());
 		PinPosHelp pph = p.start();
-		wif_v2.writeln(pph.toString());
 		sendMoveMessage(id, pph.getCardHelp().getC(), pph.getCardHelp().getP(), pph.getPinPos());
 	}
 

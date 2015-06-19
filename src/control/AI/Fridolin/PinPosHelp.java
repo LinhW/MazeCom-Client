@@ -1,26 +1,17 @@
 package control.AI.Fridolin;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import control.AI.Fridolin.ownClasses.Card;
 import control.AI.Fridolin.ownClasses.Position;
 
 public class PinPosHelp {
 	private Position pinPos;
-	private int diff = Integer.MAX_VALUE;
 	private CardHelp ch;
 	private Position trePos;
 
-	public PinPosHelp(Position trePos, Position PinPos, CardHelp ch) {
-		this(trePos, PinPos, ch, Integer.MAX_VALUE);
-	}
-
-	public PinPosHelp(Position trePos, Position pinPos, CardHelp ch, int diff) {
+	public PinPosHelp(Position trePos, Position pinPos, CardHelp ch) {
 		this.trePos = trePos;
 		this.pinPos = pinPos;
 		this.ch = ch;
-		this.diff = diff;
 	}
 
 	public Position getPinPos() {
@@ -31,34 +22,12 @@ public class PinPosHelp {
 		this.pinPos = p;
 	}
 
-	public int getDiff() {
-		return diff;
-	}
-
 	public Position getTrePos() {
 		return this.trePos;
 	}
 
 	public void setTrePos(Position trePos) {
 		this.trePos = trePos;
-	}
-
-	public static List<PinPosHelp> getSmallestDiff(List<PinPosHelp> list) {
-		List<PinPosHelp> res = new ArrayList<>();
-		int min = Integer.MAX_VALUE;
-		int diff;
-		for (PinPosHelp pph : list) {
-			diff = pph.getDiff();
-			if (diff == min) {
-				res.add(pph);
-			}
-			if (diff < min) {
-				min = diff;
-				res.clear();
-				res.add(pph);
-			}
-		}
-		return res;
 	}
 
 	public CardHelp getCardHelp() {
@@ -83,9 +52,9 @@ public class PinPosHelp {
 
 	public String debug() {
 		if (ch != null) {
-			return "TrePos: " + trePos + " PinPos: " + pinPos + " " + ch.debug() + "\t" + diff;
+			return "TrePos: " + trePos + " PinPos: " + pinPos + " " + ch.debug();
 		} else {
-			return "PinPos: " + pinPos + " " + " null\t" + diff;
+			return "PinPos: " + pinPos + " " + " null";
 		}
 	}
 

@@ -19,8 +19,8 @@ public class Pathfinding {
 	// ( TODO check ob im naechsten zug ein shift auf die andere seite moeglich und sinnvoll ist um an den schatz zu kommen)
 	// TODO check ob im uebernaechsten zug mithilfe von shiften der schatz erreicht werden kann
 	// TODO difference between nextPLayer found Treasure or is looking forward it.
-	private final int x = 7;
-	private final int y = 7;
+	private final int X = 7;
+	private final int Y = 7;
 	private Board betterBoard;
 	private int PlayerID;
 	private List<TreasuresToGoType> list_treToGo;
@@ -62,7 +62,6 @@ public class Pathfinding {
 
 	public void setTreToGo(List<TreasuresToGoType> list) {
 		this.list_treToGo = list;
-
 		int i = PlayerID + 1;
 		nextPlayer = new Integer[list.size() - 1];
 		for (int j = 0; j < nextPlayer.length; j++) {
@@ -758,7 +757,6 @@ public class Pathfinding {
 		betterBoard.proceedShift(pph.getCardHelp().getP(), new Card(pph.getCardHelp().getC()));
 		pph.setPinPos(betterBoard.getPinPos(PlayerID));
 		wif_v2.writeln("Dead End");
-		wif_v2.writeln(pph.toString());
 		return pph;
 	}
 
@@ -913,7 +911,7 @@ public class Pathfinding {
 	 */
 	private List<PinPosHelp> shortestPath(List<Position> list, Position trePos, CardHelp ch, Board b) {
 		List<PinPosHelp> pos = new ArrayList<>();
-		int diff = x * y;
+		int diff = X * Y;
 		for (Position p : list) {
 			int tmp = diff(p, trePos, b);
 			if (tmp < diff) {
@@ -941,7 +939,7 @@ public class Pathfinding {
 	 */
 	private Map<CardHelp, ReverseHelp> shortestPath(List<Position> list, List<Position> list_rev, CardHelp ch, Position trePos, Board b) {
 		Map<CardHelp, ReverseHelp> pos = new HashMap<>();
-		int diff = x * y;
+		int diff = X * Y;
 		for (Position p : list) {
 			for (Position pr : list_rev) {
 				int tmp = diff(pr, p, b);
@@ -1053,7 +1051,7 @@ public class Pathfinding {
 		int col_start = start.getCol();
 		int row_start = start.getRow();
 		Card c = new Card(b.getCard(row_start, col_start));
-		if (col_start < x - 1) {
+		if (col_start < X - 1) {
 			p = new Position(row_start, col_start + 1);
 			if (!list.contains(p) && b.getCard(row_start, col_start + 1).getOpenings().isLeft() && c.getOpenings().isRight()) {
 				list.add(p);
@@ -1074,7 +1072,7 @@ public class Pathfinding {
 				list = (findPossiblePos(b, list, p));
 			}
 		}
-		if (row_start < y - 1) {
+		if (row_start < Y - 1) {
 			p = new Position(row_start + 1, col_start);
 			if (!list.contains(p) && b.getCard(row_start + 1, col_start).getOpenings().isTop() && c.getOpenings().isBottom()) {
 				list.add(p);
