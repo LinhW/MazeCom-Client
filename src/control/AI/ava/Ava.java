@@ -18,18 +18,16 @@ public class Ava implements Player {
 	private int id;
 	private WriteIntoFile wif;
 	private WriteIntoFile wif_v2;
-	private WriteIntoFile possPos;
 	private Pathfinding p;
+	public static final String FILEPATH = "src/control/AI/ava/tmp";
 
 	public Ava(Connection con) {
 		this.con = con;
-		wif = new WriteIntoFile(WriteIntoFile.FILEPATH + WriteIntoFile.FILEEXTENSION);
-		wif_v2 = new WriteIntoFile(WriteIntoFile.FILEPATH + "_v2" + WriteIntoFile.FILEEXTENSION);
-		possPos = new WriteIntoFile("src/control/AI/ava/possPos.txt");
+		wif = new WriteIntoFile(FILEPATH + WriteIntoFile.FILEEXTENSION);
+		wif_v2 = new WriteIntoFile(FILEPATH + "_v2" + WriteIntoFile.FILEEXTENSION);
 		wif.clearFile();
 		wif.writeln("Ava");
 		wif_v2.writeln("Ava");
-		possPos.clearFile();
 	}
 
 	public Ava() {
@@ -58,6 +56,7 @@ public class Ava implements Player {
 		p.setTreToGo(message.getTreasuresToGo());
 		p.setFoundTreasures(message.getFoundTreasures());
 		PinPosHelp pph = p.start();
+		wif_v2.writeln(pph.toString());
 		sendMoveMessage(id, pph.getCardHelp().getC(), pph.getCardHelp().getP(), pph.getPinPos());
 	}
 

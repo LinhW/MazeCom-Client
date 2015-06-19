@@ -44,7 +44,7 @@ public class AiVsAI {
 	private int randomSimple = 0;
 
 	private final String RANDOMADVANCED = "randomAdvanced";
-	private int randomAdvanced = 1;
+	private int randomAdvanced = 0;
 
 	private final String TRYANDERROR = "TryAndError";
 	private int tryAndError = 0;
@@ -60,7 +60,7 @@ public class AiVsAI {
 	/**
 	 * number of games
 	 */
-	private final int count = 2;
+	private final int count = 300;
 	/**
 	 * case false: just one constellation. case true: sum of all ai's which should fight factorial multiply with count
 	 */

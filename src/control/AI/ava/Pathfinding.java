@@ -9,6 +9,7 @@ import java.util.Map;
 import model.jaxb.CardType.Pin;
 import model.jaxb.TreasureType;
 import model.jaxb.TreasuresToGoType;
+import tools.WriteIntoFile;
 import control.AI.ava.ownClasses.Board;
 import control.AI.ava.ownClasses.Card;
 import control.AI.ava.ownClasses.Position;
@@ -28,6 +29,7 @@ public class Pathfinding {
 	private final int row6 = 06;
 	private final int col0 = 10;
 	private final int col6 = 60;
+	private WriteIntoFile wif_v2;
 
 	/**
 	 * PinPosHelp with diff from new PinPos to TreasurePos
@@ -50,6 +52,7 @@ public class Pathfinding {
 		list_PinPosHelp_v1 = new ArrayList<>();
 		map_PinPosHelp_v2 = new HashMap<>();
 		list_foundTreasures = new ArrayList<>();
+		wif_v2 = new WriteIntoFile(Ava.FILEPATH + "_v2" + WriteIntoFile.FILEEXTENSION);
 		this.PlayerID = PlayerID;
 	}
 
@@ -155,6 +158,7 @@ public class Pathfinding {
 	}
 
 	private List<PinPosHelp> checkOtherPlayer(List<PinPosHelp> list_pph) {
+		wif_v2.writeln("CheckOtherPlayer");
 		for (TreasuresToGoType ttgt : list_treToGo) {
 			if (ttgt.getPlayer() == nextPlayer[1] && ttgt.getTreasures() == 1) {
 				list_pph = sealEndPos(list_pph, nextPlayer[1]);
@@ -428,6 +432,7 @@ public class Pathfinding {
 	 * @return
 	 */
 	private List<PinPosHelp> nearBy(Position p, List<CardHelp> list_ch) {
+		wif_v2.writeln("nearBy");
 		List<PinPosHelp> list_pph = new ArrayList<>();
 		int diff = Integer.MAX_VALUE;
 		for (CardHelp ch : list_ch) {
@@ -455,6 +460,7 @@ public class Pathfinding {
 	 * @return
 	 */
 	private Position emergencyTreIsOnShift(List<CardHelp> list) {
+		wif_v2.writeln("emergencyTreIsOnShift");
 		TreasureType tre = null;
 		switch (this.nextPlayer[0]) {
 		case 1:
@@ -697,7 +703,6 @@ public class Pathfinding {
 		TreasureType tre = betterBoard.getTreasure();
 		Board board;
 		Position trePos;
-		Position oldPinPos = betterBoard.getPinPos(PlayerID);
 		Position shiftPos;
 		CardHelp ch;
 
@@ -712,7 +717,6 @@ public class Pathfinding {
 							continue;
 						}
 						board.proceedShift(shiftPos, new Card(c));
-						oldPinPos = board.getPinPos(PlayerID);
 						trePos = board.findTreasure(tre);
 						if (trePos != null) {
 							ch = new CardHelp(c, shiftPos);
@@ -751,7 +755,10 @@ public class Pathfinding {
 		}
 		int min = Collections.min(map.keySet());
 		PinPosHelp pph = bestMove(map.get(min));
+		betterBoard.proceedShift(pph.getCardHelp().getP(), new Card(pph.getCardHelp().getC()));
 		pph.setPinPos(betterBoard.getPinPos(PlayerID));
+		wif_v2.writeln("Dead End");
+		wif_v2.writeln(pph.toString());
 		return pph;
 	}
 
@@ -761,7 +768,7 @@ public class Pathfinding {
 	 * @param list
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<PinPosHelp> chooseOrientation(List<PinPosHelp> list) {
 		ArrayList[] arr = { new ArrayList<PinPosHelp>(), new ArrayList<PinPosHelp>(), new ArrayList<PinPosHelp>(), new ArrayList<PinPosHelp>(), new ArrayList<PinPosHelp>(),
 				new ArrayList<PinPosHelp>() };
