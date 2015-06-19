@@ -14,6 +14,8 @@ import server.userInterface.BetterUI;
 import tools.LoggedPrintStream;
 import tools.WriteIntoFile;
 import config.Settings;
+import control.AI.Fridolin.Fridolin;
+import control.AI.MNA_S.MNA_S;
 import control.AI.LAMB.LAMB;
 import control.AI.ava.Ava;
 import control.network.Connection;
@@ -37,6 +39,8 @@ public class AiVsAI {
 	private final int TE = 3;
 	private final int AV = 4;
 	private final int LA = 5;
+	private final int MS = 6;
+	private final int FR = 7;
 
 	// name of ai's. Value of the specified string can be changed by oneself
 	// count how many instances the specified ai shall start
@@ -57,6 +61,12 @@ public class AiVsAI {
 
 	private final String HAL9000 = "hal9000";
 	private int hal9000 = 0;
+
+	private final String MNA_S = "MNA_S";
+	private int mna_s = 0;
+
+	private final String FRIDOLIN = "Fridolin!";
+	private int fridolin = 0;
 	/**
 	 * number of games
 	 */
@@ -82,7 +92,7 @@ public class AiVsAI {
 		System.setOut(lps_out);
 		System.setErr(lps_err);
 		refresh();
-		sum = randomSimple + randomAdvanced + tryAndError + ava + lamb + hal9000;
+		sum = randomSimple + randomAdvanced + tryAndError + ava + lamb + hal9000 + mna_s + fridolin;
 		if (sum > 0) {
 			if (sum > 4) {
 				System.err.println("invalid number of players");
@@ -134,6 +144,22 @@ public class AiVsAI {
 						addMultiply(lamb, LA);
 					} else {
 						order.add(LA + "");
+					}
+				}
+				if (mna_s > 0) {
+					if (mna_s > 1) {
+						allCombination = false;
+						addMultiply(mna_s, MS);
+					} else {
+						order.add(MS + "");
+					}
+				}
+				if (fridolin > 0) {
+					if (fridolin > 1) {
+						allCombination = false;
+						addMultiply(fridolin, FR);
+					} else {
+						order.add(FR + "");
 					}
 				}
 				initAllComb(order);
@@ -306,6 +332,22 @@ public class AiVsAI {
 				if (number == 1) {
 					tmp++;
 					map.put(tmp, new PlayerStat(this.LAMB));
+				}
+				break;
+			case MS:
+				connection = new Connection(this);
+				new Client(new MNA_S(connection), connection).start();
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.MNA_S));
+				}
+				break;
+			case FR:
+				connection = new Connection(this);
+				new Client(new Fridolin(connection), connection).start();
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.FRIDOLIN));
 				}
 				break;
 			}
