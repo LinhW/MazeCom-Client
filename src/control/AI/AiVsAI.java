@@ -23,7 +23,7 @@ import control.network.Connection;
 public class AiVsAI {
 	// ================ settings ====================
 	// number of games
-	private final int count = 300;
+	private final int count = 10;
 	// count how many instances the specified ai shall start
 	private int hal9000;
 	private int randomSimple = 0;
@@ -31,7 +31,7 @@ public class AiVsAI {
 	private int tryAndError = 0;
 	private int ava = 1;
 	private int lamb = 1;
-	private int mna_s = 1;
+	private int mna_s = 0;
 	private int fridolin = 1;
 	// name of ai's. Value of the specified string can be changed by oneself
 	private final String RANDOMSIMPLE = "randomSimple";

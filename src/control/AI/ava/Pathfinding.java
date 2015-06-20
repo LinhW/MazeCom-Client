@@ -156,7 +156,7 @@ public class Pathfinding {
 	private List<PinPosHelp> checkOtherPlayer(List<PinPosHelp> list_pph) {
 		wif_v2.writeln("CheckOtherPlayer");
 		if (map_treToGo.get(nextPlayer[0]) == 1) {
-			list_pph = sealEndPos(list_pph, nextPlayer[1]);
+			list_pph = sealEndPos(list_pph, nextPlayer[0]);
 		}
 		return list_pph;
 	}
@@ -608,7 +608,7 @@ public class Pathfinding {
 	 * @return
 	 */
 	private PinPosHelp checkNextTurn(TreasureType tre) {
-		if (map_treToGo.get(nextPlayer[0] - 1) == 1) {
+		if (map_treToGo.get(nextPlayer[0]) == 1) {
 			List<CardHelp> list_ch = lastChance();
 			switch (list_ch.size()) {
 			case 0:

@@ -80,6 +80,7 @@ public class PinPosHelp {
 	}
 	
 	public static PinPosHelp getLowestRating(List<PinPosHelp> list){
+		System.out.println("getLowestRating");
 		double min = Double.MAX_VALUE;
 		PinPosHelp p = null;
 		for (PinPosHelp pph: list){

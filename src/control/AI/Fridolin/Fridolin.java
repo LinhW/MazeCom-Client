@@ -16,7 +16,8 @@ public class Fridolin implements Player {
 	private int id;
 	private Connection con;
 	private Pathfinding p;
-	private boolean accept;
+	private boolean accept = true;
+	public static final String FILEPATH = "src/control/AI/Fridolin/tmp";
 
 	public Fridolin(Connection con) {
 		this.con = con;
