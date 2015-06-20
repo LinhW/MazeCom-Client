@@ -9,6 +9,7 @@ import model.jaxb.PositionType;
 import model.jaxb.WinMessageType;
 import control.AI.Player;
 import control.AI.Fridolin.ownClasses.Board;
+import control.AI.Fridolin.ownClasses.PinPosHelp;
 import control.network.Connection;
 
 public class Fridolin implements Player {

@@ -1,18 +1,27 @@
-package control.AI.Fridolin;
+package control.AI.Fridolin.ownClasses;
 
-import control.AI.Fridolin.ownClasses.Card;
-import control.AI.Fridolin.ownClasses.Position;
+import java.util.List;
+
 
 public class PinPosHelp {
 	private Position pinPos;
 	private CardHelp ch;
 	private Position trePos;
+	private double rating = 0;
 
 	public PinPosHelp(Position trePos, Position pinPos, CardHelp ch) {
 		this.trePos = trePos;
 		this.pinPos = pinPos;
 		this.ch = ch;
 	}
+	
+	public PinPosHelp(Position trePos, Position pinPos, CardHelp ch, int Rating) {
+		this.trePos = trePos;
+		this.pinPos = pinPos;
+		this.ch = ch;
+		this.rating = Rating;
+	}
+
 
 	public Position getPinPos() {
 		return pinPos;
@@ -60,6 +69,26 @@ public class PinPosHelp {
 
 	public boolean equals(PinPosHelp pph) {
 		return pph.ch.equals(this.getCardHelp()) && this.pinPos.equals(pph.getPinPos());
+	}
+
+	public double getRating() {
+		return rating;
+	}
+
+	public void setRating(double rating) {
+		this.rating += rating;
+	}
+	
+	public static PinPosHelp getLowestRating(List<PinPosHelp> list){
+		double min = Double.MAX_VALUE;
+		PinPosHelp p = null;
+		for (PinPosHelp pph: list){
+			if (pph.getRating() < min){
+				min = pph.getRating();
+				p = pph;
+			}
+		}
+		return p;
 	}
 
 }

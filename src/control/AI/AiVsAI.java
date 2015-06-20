@@ -21,6 +21,29 @@ import control.AI.ava.Ava;
 import control.network.Connection;
 
 public class AiVsAI {
+	// ================ settings ====================
+	// number of games
+	private final int count = 300;
+	// count how many instances the specified ai shall start
+	private int hal9000;
+	private int randomSimple = 0;
+	private int randomAdvanced = 0;
+	private int tryAndError = 0;
+	private int ava = 1;
+	private int lamb = 1;
+	private int mna_s = 1;
+	private int fridolin = 1;
+	// name of ai's. Value of the specified string can be changed by oneself
+	private final String RANDOMSIMPLE = "randomSimple";
+	private final String RANDOMADVANCED = "randomAdvanced";
+	private final String TRYANDERROR = "tryAndError";
+	private final String AVA = "Humpf";
+	private final String LAMB = "Lamb";
+	private final String HAL9000 = "hal9000";
+	private final String MNA_S = "MNA_S";
+	private final String FRIDOLIN = "Fridolin!";
+	// =================== end ======================
+
 	private WriteIntoFile wif;
 	private WriteIntoFile wif_err;
 	private WriteIntoFile wif_out;
@@ -41,36 +64,6 @@ public class AiVsAI {
 	private final int LA = 5;
 	private final int MS = 6;
 	private final int FR = 7;
-
-	// name of ai's. Value of the specified string can be changed by oneself
-	// count how many instances the specified ai shall start
-	private final String RANDOMSIMPLE = "randomSimple";
-	private int randomSimple = 0;
-
-	private final String RANDOMADVANCED = "randomAdvanced";
-	private int randomAdvanced = 0;
-
-	private final String TRYANDERROR = "TryAndError";
-	private int tryAndError = 0;
-
-	private final String AVA = "Humpf";
-	private int ava = 1;
-
-	private final String LAMB = "Lamb";
-	private int lamb = 1;
-
-	private final String HAL9000 = "hal9000";
-	private int hal9000 = 0;
-
-	private final String MNA_S = "MNA_S";
-	private int mna_s = 0;
-
-	private final String FRIDOLIN = "Fridolin!";
-	private int fridolin = 0;
-	/**
-	 * number of games
-	 */
-	private final int count = 300;
 	/**
 	 * case false: just one constellation. case true: sum of all ai's which should fight factorial multiply with count
 	 */

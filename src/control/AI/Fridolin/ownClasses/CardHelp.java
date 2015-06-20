@@ -1,7 +1,5 @@
-package control.AI.Fridolin;
+package control.AI.Fridolin.ownClasses;
 
-import control.AI.Fridolin.ownClasses.Card;
-import control.AI.Fridolin.ownClasses.Position;
 
 public class CardHelp {
 	private Card c;

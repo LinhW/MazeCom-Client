@@ -245,6 +245,10 @@ public class Board extends BoardType {
 		}
 		return null;
 	}
+	
+	public void proceedShift(CardHelp ch){
+		proceedShift(ch.getPos(), new Card(ch.getCard()));
+	}
 
 	// Fuehrt nur das Hereinschieben der Karte aus!!!
 	public void proceedShift(Position shiftPos, Card shiftCard) {
