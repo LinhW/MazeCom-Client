@@ -25,8 +25,6 @@ public class Ava implements Player {
 		this.con = con;
 		wif = new WriteIntoFile(FILEPATH + WriteIntoFile.FILEEXTENSION);
 		wif_v2 = new WriteIntoFile(FILEPATH + "_v2" + WriteIntoFile.FILEEXTENSION);
-		wif.clearFile();
-		wif_v2.clearFile();
 		wif.writeln("Ava");
 		wif_v2.writeln("Ava");
 	}
@@ -37,7 +35,7 @@ public class Ava implements Player {
 
 	@Override
 	public String login() {
-		return "Humpf";
+		return "Ava";
 	}
 
 	@Override
@@ -57,6 +55,8 @@ public class Ava implements Player {
 		p.setTreToGo(message.getTreasuresToGo());
 		p.setFoundTreasures(message.getFoundTreasures());
 		PinPosHelp pph = p.start();
+		wif.writeln(b.getShiftCard().toString());
+		wif.writeln(pph.getCardHelp().getC().toString());
 		sendMoveMessage(id, pph.getCardHelp().getC(), pph.getCardHelp().getP(), pph.getPinPos());
 	}
 

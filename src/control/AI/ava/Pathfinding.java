@@ -1,6 +1,7 @@
 package control.AI.ava;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -15,10 +16,6 @@ import control.AI.ava.ownClasses.Card;
 import control.AI.ava.ownClasses.Position;
 
 public class Pathfinding {
-	// TODO schleifenabbruch? -> zukunfts denken
-	// ( TODO check ob im naechsten zug ein shift auf die andere seite moeglich und sinnvoll ist um an den schatz zu kommen)
-	// TODO check ob im uebernaechsten zug mithilfe von shiften der schatz erreicht werden kann
-	// TODO difference between nextPLayer found Treasure or is looking forward it.
 	private final int X = 7;
 	private final int Y = 7;
 	private Board betterBoard;
@@ -40,6 +37,7 @@ public class Pathfinding {
 	 */
 	private Map<CardHelp, ReverseHelp> map_PinPosHelp_v2;
 
+	//TODO nullpointer wenn kein gegner mehr da ist
 	private List<TreasureType> list_foundTreasures;
 
 	public Pathfinding(Board b, int PlayerID, List<TreasuresToGoType> list) {
@@ -72,9 +70,16 @@ public class Pathfinding {
 			if (i > list.size()) {
 				i = 1;
 			}
-			nextPlayer[j] = i;
+			if (map_treToGo.containsKey(i)) {
+				nextPlayer[j] = i;
+			}else{
+				j--;
+			}
 			i++;
 		}
+		wif_v2.writeln("setTreToGo");
+		wif_v2.writeln(Arrays.asList(nextPlayer).toString());
+		wif_v2.writeln(map_treToGo.keySet().toString());
 	}
 
 	public void setFoundTreasures(List<TreasureType> foundTreasures) {

@@ -30,18 +30,20 @@ public class AiVsAI {
 	private int randomAdvanced = 0;
 	private int tryAndError = 0;
 	private int ava = 1;
-	private int lamb = 1;
+	private int lamb = 0;
 	private int mna_s = 0;
 	private int fridolin = 1;
 	// name of ai's. Value of the specified string can be changed by oneself
 	private final String RANDOMSIMPLE = "randomSimple";
 	private final String RANDOMADVANCED = "randomAdvanced";
 	private final String TRYANDERROR = "tryAndError";
-	private final String AVA = "Humpf";
+	private final String AVA = "Altbacken";
 	private final String LAMB = "Lamb";
 	private final String HAL9000 = "hal9000";
 	private final String MNA_S = "MNA_S";
 	private final String FRIDOLIN = "Fridolin!";
+	// case true: testseed++ each game. so it is possible to find the game where an error occurred
+	private final boolean debug = true;
 	// =================== end ======================
 
 	private WriteIntoFile wif;
@@ -79,6 +81,10 @@ public class AiVsAI {
 	}
 
 	public void init() {
+		if (debug) {
+			config.Settings.TESTBOARD = true;
+			config.Settings.TESTBOARD_SEED = 1;
+		}
 		config.Settings.PORT--;
 		lps_out = LoggedPrintStream.create(System.out);
 		lps_err = LoggedPrintStream.create(System.err);
@@ -217,17 +223,23 @@ public class AiVsAI {
 	private void update(Winner winner) {
 		PlayerStat ps = map.get(winner.getId()).incWins();
 		map.put(winner.getId(), ps);
-		wif.writeln("no." + number + "\t" + System.nanoTime() + "\tPlayer" + winner.getId() + "(" + winner.getValue() + "): " + map.get(winner.getId()).getWins() + ". win");
+		wif.writeln("no." + number + "\tTS:" + config.Settings.TESTBOARD_SEED + "\tPlayer" + winner.getId() + "(" + winner.getValue() + "): " + map.get(winner.getId()).getWins() + ". win");
 		wif_err.clearFile();
 		wif_out.clearFile();
 		wif_err.writeln(lps_err.getBuf().toString());
 		wif_out.writeln(lps_out.getBuf().toString());
 
 		if (number < count) {
+			if (debug) {
+				config.Settings.TESTBOARD_SEED++;
+			}
 			config.Settings.PORT++;
 			control.Settings.PORT = config.Settings.PORT;
 			start();
 		} else {
+			if (debug) {
+				config.Settings.TESTBOARD_SEED = 1;
+			}
 			showResults();
 			order.remove(0);
 			if (order.size() == 0) {
