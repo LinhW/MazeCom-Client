@@ -17,7 +17,9 @@ public class MNA_S_Move implements Comparable<Object> {
 
 	public MNA_S_Move(MNA_S_Move move) {
 		this.shiftPosition = new Position(move.shiftPosition);
-		this.movePosition = new Position(move.movePosition);
+		if (move.movePosition != null) {
+			this.movePosition = new Position(move.movePosition);
+		}
 		this.shiftCard = new Card(move.shiftCard);
 		this.value = move.value;
 	}

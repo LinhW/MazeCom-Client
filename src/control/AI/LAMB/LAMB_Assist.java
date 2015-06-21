@@ -89,7 +89,7 @@ public class LAMB_Assist {
 		Collections.sort(players);
 		nextPlayer = players.get((players.indexOf(lamb.getPlayerID()) + 1) % players.size());
 		LAMB_Move finalMove;
-		if (lamb.getTreasure().name().startsWith("Start0")) {
+		if (lamb.getTreasure().name().startsWith("ST")) {
 			finalMove = calculateFinishMove(lamb.getPlayerID(), lamb.getBoard(), lamb.getTreasuresToGo(),
 					lamb.getTreasuresFound(), lamb.getTreasure());
 		}
@@ -246,7 +246,7 @@ public class LAMB_Assist {
 			}
 		}
 		LAMB_Move finalMove;
-		if (!canFindTreasure[playerID - 1] && (depth < maxDepth) && !treasure.name().startsWith("Start0")) {
+		if (!canFindTreasure[playerID - 1] && (depth < maxDepth) && !treasure.name().startsWith("ST")) {
 			depth++;
 			int median = 0;
 			for (LAMB_Move m : moves) {
