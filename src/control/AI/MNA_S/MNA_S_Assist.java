@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import control.AI.LAMB.Assist.Points;
 import model.Board;
 import model.Card;
 import model.Position;
@@ -18,7 +17,7 @@ import model.jaxb.TreasuresToGoType;
  * Assistance class for MNA_S.
  * Contains all logic.
  */
-public class Assist {
+public class MNA_S_Assist {
 	// #################### //
 	// --- CONTROLLINGS --- //
 	// #################### //
@@ -36,16 +35,16 @@ public class Assist {
 	/**
 	 * Enumeration for putting weights to diverse events.
 	 */
-	private enum Points {
+	private enum MNA_S_Points {
 		OWN_START(5000),
-		OWN_TARGET(100),
-		TARGET_MISSING(-10),
+		OWN_TARGET(150),
+		TARGET_MISSING(-50),
 		OTHER_START_OPEN(-700),
 		TREASURE_REACHABLE(25);
 
 		private final int value;
 
-		private Points(int v) {
+		private MNA_S_Points(int v) {
 			this.value = v;
 		}
 
@@ -55,7 +54,7 @@ public class Assist {
 	}
 
 	/**
-	 * The MNA_S instance which is using this Assist instance.
+	 * The MNA_S instance which is using this MNA_S_Assist instance.
 	 */
 	private final MNA_S mna;
 
@@ -67,27 +66,27 @@ public class Assist {
 	private ArrayList<Integer> allPlayers;
 
 	/**
-	 * Constructor for MNA_S. Links an MNA_S instance with this Assist instance.
+	 * Constructor for MNA_S. Links an MNA_S instance with this MNA_S_Assist instance.
 	 * 
 	 * @param mna
-	 * @return Assist
+	 * @return MNA_S_Assist
 	 */
-	public Assist(MNA_S mna) {
+	public MNA_S_Assist(MNA_S mna) {
 		this.mna = mna;
 	}
 
 	// ######################################################################################### //
 	// -------------------------------- MOVE SELECTION METHODS --------------------------------- //
 	// ######################################################################################### //
-	
+
 	/**
 	 * Delivers the final movement decision. Decides which calculation to use.
 	 * 
-	 * @return Move
+	 * @return MNA_S_Move
 	 */
-	public Move getMove() {
+	public MNA_S_Move getMove() {
 		calculatePlayers(mna.getTreasuresToGo(), mna.getPlayerID());
-		Move finalMove;
+		MNA_S_Move finalMove;
 		// Use a final move if it is possible to finish the game
 		if (isLastTreasure(mna.getTreasure())) {
 			finalMove = isFinishable(mna.getPlayerID(), mna.getBoard());
@@ -105,37 +104,44 @@ public class Assist {
 	/**
 	 * Main calculation method for mid game calculations.
 	 * 
-	 * @return Move
+	 * @return MNA_S_Move
 	 */
-	private Move calculateMove(int playerID, Board oldBoard, List<TreasuresToGoType> ttgo,
+	private MNA_S_Move calculateMove(int playerID, Board oldBoard, List<TreasuresToGoType> ttgo,
 			List<TreasureType> tfound, TreasureType treasure) {
 		// TODO Treasure is null for opponent calculation
 		boolean canFindTreasure = false;
 		int nextPlayer = getNextPlayer(playerID);
-		ArrayList<Move> allMoves = new ArrayList<Move>();
-		
+		ArrayList<MNA_S_Move> allMoves = new ArrayList<MNA_S_Move>();
+
 		// TODO Threads
 		// Iterate over all board moves
-		for (Move tempMove : getAllBoardMoves(oldBoard)) {
-			Board board = doMovement(0, oldBoard, tempMove);
+		for (MNA_S_Move boardMove : getAllBoardMoves(oldBoard)) {
+			Board board = doMovement(0, oldBoard, boardMove);
 			PositionType treasurePosition = board.findTreasure(treasure);
 			int boardValue = calculateBoardValue(playerID, board, ttgo, tfound, treasure);
+			for (PositionType position : board.getAllReachablePositions(board.findPlayer(playerID))) {
+				int positionValue = calculatePositionValue(playerID, board, new Position(position),
+						treasurePosition, treasure);
+				MNA_S_Move tempMove = new MNA_S_Move(boardMove);
+				tempMove.setMovePosition(new Position(position));
+				tempMove.setValue(boardValue + positionValue);
+				allMoves.add(tempMove);
+			}
 		}
 		return Collections.max(allMoves);
 	}
 
 	/**
-	 * Creates a random shift move and uses the shortest distance to the
-	 * treasure.
+	 * Creates a random shift move and uses the shortest distance to the treasure.
 	 * 
 	 * @param playerID
 	 * @param oldBoard
 	 * @param treasure
-	 * @return Move
+	 * @return MNA_S_Move
 	 */
-	private Move randomMove(int playerID, Board oldBoard, TreasureType treasure) {
-		Move randomMove = new Move();
-		ArrayList<Move> allBoardMoves = getAllBoardMoves(oldBoard);
+	private MNA_S_Move randomMove(int playerID, Board oldBoard, TreasureType treasure) {
+		MNA_S_Move randomMove = new MNA_S_Move();
+		ArrayList<MNA_S_Move> allBoardMoves = getAllBoardMoves(oldBoard);
 		Collections.shuffle(allBoardMoves);
 		Board board = doMovement(0, oldBoard, allBoardMoves.get(0));
 		List<PositionType> positions = board.getAllReachablePositions(board.findPlayer(playerID));
@@ -153,19 +159,30 @@ public class Assist {
 	// ######################################################################################### //
 	// --------------------------- EVALUATION AND FILTERING METHODS ---------------------------- //
 	// ######################################################################################### //
-	
+
+	/**
+	 * Calculates the value for the given board. Uses the fact, if the next player can finish the game and the
+	 * number of reachable positions.
+	 * 
+	 * @param playerID
+	 * @param board
+	 * @param ttgo
+	 * @param tfound
+	 * @param treasure
+	 * @return int
+	 */
 	private int calculateBoardValue(int playerID, Board board, List<TreasuresToGoType> ttgo,
 			List<TreasureType> tfound, TreasureType treasure) {
 		int boardValue = 0;
 		int nextPlayer = getNextPlayer(playerID);
-		
+
 		for (TreasuresToGoType ttg : ttgo) {
+			int treasureCounter = 0;
 			PositionType playerPos = board.findPlayer(ttg.getPlayer());
 			List<PositionType> reachablePos = board.getAllReachablePositions(playerPos);
 			if (ttg.getPlayer() == playerID) {
 				// Count own reachable treasures in relation to full number of
 				// remaining treasures
-				int treasureCounter = 0;
 				for (PositionType pos : reachablePos) {
 					TreasureType ttype = board.getCard(pos.getRow(), pos.getCol()).getTreasure();
 					if ((ttype != null) && (ttype != treasure) && !tfound.contains(ttype)) {
@@ -173,17 +190,16 @@ public class Assist {
 					}
 				}
 				boardValue += (int) (2.0 * treasureCounter / ttg.getTreasures())
-						* Points.TREASURE_REACHABLE.value();
+						* MNA_S_Points.TREASURE_REACHABLE.value();
 			}
 			else {
 				if (ttg.getPlayer() == nextPlayer && ttg.getTreasures() == 1) {
 					if (isFinishable(nextPlayer, board) != null) {
-						boardValue += Points.OTHER_START_OPEN.value();
+						boardValue += MNA_S_Points.OTHER_START_OPEN.value();
 					}
 				}
 				// Count reachable treasures of opponent in relation to full
 				// number of remaining treasures
-				int treasureCounter = 0;
 				for (PositionType pos : reachablePos) {
 					TreasureType ttype = board.getCard(pos.getRow(), pos.getCol()).getTreasure();
 					if ((ttype != null) && (ttype != treasure) && !tfound.contains(ttype)) {
@@ -191,15 +207,30 @@ public class Assist {
 					}
 				}
 				boardValue -= (int) (1.0 * treasureCounter / ttg.getTreasures())
-						* Points.TREASURE_REACHABLE.value();
+						* MNA_S_Points.TREASURE_REACHABLE.value();
 			}
 		}
 		if (board.findTreasure(treasure) == null) {
-			boardValue += Points.TARGET_MISSING.value();
+			boardValue += MNA_S_Points.TARGET_MISSING.value();
 		}
 		return boardValue;
 	}
-	
+
+	private int calculatePositionValue(int playerID, Board board, Position position, PositionType tPosition,
+			TreasureType treasure) {
+		int positionValue = 2 * board.getAllReachablePositions(position).size();
+		// Calculate the distance to currently needed target
+		if (tPosition != null) {
+			if (position.equals(tPosition)) {
+				positionValue += MNA_S_Points.OWN_TARGET.value();
+			}
+			else {
+				positionValue += 3 * (12 - getDistance(position, tPosition));
+			}
+		}
+		return positionValue;
+	}
+
 	// ######################################################################################### //
 	// ------------------------------------ HELPER METHODS ------------------------------------- //
 	// ######################################################################################### //
@@ -213,7 +244,7 @@ public class Assist {
 	private boolean isLastTreasure(TreasureType treasure) {
 		return treasure.name().startsWith("St");
 	}
-	
+
 	/**
 	 * Fakes performing a move on the board.
 	 * 
@@ -221,7 +252,7 @@ public class Assist {
 	 * @param move
 	 * @return Board
 	 */
-	private Board doMovement(int playerID, Board oldBoard, Move move) {
+	private Board doMovement(int playerID, Board oldBoard, MNA_S_Move move) {
 		MoveMessageType moveMessage = new MoveMessageType();
 		moveMessage.setShiftPosition(move.getShiftPosition());
 		moveMessage.setShiftCard(move.getShiftCard());
@@ -291,15 +322,15 @@ public class Assist {
 	 * Returns a list of all moves, without pin moving.
 	 * 
 	 * @param oldBoard
-	 * @return ArrayList<Move>
+	 * @return ArrayList<MNA_S_Move>
 	 */
-	public ArrayList<Move> getAllBoardMoves(Board oldBoard) {
-		ArrayList<Move> allMoves = new ArrayList<Move>();
+	public ArrayList<MNA_S_Move> getAllBoardMoves(Board oldBoard) {
+		ArrayList<MNA_S_Move> allMoves = new ArrayList<MNA_S_Move>();
 		// Iterate over all legal shift positions
 		for (Position shiftPosition : getShiftPositions(oldBoard)) {
 			// Iterate over all possible rotations of the shift card
 			for (Card shiftRotation : new Card(oldBoard.getShiftCard()).getPossibleRotations()) {
-				Move tempMove = new Move();
+				MNA_S_Move tempMove = new MNA_S_Move();
 				tempMove.setShiftCard(shiftRotation);
 				tempMove.setShiftPosition(shiftPosition);
 				allMoves.add(tempMove);
@@ -309,25 +340,25 @@ public class Assist {
 	}
 
 	/**
-	 * Decides if the given player can finish the game with the current given
-	 * board. Returns a Move instance if this is possible, null otherwise.
+	 * Decides if the given player can finish the game with the current given board. Returns a MNA_S_Move instance
+	 * if this is possible, null otherwise.
 	 * 
 	 * @param playerID
 	 * @param oldBoard
 	 * @param allBoardMoves
-	 * @return Move
+	 * @return MNA_S_Move
 	 */
-	private Move isFinishable(int playerID, Board oldBoard, ArrayList<Move> allBoardMoves) {
+	private MNA_S_Move isFinishable(int playerID, Board oldBoard, ArrayList<MNA_S_Move> allBoardMoves) {
 		// TODO Threads
 		TreasureType treasure = TreasureType.valueOf("START_0" + playerID);
-		for (Move tempMove : allBoardMoves) {
+		for (MNA_S_Move tempMove : allBoardMoves) {
 			// Create a shifted board
 			Board board = doMovement(0, oldBoard, tempMove);
 			PositionType tPosition = board.findTreasure(treasure);
 
 			// Return a move if the treasure is reachable
 			if (board.pathPossible(board.findPlayer(playerID), tPosition)) {
-				Move finalMove = new Move();
+				MNA_S_Move finalMove = new MNA_S_Move();
 				finalMove.setShiftCard(tempMove.getShiftCard());
 				finalMove.setShiftPosition(tempMove.getShiftPosition());
 				finalMove.setMovePosition(new Position(tPosition));
@@ -338,14 +369,13 @@ public class Assist {
 	}
 
 	/**
-	 * Wrapper for isFinishable(int, Board, ArrayList<Move>). Uses
-	 * getAllBoardMoves(oldBoard).
+	 * Wrapper for isFinishable(int, Board, ArrayList<MNA_S_Move>). Uses getAllBoardMoves(oldBoard).
 	 * 
 	 * @param playerID
 	 * @param oldBoard
-	 * @return Move
+	 * @return MNA_S_Move
 	 */
-	private Move isFinishable(int playerID, Board oldBoard) {
+	private MNA_S_Move isFinishable(int playerID, Board oldBoard) {
 		return isFinishable(playerID, oldBoard, getAllBoardMoves(oldBoard));
 	}
 
@@ -366,8 +396,7 @@ public class Assist {
 	}
 
 	/**
-	 * Creates a list with all remaining players in game. Returns the index of
-	 * the next player.
+	 * Creates a list with all remaining players in game. Returns the index of the next player.
 	 * 
 	 * @param ttgo
 	 * @param playerID
@@ -382,7 +411,7 @@ public class Assist {
 		Collections.sort(allPlayers);
 		playerCount = allPlayers.size();
 	}
-	
+
 	/**
 	 * Moves the player on the given Board.
 	 * 

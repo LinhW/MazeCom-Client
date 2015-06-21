@@ -1,21 +1,21 @@
-package control.AI.MNA_S;
+package control.AI.LAMB;
 
 import model.Card;
 import model.Position;
 import model.jaxb.CardType;
 import model.jaxb.PositionType;
 
-public class Move implements Comparable<Object> {	
+public class LAMB_Move implements Comparable<Object> {
 	private Position shiftPosition;
 	private Position movePosition;
 	private Card shiftCard;
 	private int value;
 
-	public Move() {
+	public LAMB_Move() {
 		super();
 	}
 
-	public Move(Card shiftCard, Position shift, Position move, int value) {
+	public LAMB_Move(Card shiftCard, Position shift, Position move, int value) {
 		this.shiftPosition = shift;
 		this.movePosition = move;
 		this.shiftCard = shiftCard;
@@ -56,10 +56,10 @@ public class Move implements Comparable<Object> {
 
 	@Override
 	public int compareTo(Object o) {
-		if (this.value > ((Move) o).value) {
+		if (this.value > ((LAMB_Move) o).value) {
 			return 1;
 		}
-		else if (this.value == ((Move) o).value) {
+		else if (this.value == ((LAMB_Move) o).value) {
 			return 0;
 		}
 		else {

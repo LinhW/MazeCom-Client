@@ -25,8 +25,8 @@ public class LAMB implements Player {
 	private ArrayList<TreasuresToGoType> treasuresToGo;
 	private TreasureType treasure;
 	private Board board;
-	private Assist assist;
-	private Move move;
+	private LAMB_Assist assist;
+	private LAMB_Move move;
 	private ArrayList<Position> lastPositions;
 
 	public LAMB(Connection connection) {
@@ -42,7 +42,7 @@ public class LAMB implements Player {
 	public void receiveLoginReply(LoginReplyMessageType message) {
 		this.playerID = message.getNewID();
 		System.out.println("LAMB logged in with ID " + this.playerID);
-		assist = new Assist(this);
+		assist = new LAMB_Assist(this);
 		lastPositions = new ArrayList<Position>();
 	}
 

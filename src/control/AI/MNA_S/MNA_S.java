@@ -15,7 +15,7 @@ import model.jaxb.TreasureType;
 import model.jaxb.TreasuresToGoType;
 import model.jaxb.WinMessageType;
 import control.AI.Player;
-import control.AI.MNA_S.Assist;
+import control.AI.MNA_S.MNA_S_Assist;
 import control.network.Connection;
 
 public class MNA_S implements Player {
@@ -26,8 +26,8 @@ public class MNA_S implements Player {
 	private ArrayList<TreasuresToGoType> treasuresToGo;
 	private TreasureType treasure;
 	private Board board;
-	private Assist assist;
-	private Move lastMove;
+	private MNA_S_Assist assist;
+	private MNA_S_Move lastMove;
 
 	private static final long timeout = 20 * 1000;
 
@@ -43,14 +43,14 @@ public class MNA_S implements Player {
 	@Override
 	public void receiveLoginReply(LoginReplyMessageType message) {
 		this.playerID = message.getNewID();
-		this.assist = new Assist(this);
+		this.assist = new MNA_S_Assist(this);
 	}
 
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
 		long time = System.nanoTime();
 
-		Move finalMove = assist.getMove();
+		MNA_S_Move finalMove = assist.getMove();
 
 		time = (System.nanoTime() - time) / 1000000;
 		if (time > (timeout - 1000)) {
