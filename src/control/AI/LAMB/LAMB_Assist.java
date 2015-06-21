@@ -12,18 +12,24 @@ import model.jaxb.PositionType;
 import model.jaxb.TreasureType;
 import model.jaxb.TreasuresToGoType;
 
-public class Assist {
+public class LAMB_Assist {
 	public enum Side {
-		UP, RIGHT, DOWN, LEFT
+		UP,
+		RIGHT,
+		DOWN,
+		LEFT
 	}
 
-	public enum Points {
-		OWN_START(5000), OWN_TARGET(100), TARGET_MISSING(-10), OTHER_START_OPEN(
-				-700), TREASURE_REACHABLE(25);
+	public enum LAMB_Points {
+		OWN_START(5000),
+		OWN_TARGET(100),
+		TARGET_MISSING(-10),
+		OTHER_START_OPEN(-700),
+		TREASURE_REACHABLE(25);
 
 		private final int value;
 
-		private Points(int v) {
+		private LAMB_Points(int v) {
 			this.value = v;
 		}
 
@@ -40,7 +46,7 @@ public class Assist {
 	private ArrayList<TreasureType> tempFound;
 	private int nextPlayer;
 
-	public Assist(LAMB lamb) {
+	public LAMB_Assist(LAMB lamb) {
 		this.lamb = lamb;
 		this.depth = 1;
 		this.maxDepth = 2;
@@ -51,8 +57,8 @@ public class Assist {
 		this.tempFound = new ArrayList<TreasureType>();
 	}
 
-	public Move randomMove(Board oldBoard, int playerID, TreasureType treasure) {
-		Move finalMove = new Move();
+	public LAMB_Move randomMove(Board oldBoard, int playerID, TreasureType treasure) {
+		LAMB_Move finalMove = new LAMB_Move();
 		ArrayList<Position> shiftPositions = getShiftPositions(oldBoard);
 		Collections.shuffle(shiftPositions);
 		finalMove.setShiftPosition(new Position(shiftPositions.get(0)));
@@ -61,19 +67,19 @@ public class Assist {
 		moveMessage.setShiftCard(new Card(oldBoard.getShiftCard()));
 		moveMessage.setShiftPosition(shiftPositions.get(0));
 		Board b = oldBoard.fakeShift(moveMessage);
-		List<PositionType> positions = b.getAllReachablePositions(b
-				.findPlayer(playerID));
+		List<PositionType> positions = b.getAllReachablePositions(b.findPlayer(playerID));
 		int distance = 12;
 		PositionType treasurePosition = oldBoard.findTreasure(treasure);
 		for (PositionType movePosition : positions) {
 			if (getDistance(treasurePosition, movePosition) < distance) {
+				distance = getDistance(treasurePosition, movePosition);
 				finalMove.setMovePosition(movePosition);
 			}
 		}
 		return finalMove;
 	}
 
-	public Move calculateMove() {
+	public LAMB_Move calculateMove() {
 		canFindTreasure = new boolean[4];
 		tempFound.clear();
 		ArrayList<Integer> players = new ArrayList<Integer>();
@@ -81,23 +87,20 @@ public class Assist {
 			players.add(t.getPlayer());
 		}
 		Collections.sort(players);
-		nextPlayer = players.get((players.indexOf(lamb.getPlayerID()) + 1)
-				% players.size());
-		Move finalMove;
+		nextPlayer = players.get((players.indexOf(lamb.getPlayerID()) + 1) % players.size());
+		LAMB_Move finalMove;
 		if (lamb.getTreasure().name().startsWith("Start0")) {
-			finalMove = calculateFinishMove(lamb.getPlayerID(),
-					lamb.getBoard(), lamb.getTreasuresToGo(),
+			finalMove = calculateFinishMove(lamb.getPlayerID(), lamb.getBoard(), lamb.getTreasuresToGo(),
 					lamb.getTreasuresFound(), lamb.getTreasure());
-		} else {
-			finalMove = calculateMove(lamb.getPlayerID(), lamb.getBoard(),
-					lamb.getTreasuresToGo(), lamb.getTreasuresFound(),
-					lamb.getTreasure());
+		}
+		else {
+			finalMove = calculateMove(lamb.getPlayerID(), lamb.getBoard(), lamb.getTreasuresToGo(),
+					lamb.getTreasuresFound(), lamb.getTreasure());
 		}
 		ArrayList<Position> lp = lamb.getLastPositions();
 		if (lp.size() == 2 && lp.get(0).equals(finalMove.getMovePosition())
 				&& lp.get(1).equals(finalMove.getMovePosition())) {
-			finalMove = randomMove(lamb.getBoard(), lamb.getPlayerID(),
-					lamb.getTreasure());
+			finalMove = randomMove(lamb.getBoard(), lamb.getPlayerID(), lamb.getTreasure());
 		}
 		return finalMove;
 	}
@@ -109,7 +112,8 @@ public class Assist {
 			forbiddenPosition = new Position();
 			forbiddenPosition.setCol(-1);
 			forbiddenPosition.setRow(-1);
-		} else {
+		}
+		else {
 			forbiddenPosition = new Position(oldBoard.getForbidden());
 		}
 		for (Side side : Side.values()) {
@@ -131,7 +135,8 @@ public class Assist {
 			for (int positionAxis = 1; positionAxis <= 5; positionAxis += 2) {
 				if (side == Side.UP || side == Side.DOWN) {
 					shiftPosition.setCol(positionAxis);
-				} else {
+				}
+				else {
 					shiftPosition.setRow(positionAxis);
 				}
 				if (!shiftPosition.equals(forbiddenPosition)) {
@@ -142,11 +147,10 @@ public class Assist {
 		return positionList;
 	}
 
-	private Move isFinishable(int playerID, Board oldBoard) {
+	private LAMB_Move isFinishable(int playerID, Board oldBoard) {
 		TreasureType treasure = TreasureType.valueOf("START_0" + playerID);
 		for (Position shiftPosition : getShiftPositions(oldBoard)) {
-			for (Card shiftRotation : new Card(oldBoard.getShiftCard())
-					.getPossibleRotations()) {
+			for (Card shiftRotation : new Card(oldBoard.getShiftCard()).getPossibleRotations()) {
 				Board board = (Board) oldBoard.clone();
 				MoveMessageType moveMessage = new MoveMessageType();
 				moveMessage.setShiftCard(shiftRotation);
@@ -154,7 +158,7 @@ public class Assist {
 				board.proceedShift(moveMessage);
 				PositionType tPosition = board.findTreasure(treasure);
 				if (board.pathPossible(board.findPlayer(playerID), tPosition)) {
-					Move finalMove = new Move();
+					LAMB_Move finalMove = new LAMB_Move();
 					finalMove.setShiftCard(shiftRotation);
 					finalMove.setShiftPosition(shiftPosition);
 					finalMove.setMovePosition(new Position(tPosition));
@@ -165,33 +169,28 @@ public class Assist {
 		return null;
 	}
 
-	private Move calculateFinishMove(int playerID, Board oldBoard,
-			List<TreasuresToGoType> ttgo, List<TreasureType> tfound,
-			TreasureType treasure) {
-		Move finalMove = isFinishable(playerID, oldBoard);
+	private LAMB_Move calculateFinishMove(int playerID, Board oldBoard, List<TreasuresToGoType> ttgo,
+			List<TreasureType> tfound, TreasureType treasure) {
+		LAMB_Move finalMove = isFinishable(playerID, oldBoard);
 		if (finalMove == null) {
-			ArrayList<Move> shortestMoves = new ArrayList<Move>();
+			ArrayList<LAMB_Move> shortestMoves = new ArrayList<LAMB_Move>();
 			int distance = 12;
 			for (Position shiftPosition : getShiftPositions(oldBoard)) {
-				for (Card shiftRotation : new Card(oldBoard.getShiftCard())
-						.getPossibleRotations()) {
+				for (Card shiftRotation : new Card(oldBoard.getShiftCard()).getPossibleRotations()) {
 					Board board = (Board) oldBoard.clone();
 					MoveMessageType moveMessage = new MoveMessageType();
 					moveMessage.setShiftCard(shiftRotation);
 					moveMessage.setShiftPosition(shiftPosition);
 					board.proceedShift(moveMessage);
-					PositionType treasurePosition = board
-							.findTreasure(treasure);
+					PositionType treasurePosition = board.findTreasure(treasure);
 					for (PositionType movePosition : board
-							.getAllReachablePositions(board
-									.findPlayer(playerID))) {
+							.getAllReachablePositions(board.findPlayer(playerID))) {
 						if (getDistance(movePosition, treasurePosition) <= distance) {
 							if (getDistance(movePosition, treasurePosition) < distance) {
 								shortestMoves.clear();
-								distance = getDistance(movePosition,
-										treasurePosition);
+								distance = getDistance(movePosition, treasurePosition);
 							}
-							Move temp = new Move();
+							LAMB_Move temp = new LAMB_Move();
 							temp.setShiftCard(shiftRotation);
 							temp.setShiftPosition(shiftPosition);
 							temp.setMovePosition(movePosition);
@@ -200,13 +199,12 @@ public class Assist {
 					}
 				}
 			}
-			for (Move move : shortestMoves) {
+			for (LAMB_Move move : shortestMoves) {
 				MoveMessageType moveMessage = new MoveMessageType();
 				moveMessage.setShiftCard(move.getShiftCard());
 				moveMessage.setShiftPosition(move.getShiftPosition());
 				Board board = oldBoard.fakeShift(moveMessage);
-				move.setValue(calculateBoardValue(playerID, board, ttgo,
-						tfound, treasure));
+				move.setValue(calculateBoardValue(playerID, board, ttgo, tfound, treasure));
 			}
 			finalMove = Collections.max(shortestMoves);
 		}
@@ -214,14 +212,12 @@ public class Assist {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Move calculateMove(int playerID, Board oldBoard,
-			List<TreasuresToGoType> ttgo, List<TreasureType> tfound,
-			TreasureType treasure) {
+	private LAMB_Move calculateMove(int playerID, Board oldBoard, List<TreasuresToGoType> ttgo,
+			List<TreasureType> tfound, TreasureType treasure) {
 		canFindTreasure[playerID - 1] = false;
-		ArrayList<Move> moves = new ArrayList<Move>();
+		ArrayList<LAMB_Move> moves = new ArrayList<LAMB_Move>();
 		if (treasure == null) {
-			ArrayList<TreasureType> notFound = (ArrayList<TreasureType>) allTreasures
-					.clone();
+			ArrayList<TreasureType> notFound = (ArrayList<TreasureType>) allTreasures.clone();
 			notFound.removeAll(tfound);
 			notFound.remove(tempFound);
 			notFound.remove(lamb.getTreasure());
@@ -229,21 +225,18 @@ public class Assist {
 			treasure = notFound.get(0);
 		}
 		for (Position shiftPosition : getShiftPositions(oldBoard)) {
-			for (Card shiftRotation : new Card(oldBoard.getShiftCard())
-					.getPossibleRotations()) {
+			for (Card shiftRotation : new Card(oldBoard.getShiftCard()).getPossibleRotations()) {
 				Board board = (Board) oldBoard.clone();
 				MoveMessageType moveMessage = new MoveMessageType();
 				moveMessage.setShiftCard(shiftRotation);
 				moveMessage.setShiftPosition(shiftPosition);
 				board.proceedShift(moveMessage);
 				PositionType tPosition = board.findTreasure(treasure);
-				int boardValue = calculateBoardValue(playerID, board, ttgo,
-						tfound, treasure);
-				for (PositionType position : board
-						.getAllReachablePositions(board.findPlayer(playerID))) {
-					Move tempMove = new Move();
-					int positionValue = calculatePositionValue(playerID, board,
-							new Position(position), tPosition, treasure);
+				int boardValue = calculateBoardValue(playerID, board, ttgo, tfound, treasure);
+				for (PositionType position : board.getAllReachablePositions(board.findPlayer(playerID))) {
+					LAMB_Move tempMove = new LAMB_Move();
+					int positionValue = calculatePositionValue(playerID, board, new Position(position),
+							tPosition, treasure);
 					tempMove.setShiftCard(shiftRotation);
 					tempMove.setShiftPosition(shiftPosition);
 					tempMove.setMovePosition(new Position(position));
@@ -252,120 +245,114 @@ public class Assist {
 				}
 			}
 		}
-		Move finalMove;
-		if (!canFindTreasure[playerID - 1] && (depth < maxDepth)
-				&& !treasure.name().startsWith("Start0")) {
+		LAMB_Move finalMove;
+		if (!canFindTreasure[playerID - 1] && (depth < maxDepth) && !treasure.name().startsWith("Start0")) {
 			depth++;
 			int median = 0;
-			for (Move m : moves) {
+			for (LAMB_Move m : moves) {
 				median += m.getValue();
 			}
 			median = median / moves.size();
 			median = (Collections.max(moves).getValue() + median) / 2;
 			for (int i = 0; i < moves.size(); i++) {
-				Move m = moves.get(i);
+				LAMB_Move m = moves.get(i);
 				if (m.getValue() > median) {
 					calculateNewMove(playerID, oldBoard, m);
-				} else {
+				}
+				else {
 					moves.remove(i);
 					i--;
 				}
 			}
 			depth--;
 			finalMove = Collections.max(moves);
-		} else {
+		}
+		else {
 			finalMove = Collections.max(moves);
 		}
 		return finalMove;
 	}
 
-	private void calculateNewMove(int playerID, Board oldBoard, Move oldMove) {
+	private void calculateNewMove(int playerID, Board oldBoard, LAMB_Move oldMove) {
 		Board board = (Board) oldBoard.clone();
 		MoveMessageType moveMessage = new MoveMessageType();
-		Move tempMove;
+		LAMB_Move tempMove;
 		moveMessage.setShiftCard(oldMove.getShiftCard());
 		moveMessage.setShiftPosition(oldMove.getShiftPosition());
 		board.proceedShift(moveMessage);
-		movePlayer(playerID, board, oldMove.getMovePosition().getRow(), oldMove
-				.getMovePosition().getCol());
+		movePlayer(playerID, board, oldMove.getMovePosition().getRow(), oldMove.getMovePosition().getCol());
 		for (int i = 1; i < lamb.getPlayerCount(); i++) {
 			int tempID = playerID + i;
 			if (tempID > lamb.getPlayerCount()) {
 				tempID -= lamb.getPlayerCount();
 			}
-			tempMove = calculateMove(tempID, board, lamb.getTreasuresToGo(),
-					lamb.getTreasuresFound(), null);
+			tempMove = calculateMove(tempID, board, lamb.getTreasuresToGo(), lamb.getTreasuresFound(), null);
 			moveMessage = new MoveMessageType();
 			moveMessage.setShiftCard(tempMove.getShiftCard());
 			moveMessage.setShiftPosition(tempMove.getShiftPosition());
 			board.proceedShift(moveMessage);
-			movePlayer(tempID, board, tempMove.getMovePosition().getRow(),
-					tempMove.getMovePosition().getCol());
+			movePlayer(tempID, board, tempMove.getMovePosition().getRow(), tempMove.getMovePosition().getCol());
 		}
-		tempMove = calculateMove(playerID, board, lamb.getTreasuresToGo(),
-				lamb.getTreasuresFound(), lamb.getTreasure());
+		tempMove = calculateMove(playerID, board, lamb.getTreasuresToGo(), lamb.getTreasuresFound(),
+				lamb.getTreasure());
 		oldMove.setValue(oldMove.getValue() + tempMove.getValue());
 	}
 
-	private int calculateBoardValue(int playerID, Board board,
-			List<TreasuresToGoType> ttgo, List<TreasureType> tfound,
-			TreasureType treasure) {
+	private int calculateBoardValue(int playerID, Board board, List<TreasuresToGoType> ttgo,
+			List<TreasureType> tfound, TreasureType treasure) {
 		int boardValue = 0;
 		for (TreasuresToGoType ttg : ttgo) {
 			PositionType playerPos = board.findPlayer(ttg.getPlayer());
-			List<PositionType> reachablePos = board
-					.getAllReachablePositions(playerPos);
+			List<PositionType> reachablePos = board.getAllReachablePositions(playerPos);
 			if (ttg.getPlayer() == playerID) {
 				// Count own reachable treasures in relation to full number of
 				// remaining treasures
 				int treasureCounter = 0;
 				for (PositionType pos : reachablePos) {
-					TreasureType ttype = board.getCard(pos.getRow(),
-							pos.getCol()).getTreasure();
-					if ((ttype != null) && (ttype != treasure)
-							&& !tfound.contains(ttype)) {
+					TreasureType ttype = board.getCard(pos.getRow(), pos.getCol()).getTreasure();
+					if ((ttype != null) && (ttype != treasure) && !tfound.contains(ttype)) {
 						treasureCounter++;
 					}
 				}
 				boardValue += (int) (2.0 * treasureCounter / ttg.getTreasures())
-						* Points.TREASURE_REACHABLE.value();
-			} else {
+						* LAMB_Points.TREASURE_REACHABLE.value();
+			}
+			else {
 				if (ttg.getPlayer() == nextPlayer && ttg.getTreasures() == 1) {
 					if (isFinishable(nextPlayer, board) != null) {
-						boardValue += Points.OTHER_START_OPEN.value();
+						boardValue += LAMB_Points.OTHER_START_OPEN.value();
 					}
 				}
 				// Count reachable treasures of opponent in relation to full
 				// number of remaining treasures
 				int treasureCounter = 0;
 				for (PositionType pos : reachablePos) {
-					TreasureType ttype = board.getCard(pos.getRow(),
-							pos.getCol()).getTreasure();
-					if ((ttype != null) && (ttype != treasure)
-							&& !tfound.contains(ttype)) {
+					TreasureType ttype = board.getCard(pos.getRow(), pos.getCol()).getTreasure();
+					if ((ttype != null) && (ttype != treasure) && !tfound.contains(ttype)) {
 						treasureCounter++;
 					}
 				}
 				boardValue -= (int) (1.0 * treasureCounter / ttg.getTreasures())
-						* Points.TREASURE_REACHABLE.value();
+						* LAMB_Points.TREASURE_REACHABLE.value();
 			}
 		}
 		if (board.findTreasure(treasure) == null) {
-			boardValue += Points.TARGET_MISSING.value();
+			boardValue += LAMB_Points.TARGET_MISSING.value();
 		}
 		return boardValue;
 	}
 
-	private int calculatePositionValue(int playerID, Board board,
-			Position position, PositionType tPosition, TreasureType treasure) {
+	private int calculatePositionValue(int playerID, Board board, Position position, PositionType tPosition,
+			TreasureType treasure) {
 		int positionValue = 2 * board.getAllReachablePositions(position).size();
 		// Calculate the distance to currently needed target
 		if (tPosition != null) {
 			if (position.equals(tPosition)) {
-				positionValue += Points.OWN_TARGET.value();
+				positionValue += LAMB_Points.OWN_TARGET.value();
 				canFindTreasure[playerID - 1] = true;
 				tempFound.add(treasure);
-			} else {
+			}
+			else {
 				positionValue += 2 * (12 - getDistance(position, tPosition));
 			}
 		}
@@ -374,8 +361,7 @@ public class Assist {
 
 	private void movePlayer(int playerID, Board board, int row, int col) {
 		Position p = new Position(board.findPlayer(playerID));
-		List<Integer> pinPlayer = board.getCard(p.getRow(), p.getCol())
-				.getPin().getPlayerID();
+		List<Integer> pinPlayer = board.getCard(p.getRow(), p.getCol()).getPin().getPlayerID();
 		pinPlayer.remove(pinPlayer.indexOf(playerID));
 		board.getCard(row, col).getPin().getPlayerID().add(playerID);
 		p = new Position(board.findPlayer(playerID));
@@ -384,9 +370,9 @@ public class Assist {
 	private int getDistance(PositionType a, PositionType b) {
 		if (a == null || b == null) {
 			return -1;
-		} else {
-			return Math.abs(a.getCol() - b.getCol())
-					+ Math.abs(a.getRow() - b.getRow());
+		}
+		else {
+			return Math.abs(a.getCol() - b.getCol()) + Math.abs(a.getRow() - b.getRow());
 		}
 	}
 }
