@@ -37,7 +37,7 @@ public class Pathfinding {
 	 */
 	private Map<CardHelp, ReverseHelp> map_PinPosHelp_v2;
 
-	//TODO nullpointer wenn kein gegner mehr da ist
+	// TODO nullpointer wenn kein gegner mehr da ist
 	private List<TreasureType> list_foundTreasures;
 
 	public Pathfinding(Board b, int PlayerID, List<TreasuresToGoType> list) {
@@ -72,7 +72,7 @@ public class Pathfinding {
 			}
 			if (map_treToGo.containsKey(i)) {
 				nextPlayer[j] = i;
-			}else{
+			} else {
 				j--;
 			}
 			i++;
@@ -111,9 +111,12 @@ public class Pathfinding {
 				return l_pph.get(0);
 			}
 		}
-		PinPosHelp pph = checkNextTurn(tre);
-		if (pph != null) {
-			return pph;
+		PinPosHelp pph;
+		if (nextPlayer.length > 0) {
+			pph = checkNextTurn(tre);
+			if (pph != null) {
+				return pph;
+			}
 		}
 
 		List<PinPosHelp> l_pph = simpleSolution(tre, PlayerID);
@@ -418,9 +421,16 @@ public class Pathfinding {
 			list_pph = shortestPath(list);
 			if (list_pph.size() == 0) {
 				Position p = emergencyTreIsOnShift(list);
+				wif_v2.writeln("where it will be " + p);
 				list_pph = nearBy(p, list);
 			}
 		}
+		wif_v2.writeln("//////////////////////////////////////////////////////////////////");
+		wif_v2.writeln(betterBoard.toString());
+		for (PinPosHelp pph: list_pph){
+			wif_v2.writeln(pph.debug());
+		}
+		wif_v2.writeln("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");
 		return bestMove(list_pph);
 	}
 
@@ -701,25 +711,21 @@ public class Pathfinding {
 		List<PinPosHelp> l_sol = new ArrayList<>();
 		Map<Integer, List<PinPosHelp>> map = new HashMap<>();
 		TreasureType tre = betterBoard.getTreasure();
-		Board board;
-		Position trePos;
-		Position shiftPos;
-		CardHelp ch;
 
 		List<Card> list_c = betterBoard.getShiftCard().getPossibleRotations();
 		for (Card c : list_c) {
 			for (int i = 1; i < 6; i += 2) {
 				for (int k = 0; k < 7; k += 6) {
 					for (int j = 0; j < 2; j++) {
-						board = (Board) betterBoard.clone();
-						shiftPos = new Position(k + (i - k) * j, i + (k - i) * j);
+						Board board = (Board) betterBoard.clone();
+						Position shiftPos = new Position(k + (i - k) * j, i + (k - i) * j);
 						if (betterBoard.getForbidden() != null && shiftPos.equals(new Position(betterBoard.getForbidden()))) {
 							continue;
 						}
 						board.proceedShift(shiftPos, new Card(c));
-						trePos = board.findTreasure(tre);
+						Position trePos = board.findTreasure(tre);
 						if (trePos != null) {
-							ch = new CardHelp(c, shiftPos);
+							CardHelp ch = new CardHelp(c, shiftPos);
 							List<Card> list_c2 = betterBoard.getShiftCard().getPossibleRotations();
 							for (Card c2 : list_c2) {
 								for (int i2 = 1; i2 < 6; i2 += 2) {
@@ -732,12 +738,12 @@ public class Pathfinding {
 											}
 											Position oldPinPos2 = board2.getPinPos(PlayerID);
 											board2.proceedShift(shiftPos2, new Card(c2));
-											trePos = board.findTreasure(tre);
-											if (trePos != null) {
+											Position trePos2 = board2.findTreasure(tre);
+											if (trePos2 != null) {
 												l.clear();
 												l.add(oldPinPos2);
 												l = findPossiblePos(board2, l, oldPinPos2);
-												l_sol = shortestPath(l, trePos, ch, board2);
+												l_sol = shortestPath(l, trePos2, ch, board2);
 												if (map.containsKey(l_sol.get(0).getDiff())) {
 													map.get(l_sol.get(0).getDiff()).addAll(l_sol);
 												} else {
@@ -755,8 +761,9 @@ public class Pathfinding {
 		}
 		int min = Collections.min(map.keySet());
 		PinPosHelp pph = bestMove(map.get(min));
-		betterBoard.proceedShift(pph.getCardHelp().getP(), new Card(pph.getCardHelp().getC()));
-		pph.setPinPos(betterBoard.getPinPos(PlayerID));
+		Board b = (Board) betterBoard.clone();
+		b.proceedShift(pph.getCardHelp().getP(), new Card(pph.getCardHelp().getC()));
+		pph.setPinPos(b.getPinPos(PlayerID));
 		wif_v2.writeln("Dead End");
 		return pph;
 	}

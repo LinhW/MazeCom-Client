@@ -35,7 +35,6 @@ public class Pathfinding {
 
 	private WriteIntoFile wif_v2;
 
-	//TODO nullpointer wenn kein gegner mehr da ist
 	public Pathfinding(int id) {
 		this.id = id;
 		list_rating = new ArrayList<>();
@@ -60,12 +59,12 @@ public class Pathfinding {
 			}
 			if (map_treToGo.containsKey(i)) {
 				nextPlayer[j] = i;
-			}else{
+			} else {
 				j--;
 			}
 			i++;
 		}
-		
+
 		wif_v2.writeln("setTreToGo");
 		wif_v2.writeln(Arrays.asList(nextPlayer).toString());
 		wif_v2.writeln(map_treToGo.keySet().toString());
@@ -103,13 +102,15 @@ public class Pathfinding {
 				return l_pph.get(0);
 			}
 		}
-
+		PinPosHelp pph;
 		/*
 		 * check if the next Player can win and how to deny it
 		 */
-		PinPosHelp pph = checkNextTurn(tre);
-		if (pph != null) {
-			return pph;
+		if (nextPlayer.length > 0) {
+			pph = checkNextTurn(tre);
+			if (pph != null) {
+				return pph;
+			}
 		}
 
 		/*
@@ -124,7 +125,9 @@ public class Pathfinding {
 			checkLastButOne();
 			beAnnoying();
 			sealAway();
-			checkOtherPlayer();
+			if (nextPlayer.length > 0) {
+				checkOtherPlayer();
+			}
 		}
 		pph = PinPosHelp.getLowestRating(list_rating);
 		pph = checkLoop(pph);
@@ -139,7 +142,8 @@ public class Pathfinding {
 	public PinPosHelp getNewMove() {
 		wif_v2.writeln("getNewmove");
 		list_rating.remove(PinPosHelp.getLowestRating(list_rating));
-		return PinPosHelp.getLowestRating(list_rating);	}
+		return PinPosHelp.getLowestRating(list_rating);
+	}
 
 	private PinPosHelp checkLoop(PinPosHelp pph) {
 		wif_v2.writeln("deadEnd");
@@ -163,13 +167,15 @@ public class Pathfinding {
 	private void checkOtherPlayer() {
 		wif_v2.writeln("checkotherplayer");
 		wif_v2.writeln("CheckOtherPlayer");
-		for (Integer id : map_treToGo.keySet()) {
-			switch (map_treToGo.get(id)) {
-			case 1:
-				sealEndPos(id);
-				break;
-			case 2:
-				sealAway(id);
+		if (nextPlayer.length > 0) {
+			for (Integer id : map_treToGo.keySet()) {
+				switch (map_treToGo.get(id)) {
+				case 1:
+					sealEndPos(id);
+					break;
+				case 2:
+					sealAway(id);
+				}
 			}
 		}
 	}
@@ -201,35 +207,37 @@ public class Pathfinding {
 	 * @return list of solutions with sealed factor
 	 */
 	private void sealAway() {
-		wif_v2.writeln("sealAway");
-		Position pinPos;
-		for (PinPosHelp pph : list_rating) {
-			int min = 0;
-			Board board = (Board) betterBoard.clone();
-			board.proceedShift(pph.getCardHelp());
-			List<Card> list_c = board.getShiftCard().getPossibleRotations();
-			for (Card c : list_c) {
-				for (int i = 1; i < 6; i += 2) {
-					for (int k = 0; k < 7; k += 6) {
-						for (int j = 0; j < 2; j++) {
-							Board b = (Board) board.clone();
-							Position shiftPos = new Position(k + (i - k) * j, i + (k - i) * j);
-							if (b.getForbidden() != null && shiftPos.equals(new Position(b.getForbidden()))) {
-								continue;
-							}
-							b.proceedShift(shiftPos, new Card(c));
-							pinPos = b.getPinPos(nextPlayer[0]);
-							List<Position> l = new ArrayList<>();
-							l = findPossiblePos(b, l, pinPos);
-							if (l.size() > min) {
-								min = l.size();
+		if (nextPlayer.length > 0) {
+			wif_v2.writeln("sealAway");
+			Position pinPos;
+			for (PinPosHelp pph : list_rating) {
+				int min = 0;
+				Board board = (Board) betterBoard.clone();
+				board.proceedShift(pph.getCardHelp());
+				List<Card> list_c = board.getShiftCard().getPossibleRotations();
+				for (Card c : list_c) {
+					for (int i = 1; i < 6; i += 2) {
+						for (int k = 0; k < 7; k += 6) {
+							for (int j = 0; j < 2; j++) {
+								Board b = (Board) board.clone();
+								Position shiftPos = new Position(k + (i - k) * j, i + (k - i) * j);
+								if (b.getForbidden() != null && shiftPos.equals(new Position(b.getForbidden()))) {
+									continue;
+								}
+								b.proceedShift(shiftPos, new Card(c));
+								pinPos = b.getPinPos(nextPlayer[0]);
+								List<Position> l = new ArrayList<>();
+								l = findPossiblePos(b, l, pinPos);
+								if (l.size() > min) {
+									min = l.size();
+								}
 							}
 						}
 					}
 				}
-			}
 
-			pph.setRating(1.5 * min);
+				pph.setRating(1.5 * min);
+			}
 		}
 	}
 
@@ -389,16 +397,38 @@ public class Pathfinding {
 
 	private PinPosHelp emergencyPlan(List<CardHelp> list, TreasureType tre) {
 		wif_v2.writeln("emergencyPlan");
-		List<PinPosHelp> list_pph = simpleSolution(list, tre, id);
-		if (list_pph.size() == 0) {
-			list_pph = shortestPath(list);
-			if (list_pph.size() == 0) {
-				Position p = emergencyTreIsOnShift(list);
-				list_pph = nearBy(p, list);
+		if (nextPlayer.length == 1) {
+			Position end = betterBoard.findTreasure(TreasureType.valueOf("START_0" + id));
+			Position end1 = end;
+			Position end2 = end;
+			if (end.getCol() == 0) {
+				end1.setCol(0);
+				end1.setCol(1);
+			} else {
+				end1.setCol(6);
+				end2.setCol(5);
 			}
+			
+			if(end.getRow() ==  0){
+				end1.setRow(0);
+				end1.setRow(1);
+			} else {
+				end1.setRow(6);
+				end2.setRow(5);
+			}
+			//TODO
+		} else {
+			List<PinPosHelp> list_pph = simpleSolution(list, tre, id);
+			if (list_pph.size() == 0) {
+				list_pph = shortestPath(list);
+				if (list_pph.size() == 0) {
+					Position p = emergencyTreIsOnShift(list);
+					list_pph = nearBy(p, list);
+				}
+			}
+			list_rating = list_pph;
+			return bestMove();
 		}
-		list_rating = list_pph;
-		return bestMove();
 	}
 
 	/**
@@ -594,6 +624,7 @@ public class Pathfinding {
 	 */
 	private PinPosHelp checkNextTurn(TreasureType tre) {
 		wif_v2.writeln("checkNextTurn");
+
 		if (map_treToGo.get(nextPlayer[0]) == 1) {
 			List<CardHelp> list_ch = lastChance();
 			switch (list_ch.size()) {
@@ -648,9 +679,7 @@ public class Pathfinding {
 	 */
 	private PinPosHelp nextStep(TreasureType tre, int id) {
 		wif_v2.writeln("nextStep");
-		chooseOrientation();
-		beAnnoying();
-		sealAway();
+		bestMove();
 		return PinPosHelp.getLowestRating(list_rating);
 	}
 
@@ -838,11 +867,11 @@ public class Pathfinding {
 				if (diff < min) {
 					min = diff;
 					l_sol.clear();
-					wif_v2.writeln("shortestPath_list_ch " + trePos + " " + p + (ch != null));					
+					wif_v2.writeln("shortestPath_list_ch " + trePos + " " + p + (ch != null));
 					l_sol.add(new PinPosHelp(trePos, p, ch));
 				} else {
 					if (diff == min) {
-						wif_v2.writeln("shortestPath_list_ch2 " + trePos + " " + p + (ch != null));					
+						wif_v2.writeln("shortestPath_list_ch2 " + trePos + " " + p + (ch != null));
 						l_sol.add(new PinPosHelp(trePos, p, ch));
 					}
 				}
@@ -876,10 +905,10 @@ public class Pathfinding {
 			if (tmp < diff) {
 				diff = tmp;
 				pos.clear();
-				wif_v2.writeln("shortestPath_list_trePos " + trePos + " " + p + (ch != null));					
+				wif_v2.writeln("shortestPath_list_trePos " + trePos + " " + p + (ch != null));
 				pos.add(new PinPosHelp(trePos, p, ch, diff));
 			} else if (tmp == diff) {
-				wif_v2.writeln("shortestPath_list_trePos2 " + trePos + " " + p + (ch != null));					
+				wif_v2.writeln("shortestPath_list_trePos2 " + trePos + " " + p + (ch != null));
 				pos.add(new PinPosHelp(trePos, p, ch, tmp));
 			}
 		}
@@ -910,7 +939,7 @@ public class Pathfinding {
 				l.clear();
 				l = findPossiblePos(board, l, oldPinPos);
 				if (l.contains(trePos)) {
-					wif_v2.writeln("simpleSolution_list_ch " + trePos + " " + (ch != null));					
+					wif_v2.writeln("simpleSolution_list_ch " + trePos + " " + (ch != null));
 					l_sol.add(new PinPosHelp(trePos, trePos, ch));
 				}
 			}
@@ -959,7 +988,7 @@ public class Pathfinding {
 							ch = new CardHelp(c, shiftPos);
 							if (l.contains(trePos)) {
 								already = true;
-								wif_v2.writeln("simpleSolution_trepos " + trePos + " " + (ch != null));					
+								wif_v2.writeln("simpleSolution_trepos " + trePos + " " + (ch != null));
 								l_sol.add(new PinPosHelp(trePos, trePos, ch));
 							}
 							if (!already) {
@@ -983,7 +1012,7 @@ public class Pathfinding {
 					diff = tmp;
 				}
 			}
-			wif_v2.writeln("calcData " + trePos + " " + p + (ch != null));					
+			wif_v2.writeln("calcData " + trePos + " " + p + (ch != null));
 			list_rating.add(new PinPosHelp(trePos, p, ch, diff(p, trePos, b) + diff));
 		}
 	}
