@@ -5,16 +5,16 @@ import model.Position;
 import model.jaxb.CardType;
 import model.jaxb.PositionType;
 
-public class Move implements Comparable<Object> {
+public class Move implements Comparable<Object> {	
 	private Position shiftPosition;
 	private Position movePosition;
 	private Card shiftCard;
 	private int value;
-	
+
 	public Move() {
 		super();
 	}
-	
+
 	public Move(Card shiftCard, Position shift, Position move, int value) {
 		this.shiftPosition = shift;
 		this.movePosition = move;
@@ -41,7 +41,7 @@ public class Move implements Comparable<Object> {
 	public Position getMovePosition() {
 		return movePosition;
 	}
-	
+
 	public Card getShiftCard() {
 		return shiftCard;
 	}
@@ -49,7 +49,7 @@ public class Move implements Comparable<Object> {
 	public int getValue() {
 		return value;
 	}
-	
+
 	public void setValue(int value) {
 		this.value = value;
 	}
@@ -66,10 +66,10 @@ public class Move implements Comparable<Object> {
 			return -1;
 		}
 	}
-	
+
 	public String toString() {
-		return "VAL: " + value + " SC: (" + shiftCard.getShape() + "" + shiftCard.getOrientation() +
-				") SP: (" + shiftPosition.getRow() +"," + shiftPosition.getCol() + 
-				") MP: (" + movePosition.getRow() +"," + movePosition.getCol() + ")";
+		return "VAL: " + value + " SC: (" + shiftCard.getShape() + "" + shiftCard.getOrientation()
+				+ ") SP: (" + shiftPosition.getRow() + "," + shiftPosition.getCol() + ") MP: ("
+				+ movePosition.getRow() + "," + movePosition.getCol() + ")";
 	}
 }
