@@ -408,27 +408,65 @@ public class Pathfinding {
 				end1.setCol(6);
 				end2.setCol(5);
 			}
-			
-			if(end.getRow() ==  0){
+
+			if (end.getRow() == 0) {
 				end1.setRow(0);
 				end1.setRow(1);
 			} else {
 				end1.setRow(6);
 				end2.setRow(5);
 			}
-			//TODO
-		} else {
-			List<PinPosHelp> list_pph = simpleSolution(list, tre, id);
-			if (list_pph.size() == 0) {
-				list_pph = shortestPath(list);
-				if (list_pph.size() == 0) {
-					Position p = emergencyTreIsOnShift(list);
-					list_pph = nearBy(p, list);
+			List<Position> l = new ArrayList<>();
+			List<PinPosHelp> list_end = new ArrayList<>();
+			for (CardHelp ch : list) {
+				if (ch.getPos().equals(end1) || ch.getPos().equals(end2)) {
+					Board b = (Board) betterBoard.clone();
+					b.proceedShift(ch);
+					l.clear();
+					l = findPossiblePos(b, l, b.getPinPos(id));
+					Position pos = ch.getPos();
+					if (l.contains(ch.getPos())) {
+						// TODO richtig?
+						Card c = ch.getCard();
+						if (pos.getRow() == end.getRow()) {
+							if (pos.getCol() < end.getCol() && c.getOpenings().isRight()) {
+								list_end.add(new PinPosHelp(ch.getPos(), ch.getPos(), ch));
+							}
+							if (pos.getCol() > end.getCol() && c.getOpenings().isLeft()) {
+								list_end.add(new PinPosHelp(ch.getPos(), ch.getPos(), ch));
+							}
+						}
+
+						if (pos.getCol() == end.getCol()) {
+							if (pos.getRow() < end.getRow() && c.getOpenings().isTop()) {
+								list_end.add(new PinPosHelp(ch.getPos(), ch.getPos(), ch));
+							}
+							if (pos.getRow() > end.getRow() && c.getOpenings().isBottom()) {
+								list_end.add(new PinPosHelp(ch.getPos(), ch.getPos(), ch));
+							}
+						}
+					}
 				}
 			}
-			list_rating = list_pph;
-			return bestMove();
+			// TODO
+			if (list_end.size() > 0) {
+				list_rating = list_end;
+				for (int i: nextPlayer){
+					sealEndPos(i);
+				}
+				return PinPosHelp.getLowestRating(list_rating);
+			}
 		}
+		List<PinPosHelp> list_pph = simpleSolution(list, tre, id);
+		if (list_pph.size() == 0) {
+			list_pph = shortestPath(list);
+			if (list_pph.size() == 0) {
+				Position p = emergencyTreIsOnShift(list);
+				list_pph = nearBy(p, list);
+			}
+		}
+		list_rating = list_pph;
+		return bestMove();
 	}
 
 	/**
