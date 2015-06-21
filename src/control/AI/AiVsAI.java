@@ -83,7 +83,7 @@ public class AiVsAI {
 	public void init() {
 		if (debug) {
 			config.Settings.TESTBOARD = true;
-			config.Settings.TESTBOARD_SEED = 1;
+			config.Settings.TESTBOARD_SEED = 0;
 		}
 		config.Settings.PORT--;
 		lps_out = LoggedPrintStream.create(System.out);
@@ -231,14 +231,14 @@ public class AiVsAI {
 
 		if (number < count) {
 			if (debug) {
-				config.Settings.TESTBOARD_SEED++;
+				config.Settings.TESTBOARD_SEED+= 2;
 			}
 			config.Settings.PORT++;
 			control.Settings.PORT = config.Settings.PORT;
 			start();
 		} else {
 			if (debug) {
-				config.Settings.TESTBOARD_SEED = 1;
+				config.Settings.TESTBOARD_SEED = 0;
 			}
 			showResults();
 			order.remove(0);
