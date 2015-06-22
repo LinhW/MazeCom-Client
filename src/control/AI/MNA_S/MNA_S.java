@@ -55,7 +55,10 @@ public class MNA_S implements Player {
 		board = new Board(message.getBoard());
 		long time = System.nanoTime();
 
+		System.out.println(time + " MNA:START");
 		MNA_S_Move finalMove = assist.getMove();
+
+		System.out.println(System.nanoTime() + " MNA:STOP");
 		
 		time = (System.nanoTime() - time) / 1000000;
 		if (time > (timeout - 1000)) {
