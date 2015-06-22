@@ -147,7 +147,7 @@ public class Pathfinding {
 
 	private PinPosHelp checkLoop(PinPosHelp pph) {
 		wif_v2.writeln("deadEnd");
-		if (pph.getTrePos() != null && pph.getTrePos().equals(betterBoard.findTreasure(betterBoard.getTreasure())) && pph.getPinPos().equals(betterBoard.getPinPos(id))) {
+		if (pph.getTrePos() != null &&  betterBoard.findTreasure(betterBoard.getTreasure()) != null && pph.getTrePos().equals(betterBoard.findTreasure(betterBoard.getTreasure())) && pph.getPinPos().equals(betterBoard.getPinPos(id))) {
 			// TODO
 			pph = deadEnd();
 		}
@@ -448,13 +448,29 @@ public class Pathfinding {
 					}
 				}
 			}
-			// TODO
 			if (list_end.size() > 0) {
+				if (list_end.size() == 1) {
+					return list_end.get(0);
+				}
 				list_rating = list_end;
-				for (int i: nextPlayer){
+				for (int i : nextPlayer) {
 					sealEndPos(i);
 				}
 				return PinPosHelp.getLowestRating(list_rating);
+			} else {
+				// TODO
+				List<PinPosHelp> l_pph = simpleSolution(TreasureType.valueOf("START_0" + id), id);
+				PinPosHelp pph;
+				if (l_pph.size() == 0) {
+					pph = nextStep(tre, id);
+				} else {
+					list_rating = l_pph;
+					checkLastButOne();
+					beAnnoying();
+					sealAway();
+				}
+				pph = PinPosHelp.getLowestRating(list_rating);
+				return pph;
 			}
 		}
 		List<PinPosHelp> list_pph = simpleSolution(list, tre, id);

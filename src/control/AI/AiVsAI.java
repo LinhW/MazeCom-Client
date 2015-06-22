@@ -30,8 +30,8 @@ public class AiVsAI {
 	private int randomAdvanced = 0;
 	private int tryAndError = 0;
 	private int ava = 1;
-	private int lamb = 0;
-	private int mna_s = 0;
+	private int lamb = 1;
+	private int mna_s = 1;
 	private int fridolin = 1;
 	// name of ai's. Value of the specified string can be changed by oneself
 	private final String RANDOMSIMPLE = "randomSimple";
