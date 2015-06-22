@@ -23,7 +23,7 @@ import control.network.Connection;
 public class AiVsAI {
 	// ================ settings ====================
 	// number of games
-	private final int count = 10;
+	private final int count = 3;
 	// count how many instances the specified ai shall start
 	private int hal9000;
 	private int randomSimple = 0;
@@ -43,7 +43,7 @@ public class AiVsAI {
 	private final String MNA_S = "MNA_S";
 	private final String FRIDOLIN = "Fridolin!";
 	// case true: testseed++ each game. so it is possible to find the game where an error occurred
-	private final boolean debug = true;
+	private final boolean debug = false;
 	// =================== end ======================
 
 	private WriteIntoFile wif;
@@ -84,6 +84,10 @@ public class AiVsAI {
 		if (debug) {
 			config.Settings.TESTBOARD = true;
 			config.Settings.TESTBOARD_SEED = 0;
+		}
+		else {
+			config.Settings.TESTBOARD = false;
+			config.Settings.TESTBOARD_SEED = System.nanoTime();
 		}
 		config.Settings.PORT--;
 		lps_out = LoggedPrintStream.create(System.out);
