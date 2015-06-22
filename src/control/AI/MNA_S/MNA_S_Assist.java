@@ -222,22 +222,27 @@ public class MNA_S_Assist {
 			List<TreasureType> tfound, TreasureType treasure) {
 		MNA_S_Move finalMove = isFinishable(playerID, oldBoard);
 		if (finalMove == null) {
+			boolean hasBlocked = false;
 			int nextPlayer = getNextPlayer(playerID);
 			while (nextPlayer != playerID) {
 				if (remainingTreasures[nextPlayer - 1] == 1) {
 					finalMove = blockOpponent(playerID, nextPlayer, oldBoard);
+					hasBlocked = true;
 					break;
 				}
 				nextPlayer = getNextPlayer(playerID);
 			}
 			if (finalMove == null) {
+				if (hasBlocked) {
+					System.out.println("HAS BLOCKED BUT NULL");
+				}
 				ArrayList<MNA_S_Move> shortestMoves = new ArrayList<MNA_S_Move>();
 				int distance = 12;
 				for (MNA_S_Move move : getAllBoardMoves(oldBoard)) {
 					Board board = doMovement(playerID, oldBoard, move);
 					PositionType treasurePosition = board.findTreasure(treasure);
 					for (PositionType movePosition : board.getAllReachablePositions(board.findPlayer(playerID))) {
-						if (getDistance(movePosition, treasurePosition) <= distance) {
+						if (getDistance(movePosition, treasurePosition) <= Math.max(distance, 2)) {
 							if (getDistance(movePosition, treasurePosition) < Math.max(distance, 2)) {
 								shortestMoves.clear();
 								distance = getDistance(movePosition, treasurePosition);
@@ -284,8 +289,45 @@ public class MNA_S_Assist {
 	}
 	
 	private MNA_S_Move blockOpponent(int playerID, int nextPlayer, Board oldBoard) {
+		ArrayList<MNA_S_Move> moves = new ArrayList<MNA_S_Move>();
+		PositionType treasurePosition = oldBoard.findTreasure(getLastTreasure(nextPlayer));
 		for (MNA_S_Move boardMove : getAllBoardMoves(oldBoard)) {
+			Board board = doMovement(0, oldBoard, boardMove);
+			int positions = board.getAllReachablePositions(treasurePosition).size();
+			MNA_S_Move move = new MNA_S_Move(boardMove);
+			if (board.pathPossible(board.findPlayer(playerID), board.findTreasure(mna.getTreasure()))) {
+				move.setMovePosition(board.findTreasure(mna.getTreasure()));
+				move.setValue(positions - 3);
+			}
+			else {
+				move.setValue(positions);
+			}
+			moves.add(move);
 		}
+		MNA_S_Move finalMove = Collections.min(moves);
+		if (finalMove.getMovePosition() == null) {
+			Board board = doMovement(0, oldBoard, finalMove);
+			treasurePosition = board.findTreasure(mna.getTreasure());
+			int distance = 12;
+			ArrayList<PositionType> allPositions = new ArrayList<PositionType>();
+			for (PositionType movePosition : board.getAllReachablePositions(board.findPlayer(playerID))) {
+				if (getDistance(movePosition, treasurePosition) <= Math.max(distance, 2)) {
+					if (getDistance(movePosition, treasurePosition) < Math.max(distance, 2)) {
+						allPositions.clear();
+						distance = getDistance(movePosition, treasurePosition);
+					}
+					allPositions.add(movePosition);
+				}
+			}
+			finalMove.setMovePosition(allPositions.get(0));
+			for (PositionType movePosition : allPositions) {
+				if (!isShiftable(movePosition)) {
+					finalMove.setMovePosition(movePosition);
+					break;
+				}
+			}
+		}
+		return finalMove;
 	}
 
 	// ######################################################################################### //
