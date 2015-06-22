@@ -61,7 +61,7 @@ public class MNA_S implements Player {
 		if (time > (timeout - 1000)) {
 			System.out.println("MNA_S needed " + time / 1000 + " seconds!");
 		}
-
+		System.out.println(finalMove);
 		lastMove = new MNA_S_Move(finalMove);
 		
 		sendMoveMessage(playerID, finalMove.getShiftCard(), finalMove.getShiftPosition(),

@@ -8,7 +8,9 @@ import control.AI.Player;
 import control.AI.RandomAIAdvanced;
 import control.AI.RandomAISimple;
 import control.AI.TryAndError;
+import control.AI.Fridolin.Fridolin;
 import control.AI.LAMB.LAMB;
+import control.AI.MNA_S.MNA_S;
 import control.AI.ava.Ava;
 import control.network.Connection;
 
@@ -39,6 +41,12 @@ public class Main {
 				break;
 			case 4:
 				player = new LAMB(connection);
+				break;
+			case 5:
+				player = new Fridolin(connection);
+				break;
+			case 6:
+				player = new MNA_S(connection);
 				break;
 			default:
 				player = new RandomAISimple(connection);
