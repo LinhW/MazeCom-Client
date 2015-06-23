@@ -68,7 +68,9 @@ public class MNA_S_Assist {
 	private boolean[] canFindTreasure;
 	private int[] remainingTreasures;
 	private ArrayList<Position> lastPositions;
+	private ArrayList<TreasureType> treasuresFound;
 	private ArrayList<TreasureType> tempFound;
+	private ArrayList<TreasuresToGoType> ttgo;
 
 	/**
 	 * Constructor for MNA_S. Links an MNA_S instance with this MNA_S_Assist instance.
@@ -100,23 +102,20 @@ public class MNA_S_Assist {
 	 */
 	public MNA_S_Move getMove() {
 		tempFound.clear();
+		ttgo = mna.getTreasuresToGo();
+		treasuresFound = mna.getTreasuresFound();
 		calculatePlayers(mna.getTreasuresToGo(), mna.getPlayerID());
 		for (int i = 0; i < 4; i++) {
 			canFindTreasure[i] = false;
 		}
 		MNA_S_Move finalMove;
-		System.out.print(System.nanoTime() + " ");
 		// Use a final move if it is possible to finish the game
 		if (isLastTreasure(mna.getTreasure())) {
-			System.out.println("FINISH MOVE");
-			finalMove = calculateFinishMove(mna.getPlayerID(), mna.getBoard(), mna.getTreasuresToGo(),
-					mna.getTreasuresFound(), mna.getTreasure());
+			finalMove = calculateFinishMove(mna.getPlayerID(), mna.getBoard(), mna.getTreasure());
 		}
 		// Calculate a move
 		else {
-			System.out.println("NORMAL MOVE");
-			finalMove = calculateMove(mna.getPlayerID(), mna.getBoard(), mna.getTreasuresToGo(),
-					mna.getTreasuresFound(), mna.getTreasure());
+			finalMove = calculateMove(mna.getPlayerID(), mna.getBoard(), mna.getTreasure());
 			lastPositions.add(finalMove.getMovePosition());
 			if (lastPositions.size() == 3) {
 				if (lastPositions.get(2).equals(lastPositions.get(0)) && lastPositions.get(2).equals(lastPositions.get(1))) {
@@ -134,61 +133,50 @@ public class MNA_S_Assist {
 	 * 
 	 * @return MNA_S_Move
 	 */
-	private MNA_S_Move calculateMove(int playerID, Board oldBoard, List<TreasuresToGoType> ttgo,
-			List<TreasureType> tfound, TreasureType treasure) {
+	private MNA_S_Move calculateMove(int playerID, Board oldBoard, TreasureType treasure) {
 		MNA_S_Move finalMove = null;
 		if (treasure == null) {
 			ArrayList<TreasureType> notFound = new ArrayList<TreasureType>(allTreasures);
-			notFound.removeAll(tfound);
+			notFound.removeAll(treasuresFound);
 			notFound.remove(tempFound);
 			notFound.remove(mna.getTreasure());
 			Collections.shuffle(notFound);
 			treasure = notFound.get(0);
 		}
-
-		blocking:
-		for (int i = 1; i <= 2; i++) {
-			int nextPlayer = getNextPlayer(playerID);
-			while (nextPlayer != playerID) {
-				if (remainingTreasures[nextPlayer - 1] == i) {
-					System.out.println(System.nanoTime() + " BLOCK OPPONENT " + nextPlayer);
-					finalMove = blockOpponent(playerID, nextPlayer, oldBoard, treasure);
-					break blocking;
-				}
-				nextPlayer = getNextPlayer(nextPlayer);
+		ArrayList<MNA_S_Move> allMoves = getAllBoardMoves(oldBoard);
+		int nextPlayer = getNextPlayer(playerID);
+		while (nextPlayer != playerID) {
+			if (remainingTreasures[nextPlayer - 1] == 1) {
+				allMoves = blockOpponent(playerID, nextPlayer, oldBoard, treasure);
 			}
+			nextPlayer = getNextPlayer(nextPlayer);
 		}
 		
 		if (finalMove == null) {
-			System.out.println(System.nanoTime() + " CALCULATE MOVE " + playerID);
-			ArrayList<MNA_S_Move> allMoves = new ArrayList<MNA_S_Move>();
 			canFindTreasure[playerID - 1] = false;
 
 			// TODO Threads
 			// Iterate over all board moves
-			for (MNA_S_Move boardMove : getAllBoardMoves(oldBoard)) {
+			for (MNA_S_Move boardMove : allMoves) {
 				Board board = doMovement(0, oldBoard, boardMove);
 				// Ignore moves that lead to win of next player
 				PositionType treasurePosition = board.findTreasure(treasure);
-				int boardValue = calculateBoardValue(playerID, board, ttgo, tfound, treasure);
+				int boardValue = calculateBoardValue(playerID, board, treasure);
 
 				// Iterate over all possible positions for this board move
+				int maxValue = Integer.MIN_VALUE;
 				for (PositionType position : board.getAllReachablePositions(board.findPlayer(playerID))) {
 					int positionValue = calculatePositionValue(playerID, board, new Position(position),
 							treasurePosition, treasure);
-					MNA_S_Move tempMove = new MNA_S_Move(boardMove);
-					tempMove.setMovePosition(new Position(position));
-					tempMove.setValue(boardValue + positionValue);
-					allMoves.add(tempMove);
+					if (positionValue > maxValue) {
+						maxValue = positionValue;
+						boardMove.setMovePosition(position);
+						boardMove.setValue(boardValue + positionValue);
+					}
 				}
 			}
 
-			if (allMoves.size() == 0) {
-				return randomMove(playerID, oldBoard, treasure);
-			}
-
 			if (!canFindTreasure[playerID - 1] && recursionDepth < maxRecursionDepth) {
-				System.out.println(System.nanoTime() + " RECURSION");
 				recursionDepth++;
 				ArrayList<Integer> tempPlayers = new ArrayList<Integer>(allPlayers);
 				Collections.rotate(tempPlayers, tempPlayers.size() - (tempPlayers.indexOf(playerID) + 1));
@@ -198,21 +186,18 @@ public class MNA_S_Assist {
 					for (int i = 0; i < tempPlayers.size() - 1; i++) {
 						secondMove = null;
 						int tempID = tempPlayers.get(i);
-						System.out.println(tempID);
 						if (remainingTreasures[tempID - 1] == 1) {
-							secondMove = calculateFinishMove(tempID, board, ttgo, tfound,
-									TreasureType.valueOf("START_0" + tempID));
+							secondMove = calculateFinishMove(tempID, board, getLastTreasure(tempID));
 						}
 						if (secondMove == null) {
-							secondMove = calculateMove(tempID, board, ttgo, tfound, null);
+							secondMove = calculateMove(tempID, board, null);
 						}
 						board = doMovement(tempID, board, secondMove);
 					}
-					secondMove = calculateMove(playerID, board, ttgo, tfound, treasure);
+					secondMove = calculateMove(playerID, board, treasure);
 					move.setValue(move.getValue() + secondMove.getValue());
 				}
 				recursionDepth--;
-				System.out.println(System.nanoTime() + " RECURSION END");
 			}
 			finalMove = Collections.max(allMoves);
 		}
@@ -230,52 +215,33 @@ public class MNA_S_Assist {
 	 * @param treasure
 	 * @return MNA_S_Move
 	 */
-	private MNA_S_Move calculateFinishMove(int playerID, Board oldBoard, List<TreasuresToGoType> ttgo,
-			List<TreasureType> tfound, TreasureType treasure) {
-		System.out.println(System.nanoTime() + " IS FINISHABLE");
+	private MNA_S_Move calculateFinishMove(int playerID, Board oldBoard, TreasureType treasure) {
 		MNA_S_Move finalMove = isFinishable(playerID, oldBoard);
 		if (finalMove == null) {
-			boolean hasBlocked = false;
-			blocking:
-				for (int i = 1; i <= 2; i++) {
-					int nextPlayer = getNextPlayer(playerID);
-					while (nextPlayer != playerID) {
-						if (remainingTreasures[nextPlayer - 1] == i) {
-							System.out.println(System.nanoTime() + " BLOCK OPPONENT " + nextPlayer);
-							finalMove = blockOpponent(playerID, nextPlayer, oldBoard, treasure);
-							break blocking;
-						}
-						nextPlayer = getNextPlayer(nextPlayer);
-					}
+			ArrayList<MNA_S_Move> allMoves = getAllBoardMoves(oldBoard);
+			int nextPlayer = getNextPlayer(playerID);
+			while (nextPlayer != playerID) {
+				if (remainingTreasures[nextPlayer - 1] == 1) {
+					allMoves = blockOpponent(playerID, nextPlayer, oldBoard, treasure);
 				}
-			if (finalMove == null) {
-				if (hasBlocked) {
-					System.out.println("HAS BLOCKED BUT NULL");
-				}
-				System.out.println(System.nanoTime() + " CALCULATE FINISH MOVE");
-				ArrayList<MNA_S_Move> shortestMoves = new ArrayList<MNA_S_Move>();
-				int distance = 12;
-				for (MNA_S_Move move : getAllBoardMoves(oldBoard)) {
-					Board board = doMovement(playerID, oldBoard, move);
-					PositionType treasurePosition = board.findTreasure(treasure);
-					for (PositionType movePosition : board.getAllReachablePositions(board.findPlayer(playerID))) {
-						if (getDistance(movePosition, treasurePosition) <= Math.max(distance, 2)) {
-							if (getDistance(movePosition, treasurePosition) < Math.max(distance, 2)) {
-								shortestMoves.clear();
-								distance = getDistance(movePosition, treasurePosition);
-							}
-							MNA_S_Move temp = new MNA_S_Move(move);
-							temp.setMovePosition(movePosition);
-							temp.setValue(calculateBoardValue(playerID, board, ttgo, tfound, treasure));
-							if (isShiftable(movePosition)) {
-								temp.setValue(temp.getValue() - MNA_S_Points.POSITION_SHIFTABLE.value());
-							}
-							shortestMoves.add(temp);
-						}
-					}
-				}
-				finalMove = Collections.max(shortestMoves);
+				nextPlayer = getNextPlayer(nextPlayer);
 			}
+			for (MNA_S_Move move : allMoves) {
+				Board board = doMovement(playerID, oldBoard, move);
+				PositionType treasurePosition = board.findTreasure(treasure);
+				int maxValue = Integer.MIN_VALUE;
+				for (PositionType movePosition : board.getAllReachablePositions(board.findPlayer(playerID))) {
+					int positionValue = getDistance(movePosition, treasurePosition);
+					if (isShiftable(movePosition)) {
+						positionValue -= MNA_S_Points.POSITION_SHIFTABLE.value();
+					}
+					if (positionValue > maxValue) {
+						maxValue = positionValue;
+						move.setMovePosition(movePosition);
+					}
+				}
+			}
+			finalMove = Collections.max(allMoves);
 		}
 		return finalMove;
 	}
@@ -289,7 +255,6 @@ public class MNA_S_Assist {
 	 * @return MNA_S_Move
 	 */
 	private MNA_S_Move randomMove(int playerID, Board oldBoard, TreasureType treasure) {
-		System.out.println(System.nanoTime() + " RANDOM MOVE");
 		ArrayList<MNA_S_Move> allBoardMoves = getAllBoardMoves(oldBoard);
 		Collections.shuffle(allBoardMoves);
 		MNA_S_Move randomMove = allBoardMoves.get(0);
@@ -314,46 +279,20 @@ public class MNA_S_Assist {
 	 * @param oldBoard
 	 * @return MNA_S_Move
 	 */
-	private MNA_S_Move blockOpponent(int playerID, int nextPlayer, Board oldBoard, TreasureType treasure) {
-		ArrayList<MNA_S_Move> moves = new ArrayList<MNA_S_Move>();
-		PositionType treasurePosition = oldBoard.findTreasure(getLastTreasure(nextPlayer));
-		for (MNA_S_Move boardMove : getAllBoardMoves(oldBoard)) {
-			Board board = doMovement(0, oldBoard, boardMove);
-			int positions = board.getAllReachablePositions(treasurePosition).size();
-			MNA_S_Move move = new MNA_S_Move(boardMove);
-			if (board.pathPossible(board.findPlayer(playerID), board.findTreasure(treasure))) {
-				move.setMovePosition(board.findTreasure(treasure));
-				move.setValue(positions - 3);
-			}
-			else {
-				move.setValue(positions);
-			}
-			moves.add(move);
+	private ArrayList<MNA_S_Move> blockOpponent(int playerID, int nextPlayer, Board oldBoard, TreasureType treasure) {
+		ArrayList<Integer> tempPlayers = new ArrayList<Integer>(allPlayers);
+		Collections.rotate(tempPlayers, tempPlayers.size() - (tempPlayers.indexOf(playerID) + 1));
+		ArrayList<MNA_S_Move> allMoves = new ArrayList<MNA_S_Move>(getAllBoardMoves(oldBoard));
+		
+		filterFinishableMoves(allMoves, tempPlayers, oldBoard, playerID, nextPlayer);
+		
+		// No way to prevent next player win
+		if (allMoves.size() == 0) {
+			return getAllBoardMoves(oldBoard);
 		}
-		MNA_S_Move finalMove = Collections.min(moves);
-		if (finalMove.getMovePosition() == null) {
-			Board board = doMovement(0, oldBoard, finalMove);
-			treasurePosition = board.findTreasure(mna.getTreasure());
-			int distance = 12;
-			ArrayList<PositionType> allPositions = new ArrayList<PositionType>();
-			for (PositionType movePosition : board.getAllReachablePositions(board.findPlayer(playerID))) {
-				if (getDistance(movePosition, treasurePosition) <= Math.max(distance, 2)) {
-					if (getDistance(movePosition, treasurePosition) < Math.max(distance, 2)) {
-						allPositions.clear();
-						distance = getDistance(movePosition, treasurePosition);
-					}
-					allPositions.add(movePosition);
-				}
-			}
-			finalMove.setMovePosition(allPositions.get(0));
-			for (PositionType movePosition : allPositions) {
-				if (!isShiftable(movePosition)) {
-					finalMove.setMovePosition(movePosition);
-					break;
-				}
-			}
+		else {
+			return allMoves;
 		}
-		return finalMove;
 	}
 
 	// ##################################################################################################### //
@@ -370,8 +309,7 @@ public class MNA_S_Assist {
 	 * @param treasure
 	 * @return int
 	 */
-	private int calculateBoardValue(int playerID, Board board, List<TreasuresToGoType> ttgo,
-			List<TreasureType> tfound, TreasureType treasure) {
+	private int calculateBoardValue(int playerID, Board board, TreasureType treasure) {
 		int boardValue = 0;
 
 		for (TreasuresToGoType ttg : ttgo) {
@@ -380,7 +318,7 @@ public class MNA_S_Assist {
 			List<PositionType> reachablePos = board.getAllReachablePositions(playerPos);
 			for (PositionType pos : reachablePos) {
 				TreasureType ttype = board.getCard(pos.getRow(), pos.getCol()).getTreasure();
-				if ((ttype != null) && (ttype != treasure) && !tfound.contains(ttype)) {
+				if ((ttype != null) && (ttype != treasure) && !treasuresFound.contains(ttype)) {
 					treasureCounter++;
 				}
 			}
@@ -419,10 +357,52 @@ public class MNA_S_Assist {
 				tempFound.add(treasure);
 			}
 			else {
-				positionValue += 2 * (12 - getDistance(position, tPosition));
+				positionValue += 3 * (12 - getDistance(position, tPosition));
 			}
 		}
 		return positionValue;
+	}
+	
+	private void calculateValues(ArrayList<MNA_S_Move> allMoves, Board oldBoard, int playerID, TreasureType treasure) {
+		for (MNA_S_Move move : allMoves) {
+			Board board = doMovement(0, oldBoard, move);
+			move.setValue(calculateBoardValue(playerID, board, treasure));
+			if (board.findTreasure(treasure) != null) {
+				List<PositionType> playerWays = board.getAllReachablePositions(board.findPlayer(playerID));
+				List<PositionType> treasureWays = board.getAllReachablePositions(board.findTreasure(treasure));
+				int distance = 12;
+				for (PositionType playerPosition : playerWays) {
+					for (PositionType treasurePosition : treasureWays) {
+						if (getDistance(playerPosition, treasurePosition) <= distance) {
+							distance = getDistance(playerPosition, treasurePosition);
+							move.setMovePosition(playerPosition);
+							move.setValue(12 - distance);
+						}
+						if (getDistance(playerPosition, treasurePosition) == 0) {
+							move.setValue(MNA_S_Points.OWN_TARGET.value());
+						}
+					}
+				}
+			}
+			else {
+				move.setValue(MNA_S_Points.TARGET_MISSING.value());
+			}
+		}
+	}
+	
+	private boolean filterFinishableMoves(ArrayList<MNA_S_Move> allMoves, ArrayList<Integer> playerList, Board oldBoard, int playerID, int blockPlayer) {
+		//TODO Threads
+		if (remainingTreasures[blockPlayer - 1] != 1) {
+			return false;
+		}
+		ArrayList<MNA_S_Move> tempMoves = new ArrayList<MNA_S_Move>();
+		for (MNA_S_Move move : allMoves) {
+			Board board = doMovement(0, oldBoard, move);
+			if (isFinishable(blockPlayer, board) == null) {
+				tempMoves.add(move);
+			}
+		}
+		return allMoves.retainAll(tempMoves);
 	}
 
 	// ##################################################################################################### //
