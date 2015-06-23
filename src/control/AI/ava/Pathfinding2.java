@@ -15,7 +15,7 @@ import control.AI.ava.ownClasses.Board;
 import control.AI.ava.ownClasses.Card;
 import control.AI.ava.ownClasses.Position;
 
-public class Pathfinding {
+public class Pathfinding2 {
 	private final int X = 7;
 	private final int Y = 7;
 	private Board betterBoard;
@@ -40,13 +40,13 @@ public class Pathfinding {
 	// TODO nullpointer wenn kein gegner mehr da ist
 	private List<TreasureType> list_foundTreasures;
 
-	public Pathfinding(Board b, int PlayerID, List<TreasuresToGoType> list) {
+	public Pathfinding2(Board b, int PlayerID, List<TreasuresToGoType> list) {
 		this(PlayerID);
 		setBoard(b);
 		setTreToGo(list);
 	}
 
-	public Pathfinding(int PlayerID) {
+	public Pathfinding2(int PlayerID) {
 		list_PinPosHelp_v1 = new ArrayList<>();
 		map_PinPosHelp_v2 = new HashMap<>();
 		list_foundTreasures = new ArrayList<>();
@@ -131,11 +131,11 @@ public class Pathfinding {
 				if (nextPlayer.length > 1) {
 					l_pph = checkOtherPlayer(l_pph);
 
-					l_pph = beAnnoying(l_pph);
+					l_pph = sealAway(l_pph);
 					if (l_pph.size() == 1) {
 						pph = l_pph.get(0);
 					} else {
-						pph = sealAway(l_pph).get(0);
+						pph = beAnnoying(l_pph).get(0);
 					}
 				}
 			}
@@ -188,7 +188,7 @@ public class Pathfinding {
 			if (map.containsKey(diff)) {
 				map.get(diff).add(pph);
 			} else {
-				List<PinPosHelp> lpph = new ArrayList<Pathfinding.PinPosHelp>();
+				List<PinPosHelp> lpph = new ArrayList<>();
 				lpph.add(pph);
 				map.put(diff, lpph);
 			}

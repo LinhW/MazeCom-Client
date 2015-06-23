@@ -1,9 +1,11 @@
 package control.AI.Fridolin;
 
+import tools.WriteIntoFile;
 import model.jaxb.AcceptMessageType;
 import model.jaxb.AwaitMoveMessageType;
 import model.jaxb.CardType;
 import model.jaxb.DisconnectMessageType;
+import model.jaxb.ErrorType;
 import model.jaxb.LoginReplyMessageType;
 import model.jaxb.PositionType;
 import model.jaxb.WinMessageType;
@@ -17,10 +19,13 @@ public class Fridolin implements Player {
 	private Connection con;
 	private Pathfinding p;
 	private boolean accept = true;
+	private boolean dc = false;
 	public static final String FILEPATH = "src/control/AI/Fridolin/tmp";
+	private WriteIntoFile wif;
 
 	public Fridolin(Connection con) {
 		this.con = con;
+		wif = new WriteIntoFile(FILEPATH + WriteIntoFile.FILEEXTENSION);
 	}
 
 	@Override
@@ -37,7 +42,9 @@ public class Fridolin implements Player {
 
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
+		wif.writeln("Fridolin receives AwaitMoveMessage");
 		PinPosHelp pph;
+		long tmp = System.nanoTime();
 		if (accept) {
 			Board b = new Board(message.getBoard());
 			b.setTreasure(message.getTreasure());
@@ -48,6 +55,12 @@ public class Fridolin implements Player {
 		} else {
 			pph = p.getNewMove();
 		}
+		tmp = ((System.nanoTime() - tmp) / (1000 * 1000 * 1000));
+		wif.writeln(tmp + "");
+		if (tmp > 10) {
+			System.err.println((System.nanoTime() - tmp) / (1000 * 1000 * 1000));
+		}
+		wif.writeln(id + "\n" + pph.getCardHelp().getCard() + " " + pph.getCardHelp().getPos() + pph.getPinPos());
 		sendMoveMessage(id, pph.getCardHelp().getCard(), pph.getCardHelp().getPos(), pph.getPinPos());
 
 	}
@@ -57,6 +70,11 @@ public class Fridolin implements Player {
 		System.out.println("Fridolin receives a disconnect Message:");
 		System.out.println(message.getErrorCode());
 		con.sendDisconnect(message.getErrorCode(), id);
+		if (message.getErrorCode() == ErrorType.TIMEOUT) {
+			dc = true;
+		} else {
+			dc = false;
+		}
 	}
 
 	@Override
@@ -68,12 +86,15 @@ public class Fridolin implements Player {
 
 	@Override
 	public void receiveAcceptMessage(AcceptMessageType message) {
+		wif.writeln("Fridolin receives: " + message.isAccept());
 		accept = message.isAccept();
 	}
 
 	@Override
 	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift, PositionType pin) {
-		con.sendMoveMessage(PlayerID, c, shift, pin);
+		if (!dc) {
+			con.sendMoveMessage(PlayerID, c, shift, pin);
+		}
 	}
 
 }

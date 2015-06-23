@@ -15,7 +15,7 @@ public class PinPosHelp {
 		this.ch = ch;
 	}
 	
-	public PinPosHelp(Position trePos, Position pinPos, CardHelp ch, int Rating) {
+	public PinPosHelp(Position trePos, Position pinPos, CardHelp ch, double Rating) {
 		this.trePos = trePos;
 		this.pinPos = pinPos;
 		this.ch = ch;
@@ -80,7 +80,6 @@ public class PinPosHelp {
 	}
 	
 	public static PinPosHelp getLowestRating(List<PinPosHelp> list){
-		System.out.println("getLowestRating");
 		double min = Double.MAX_VALUE;
 		PinPosHelp p = null;
 		for (PinPosHelp pph: list){

@@ -18,6 +18,7 @@ import control.AI.Fridolin.Fridolin;
 import control.AI.MNA_S.MNA_S;
 import control.AI.LAMB.LAMB;
 import control.AI.ava.Ava;
+import control.AI.ava.Ava2;
 import control.network.Connection;
 
 public class AiVsAI {
@@ -30,9 +31,10 @@ public class AiVsAI {
 	private int randomAdvanced = 0;
 	private int tryAndError = 0;
 	private int ava = 1;
-	private int lamb = 1;
-	private int mna_s = 1;
+	private int lamb = 0;
+	private int mna_s = 0;
 	private int fridolin = 1;
+	private int ava2 = 1;
 	// name of ai's. Value of the specified string can be changed by oneself
 	private final String RANDOMSIMPLE = "randomSimple";
 	private final String RANDOMADVANCED = "randomAdvanced";
@@ -42,6 +44,7 @@ public class AiVsAI {
 	private final String HAL9000 = "hal9000";
 	private final String MNA_S = "MNA_S";
 	private final String FRIDOLIN = "Fridolin!";
+	private final String AVA2  = "Ava 2.0";
 	// case true: testseed++ each game. so it is possible to find the game where an error occurred
 	private final boolean debug = false;
 	// =================== end ======================
@@ -66,6 +69,7 @@ public class AiVsAI {
 	private final int LA = 5;
 	private final int MS = 6;
 	private final int FR = 7;
+	private final int AV2 = 8;
 	/**
 	 * case false: just one constellation. case true: sum of all ai's which should fight factorial multiply with count
 	 */
@@ -93,7 +97,8 @@ public class AiVsAI {
 		System.setOut(lps_out);
 		System.setErr(lps_err);
 		refresh();
-		sum = randomSimple + randomAdvanced + tryAndError + ava + lamb + hal9000 + mna_s + fridolin;
+		System.out.println("debug Modus: " +  debug);
+		sum = randomSimple + randomAdvanced + tryAndError + ava + lamb + hal9000 + mna_s + fridolin + ava2;
 		if (sum > 0) {
 			if (sum > 4) {
 				System.err.println("invalid number of players");
@@ -161,6 +166,14 @@ public class AiVsAI {
 						addMultiply(fridolin, FR);
 					} else {
 						order.add(FR + "");
+					}
+				}
+				if (ava2 > 0) {
+					if (ava2 > 1) {
+						allCombination = false;
+						addMultiply(ava2, AV2);
+					} else {
+						order.add(AV2 + "");
 					}
 				}
 				initAllComb(order);
@@ -234,7 +247,7 @@ public class AiVsAI {
 
 		if (number < count) {
 			if (debug) {
-				config.Settings.TESTBOARD_SEED += 2;
+				config.Settings.TESTBOARD_SEED++;
 			}
 			config.Settings.PORT++;
 			control.Settings.PORT = config.Settings.PORT;
@@ -356,6 +369,14 @@ public class AiVsAI {
 				if (number == 1) {
 					tmp++;
 					map.put(tmp, new PlayerStat(this.FRIDOLIN));
+				}
+				break;
+			case AV2:
+				connection = new Connection(this);
+				new Client(new Ava2(connection), connection).start();
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.AVA2));
 				}
 				break;
 			}
