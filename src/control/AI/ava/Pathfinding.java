@@ -120,22 +120,23 @@ public class Pathfinding {
 		}
 
 		List<PinPosHelp> l_pph = simpleSolution(tre, PlayerID);
-
 		if (l_pph.size() == 0) {
 			pph = nextStep(tre, PlayerID);
 		} else {
+			pph = l_pph.get(0);
 			l_pph = checkLastButOne(l_pph);
 			if (l_pph.size() == 1) {
 				pph = l_pph.get(0);
 			} else {
 				if (nextPlayer.length > 1) {
 					l_pph = checkOtherPlayer(l_pph);
-				}
-				l_pph = beAnnoying(l_pph);
-				if (l_pph.size() == 1) {
-					pph = l_pph.get(0);
-				} else {
-					pph = sealAway(l_pph).get(0);
+
+					l_pph = beAnnoying(l_pph);
+					if (l_pph.size() == 1) {
+						pph = l_pph.get(0);
+					} else {
+						pph = sealAway(l_pph).get(0);
+					}
 				}
 			}
 		}
@@ -407,7 +408,10 @@ public class Pathfinding {
 					if (list_tmp.size() == 0) {
 						list.get(0);
 					}
-					list_tmp = sealAway(list_tmp);
+					if (nextPlayer.length > 0) {
+						list_tmp = sealAway(list_tmp);
+						return list_tmp.get(0);
+					}
 					return list.get(0);
 				}
 			}
@@ -427,7 +431,7 @@ public class Pathfinding {
 		}
 		wif_v2.writeln("//////////////////////////////////////////////////////////////////");
 		wif_v2.writeln(betterBoard.toString());
-		for (PinPosHelp pph: list_pph){
+		for (PinPosHelp pph : list_pph) {
 			wif_v2.writeln(pph.debug());
 		}
 		wif_v2.writeln("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");
@@ -640,7 +644,10 @@ public class Pathfinding {
 					if (l_pph.size() == 1) {
 						return l_pph.get(0);
 					}
-					return sealAway(l_pph).get(0);
+					if (nextPlayer.length > 0) {
+						l_pph = sealAway(l_pph);
+					}
+					return l_pph.get(0);
 				}
 			case 1:
 				List<PinPosHelp> list_pph = simpleSolution(list_ch, tre, PlayerID);

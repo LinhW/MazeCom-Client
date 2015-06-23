@@ -38,6 +38,7 @@ public class Fridolin implements Player {
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
 		PinPosHelp pph;
+		long tmp = System.nanoTime();
 		if (accept) {
 			Board b = new Board(message.getBoard());
 			b.setTreasure(message.getTreasure());
@@ -47,6 +48,10 @@ public class Fridolin implements Player {
 			pph = p.start();
 		} else {
 			pph = p.getNewMove();
+		}
+		tmp = ((System.nanoTime() - tmp) / (1000 * 1000 * 1000));
+		if (tmp > 10) {
+			System.err.println((System.nanoTime() - tmp) / (1000 * 1000 * 1000));
 		}
 		sendMoveMessage(id, pph.getCardHelp().getCard(), pph.getCardHelp().getPos(), pph.getPinPos());
 
@@ -73,6 +78,7 @@ public class Fridolin implements Player {
 
 	@Override
 	public void sendMoveMessage(int PlayerID, CardType c, PositionType shift, PositionType pin) {
+		System.out.println(PlayerID + " " + (c != null) + " " + shift + pin);
 		con.sendMoveMessage(PlayerID, c, shift, pin);
 	}
 
