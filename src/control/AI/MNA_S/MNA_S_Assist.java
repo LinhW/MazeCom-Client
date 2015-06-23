@@ -382,7 +382,8 @@ public class MNA_S_Assist {
 		for (MNA_S_Move boardMove : getAllBoardMoves(oldBoard)) {
 			Board board = doMovement(0, oldBoard, boardMove);
 			MNA_S_Move tempMove = new MNA_S_Move(boardMove);
-			tempMove.setValue(-2 * board.getAllReachablePositions(board.findTreasure(getLastTreasure(blockID))).size());
+			int reachablePositions = -2 * board.getAllReachablePositions(board.findTreasure(getLastTreasure(blockID))).size();
+			int opponentDistance = 0, ownDistance = 0;
 			List<PositionType> playerWays = board.getAllReachablePositions(board.findPlayer(blockID));
 			List<PositionType> treasureWays = board.getAllReachablePositions(board.findTreasure(getLastTreasure(blockID)));
 			int distance = 0;
@@ -390,7 +391,7 @@ public class MNA_S_Assist {
 				for (PositionType treasurePosition : treasureWays) {
 					if (getDistance(playerPosition, treasurePosition) > distance) {
 						distance = getDistance(board.findPlayer(blockID), board.findTreasure(getLastTreasure(blockID)));
-						tempMove.setValue(2 * distance);
+						opponentDistance = 2 * distance;
 					}
 				}
 			}
@@ -402,7 +403,7 @@ public class MNA_S_Assist {
 					for (PositionType treasurePosition : treasureWays) {
 						if (getDistance(playerPosition, treasurePosition) < distance) {
 							distance = getDistance(board.findPlayer(playerID), board.findTreasure(getLastTreasure(playerID)));
-							tempMove.setValue(tempMove.getValue() + 12 - distance);
+							ownDistance = 2 - distance;
 							tempMove.setMovePosition(playerPosition);
 							if (distance == 0) {
 								if (isLastTreasure(treasure)) {
@@ -414,9 +415,9 @@ public class MNA_S_Assist {
 				}
 			}
 			else {
-				tempMove.setValue(tempMove.getValue() - MNA_S_Points.TARGET_MISSING.value());
 				tempMove.setMovePosition(board.findPlayer(playerID));
 			}
+			tempMove.setValue(reachablePositions + opponentDistance + ownDistance);
 			tempMoves.add(tempMove);
 		}
 		if (tempMoves.isEmpty()) {
