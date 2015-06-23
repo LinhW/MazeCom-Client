@@ -393,24 +393,29 @@ public class MNA_S_Assist {
 					}
 				}
 			}
-			playerWays = board.getAllReachablePositions(board.findPlayer(playerID));
-			treasureWays = board.getAllReachablePositions(board.findTreasure(treasure));
-			distance = 12;
-			for (PositionType playerPosition : playerWays) {
-				for (PositionType treasurePosition : treasureWays) {
-					if (getDistance(playerPosition, treasurePosition) < distance) {
-						distance = getDistance(board.findPlayer(playerID), board.findTreasure(getLastTreasure(playerID)));
-						tempMove.setValue(tempMove.getValue() + 12 - distance);
-						tempMove.setMovePosition(playerPosition);
-						if (distance == 0) {
-							if (isLastTreasure(treasure)) {
-								return tempMove;
+			if (board.findTreasure(treasure) != null) {
+				playerWays = board.getAllReachablePositions(board.findPlayer(playerID));
+				treasureWays = board.getAllReachablePositions(board.findTreasure(treasure));
+				distance = 12;
+				for (PositionType playerPosition : playerWays) {
+					for (PositionType treasurePosition : treasureWays) {
+						if (getDistance(playerPosition, treasurePosition) < distance) {
+							distance = getDistance(board.findPlayer(playerID), board.findTreasure(getLastTreasure(playerID)));
+							tempMove.setValue(tempMove.getValue() + 12 - distance);
+							tempMove.setMovePosition(playerPosition);
+							if (distance == 0) {
+								if (isLastTreasure(treasure)) {
+									return tempMove;
+								}
 							}
 						}
 					}
 				}
 			}
-			
+			else {
+				tempMove.setValue(tempMove.getValue() - MNA_S_Points.TARGET_MISSING.value());
+				tempMove.setMovePosition(board.findPlayer(playerID));
+			}
 			tempMoves.add(tempMove);
 		}
 		if (tempMoves.isEmpty()) {
