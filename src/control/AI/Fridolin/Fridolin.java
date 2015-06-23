@@ -22,10 +22,12 @@ public class Fridolin implements Player {
 	private boolean dc = false;
 	public static final String FILEPATH = "src/control/AI/Fridolin/tmp";
 	private WriteIntoFile wif;
+	private WriteIntoFile wif_v2;
 
 	public Fridolin(Connection con) {
 		this.con = con;
 		wif = new WriteIntoFile(FILEPATH + WriteIntoFile.FILEEXTENSION);
+		wif_v2 = new WriteIntoFile(FILEPATH + "_v2"+ WriteIntoFile.FILEEXTENSION);
 	}
 
 	@Override
@@ -69,8 +71,10 @@ public class Fridolin implements Player {
 	public void receiveDisconnectMessage(DisconnectMessageType message) {
 		System.out.println("Fridolin receives a disconnect Message:");
 		System.out.println(message.getErrorCode());
+		wif.writeln(message.getErrorCode().toString());
+		wif_v2.writeln(message.getErrorCode().toString());
 		con.sendDisconnect(message.getErrorCode(), id);
-		if (message.getErrorCode() == ErrorType.TIMEOUT) {
+		if (message.getErrorCode().equals(ErrorType.TIMEOUT)) {
 			dc = true;
 		} else {
 			dc = false;

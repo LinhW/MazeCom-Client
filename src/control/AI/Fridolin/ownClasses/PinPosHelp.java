@@ -90,5 +90,15 @@ public class PinPosHelp {
 		}
 		return p;
 	}
+	
+	public static double getBestRating(List<PinPosHelp> list){
+		double min = Double.MAX_VALUE;
+		for (PinPosHelp pph: list){
+			if (pph.getRating() < min){
+				min = pph.getRating();
+			}
+		}
+		return min;
+	}
 
 }

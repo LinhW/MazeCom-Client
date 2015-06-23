@@ -77,9 +77,9 @@ public class Pathfinding {
 			}
 			i++;
 		}
-		wif_v2.writeln("setTreToGo");
-		wif_v2.writeln(Arrays.asList(nextPlayer).toString());
-		wif_v2.writeln(map_treToGo.keySet().toString());
+//		wif_v2.writeln("setTreToGo");
+//		wif_v2.writeln(Arrays.asList(nextPlayer).toString());
+//		wif_v2.writeln(map_treToGo.keySet().toString());
 	}
 
 	public void setFoundTreasures(List<TreasureType> foundTreasures) {
@@ -163,7 +163,7 @@ public class Pathfinding {
 	}
 
 	private List<PinPosHelp> checkOtherPlayer(List<PinPosHelp> list_pph) {
-		wif_v2.writeln("CheckOtherPlayer");
+//		wif_v2.writeln("CheckOtherPlayer");
 		if (map_treToGo.get(nextPlayer[0]) == 1) {
 			list_pph = sealEndPos(list_pph, nextPlayer[0]);
 		}
@@ -425,16 +425,16 @@ public class Pathfinding {
 			list_pph = shortestPath(list);
 			if (list_pph.size() == 0) {
 				Position p = emergencyTreIsOnShift(list);
-				wif_v2.writeln("where it will be " + p);
+//				wif_v2.writeln("where it will be " + p);
 				list_pph = nearBy(p, list);
 			}
 		}
-		wif_v2.writeln("//////////////////////////////////////////////////////////////////");
-		wif_v2.writeln(betterBoard.toString());
-		for (PinPosHelp pph : list_pph) {
-			wif_v2.writeln(pph.debug());
-		}
-		wif_v2.writeln("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");
+//		wif_v2.writeln("//////////////////////////////////////////////////////////////////");
+//		wif_v2.writeln(betterBoard.toString());
+//		for (PinPosHelp pph : list_pph) {
+//			wif_v2.writeln(pph.debug());
+//		}
+//		wif_v2.writeln("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");
 		return bestMove(list_pph);
 	}
 
@@ -446,7 +446,7 @@ public class Pathfinding {
 	 * @return
 	 */
 	private List<PinPosHelp> nearBy(Position p, List<CardHelp> list_ch) {
-		wif_v2.writeln("nearBy");
+//		wif_v2.writeln("nearBy");
 		List<PinPosHelp> list_pph = new ArrayList<>();
 		int diff = Integer.MAX_VALUE;
 		for (CardHelp ch : list_ch) {
@@ -474,7 +474,7 @@ public class Pathfinding {
 	 * @return
 	 */
 	private Position emergencyTreIsOnShift(List<CardHelp> list) {
-		wif_v2.writeln("emergencyTreIsOnShift");
+//		wif_v2.writeln("emergencyTreIsOnShift");
 		TreasureType tre = null;
 		switch (this.nextPlayer[0]) {
 		case 1:
@@ -771,7 +771,7 @@ public class Pathfinding {
 		Board b = (Board) betterBoard.clone();
 		b.proceedShift(pph.getCardHelp().getP(), new Card(pph.getCardHelp().getC()));
 		pph.setPinPos(b.getPinPos(PlayerID));
-		wif_v2.writeln("Dead End");
+//		wif_v2.writeln("Dead End");
 		return pph;
 	}
 

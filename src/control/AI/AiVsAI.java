@@ -24,17 +24,17 @@ import control.network.Connection;
 public class AiVsAI {
 	// ================ settings ====================
 	// number of games
-	private final int count = 3;
+	private final int count = 5;
 	// count how many instances the specified ai shall start
 	private int hal9000;
 	private int randomSimple = 0;
 	private int randomAdvanced = 0;
 	private int tryAndError = 0;
-	private int ava = 1;
+	private int ava = 2;
 	private int lamb = 0;
 	private int mna_s = 0;
-	private int fridolin = 1;
-	private int ava2 = 1;
+	private int fridolin = 2;
+	private int ava2 = 0;
 	// name of ai's. Value of the specified string can be changed by oneself
 	private final String RANDOMSIMPLE = "randomSimple";
 	private final String RANDOMADVANCED = "randomAdvanced";
@@ -44,7 +44,7 @@ public class AiVsAI {
 	private final String HAL9000 = "hal9000";
 	private final String MNA_S = "MNA_S";
 	private final String FRIDOLIN = "Fridolin!";
-	private final String AVA2  = "Ava 2.0";
+	private final String AVA2 = "Ava 2.0";
 	// case true: testseed++ each game. so it is possible to find the game where an error occurred
 	private final boolean debug = false;
 	// =================== end ======================
@@ -97,7 +97,7 @@ public class AiVsAI {
 		System.setOut(lps_out);
 		System.setErr(lps_err);
 		refresh();
-		System.out.println("debug Modus: " +  debug);
+		wif.writeln("debug Modus: " + debug);
 		sum = randomSimple + randomAdvanced + tryAndError + ava + lamb + hal9000 + mna_s + fridolin + ava2;
 		if (sum > 0) {
 			if (sum > 4) {
@@ -310,42 +310,32 @@ public class AiVsAI {
 			case H9:
 				System.out.println("Starting HAL9000...");
 				System.out.println(MonoStarter.startHAL9000(config.Settings.PORT));
-				if (number == 1) {
-					tmp++;
-					map.put(tmp, new PlayerStat(this.HAL9000));
-				}
+				tmp++;
+				map.put(tmp, new PlayerStat(this.HAL9000));
 				break;
 			case RS:
 				connection = new Connection(this);
 				new Client(new RandomAISimple(connection), connection).start();
-				if (number == 1) {
-					tmp++;
-					map.put(tmp, new PlayerStat(this.RANDOMSIMPLE));
-				}
+				tmp++;
+				map.put(tmp, new PlayerStat(this.RANDOMSIMPLE));
 				break;
 			case RA:
 				connection = new Connection(this);
 				new Client(new RandomAIAdvanced(connection), connection).start();
-				if (number == 1) {
-					tmp++;
-					map.put(tmp, new PlayerStat(this.RANDOMADVANCED));
-				}
+				tmp++;
+				map.put(tmp, new PlayerStat(this.RANDOMADVANCED));
 				break;
 			case TE:
 				connection = new Connection(this);
 				new Client(new TryAndError(connection), connection).start();
-				if (number == 1) {
-					tmp++;
-					map.put(tmp, new PlayerStat(this.TRYANDERROR));
-				}
+				tmp++;
+				map.put(tmp, new PlayerStat(this.TRYANDERROR));
 				break;
 			case AV:
 				connection = new Connection(this);
 				new Client(new Ava(connection), connection).start();
-				if (number == 1) {
-					tmp++;
-					map.put(tmp, new PlayerStat(this.AVA));
-				}
+				tmp++;
+				map.put(tmp, new PlayerStat(this.AVA));
 				break;
 			case LA:
 				connection = new Connection(this);
@@ -358,30 +348,24 @@ public class AiVsAI {
 			case MS:
 				connection = new Connection(this);
 				new Client(new MNA_S(connection), connection).start();
-				if (number == 1) {
-					tmp++;
-					map.put(tmp, new PlayerStat(this.MNA_S));
-				}
+				tmp++;
+				map.put(tmp, new PlayerStat(this.MNA_S));
 				break;
 			case FR:
 				connection = new Connection(this);
 				new Client(new Fridolin(connection), connection).start();
-				if (number == 1) {
-					tmp++;
-					map.put(tmp, new PlayerStat(this.FRIDOLIN));
-				}
+				tmp++;
+				map.put(tmp, new PlayerStat(this.FRIDOLIN));
 				break;
 			case AV2:
 				connection = new Connection(this);
 				new Client(new Ava2(connection), connection).start();
-				if (number == 1) {
-					tmp++;
-					map.put(tmp, new PlayerStat(this.AVA2));
-				}
+				tmp++;
+				map.put(tmp, new PlayerStat(this.AVA2));
 				break;
 			}
 			try {
-				TimeUnit.SECONDS.sleep(3);
+				TimeUnit.SECONDS.sleep(1);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
