@@ -15,7 +15,7 @@ public class PinPosHelp {
 		this.ch = ch;
 	}
 	
-	public PinPosHelp(Position trePos, Position pinPos, CardHelp ch, int Rating) {
+	public PinPosHelp(Position trePos, Position pinPos, CardHelp ch, double Rating) {
 		this.trePos = trePos;
 		this.pinPos = pinPos;
 		this.ch = ch;
