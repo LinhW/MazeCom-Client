@@ -382,6 +382,7 @@ public class MNA_S_Assist {
 		for (MNA_S_Move boardMove : getAllBoardMoves(oldBoard)) {
 			Board board = doMovement(0, oldBoard, boardMove);
 			MNA_S_Move tempMove = new MNA_S_Move(boardMove);
+			tempMove.setValue(-2 * board.getAllReachablePositions(board.findTreasure(getLastTreasure(blockID))).size());
 			List<PositionType> playerWays = board.getAllReachablePositions(board.findPlayer(blockID));
 			List<PositionType> treasureWays = board.getAllReachablePositions(board.findTreasure(getLastTreasure(blockID)));
 			int distance = 0;
