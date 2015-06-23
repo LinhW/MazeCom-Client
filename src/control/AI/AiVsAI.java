@@ -84,10 +84,8 @@ public class AiVsAI {
 		if (debug) {
 			config.Settings.TESTBOARD = true;
 			config.Settings.TESTBOARD_SEED = 0;
-		}
-		else {
+		} else {
 			config.Settings.TESTBOARD = false;
-			config.Settings.TESTBOARD_SEED = System.nanoTime();
 		}
 		config.Settings.PORT--;
 		lps_out = LoggedPrintStream.create(System.out);
@@ -227,7 +225,8 @@ public class AiVsAI {
 	private void update(Winner winner) {
 		PlayerStat ps = map.get(winner.getId()).incWins();
 		map.put(winner.getId(), ps);
-		wif.writeln("no." + number + "\tTS:" + config.Settings.TESTBOARD_SEED + "\tPlayer" + winner.getId() + "(" + winner.getValue() + "): " + map.get(winner.getId()).getWins() + ". win");
+		wif.writeln("no." + number + "\tTS:" + config.Settings.TESTBOARD_SEED + "\tPlayer" + winner.getId() + "(" + winner.getValue() + "): " + map.get(winner.getId()).getWins()
+				+ ". win");
 		wif_err.clearFile();
 		wif_out.clearFile();
 		wif_err.writeln(lps_err.getBuf().toString());
@@ -235,7 +234,7 @@ public class AiVsAI {
 
 		if (number < count) {
 			if (debug) {
-				config.Settings.TESTBOARD_SEED+= 2;
+				config.Settings.TESTBOARD_SEED += 2;
 			}
 			config.Settings.PORT++;
 			control.Settings.PORT = config.Settings.PORT;
