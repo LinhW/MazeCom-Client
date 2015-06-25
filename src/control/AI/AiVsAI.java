@@ -24,7 +24,7 @@ import control.network.Connection;
 public class AiVsAI {
 	// ================ settings ====================
 	// number of games
-	private final int count = 5;
+	private final int count = 3;
 	// count how many instances the specified ai shall start
 	private int hal9000;
 	private int randomSimple = 0;
@@ -33,7 +33,7 @@ public class AiVsAI {
 	private int ava = 2;
 	private int lamb = 0;
 	private int mna_s = 0;
-	private int fridolin = 2;
+	private int fridolin = 1;
 	private int ava2 = 0;
 	// name of ai's. Value of the specified string can be changed by oneself
 	private final String RANDOMSIMPLE = "randomSimple";
@@ -46,7 +46,7 @@ public class AiVsAI {
 	private final String FRIDOLIN = "Fridolin!";
 	private final String AVA2 = "Ava 2.0";
 	// case true: testseed++ each game. so it is possible to find the game where an error occurred
-	private final boolean debug = false;
+	private final boolean debug = true;
 	// =================== end ======================
 
 	private WriteIntoFile wif;
@@ -60,6 +60,8 @@ public class AiVsAI {
 	private Map<Integer, PlayerStat> map;
 	private List<String> order;
 	private int sum;
+	private int testseed = 0;
+	private int inc = 7;
 
 	private final int H9 = 0;
 	private final int RS = 1;
@@ -87,7 +89,7 @@ public class AiVsAI {
 	public void init() {
 		if (debug) {
 			config.Settings.TESTBOARD = true;
-			config.Settings.TESTBOARD_SEED = 0;
+			config.Settings.TESTBOARD_SEED = testseed;
 		} else {
 			config.Settings.TESTBOARD = false;
 		}
@@ -106,7 +108,6 @@ public class AiVsAI {
 				order = new ArrayList<>();
 				if (hal9000 > 0) {
 					if (hal9000 > 1) {
-						allCombination = false;
 						addMultiply(hal9000, H9);
 					} else {
 						order.add(H9 + "");
@@ -114,7 +115,6 @@ public class AiVsAI {
 				}
 				if (randomSimple > 0) {
 					if (randomSimple > 1) {
-						allCombination = false;
 						addMultiply(randomSimple, RS);
 					} else {
 						order.add(RS + "");
@@ -122,7 +122,6 @@ public class AiVsAI {
 				}
 				if (randomAdvanced > 0) {
 					if (randomAdvanced > 1) {
-						allCombination = false;
 						addMultiply(randomAdvanced, RA);
 					} else {
 						order.add(RA + "");
@@ -130,7 +129,6 @@ public class AiVsAI {
 				}
 				if (tryAndError > 0) {
 					if (tryAndError > 1) {
-						allCombination = false;
 						addMultiply(tryAndError, TE);
 					} else {
 						order.add(TE + "");
@@ -138,7 +136,6 @@ public class AiVsAI {
 				}
 				if (ava > 0) {
 					if (ava > 1) {
-						allCombination = false;
 						addMultiply(ava, AV);
 					} else {
 						order.add(AV + "");
@@ -146,7 +143,6 @@ public class AiVsAI {
 				}
 				if (lamb > 0) {
 					if (lamb > 1) {
-						allCombination = false;
 						addMultiply(lamb, LA);
 					} else {
 						order.add(LA + "");
@@ -154,7 +150,6 @@ public class AiVsAI {
 				}
 				if (mna_s > 0) {
 					if (mna_s > 1) {
-						allCombination = false;
 						addMultiply(mna_s, MS);
 					} else {
 						order.add(MS + "");
@@ -162,7 +157,6 @@ public class AiVsAI {
 				}
 				if (fridolin > 0) {
 					if (fridolin > 1) {
-						allCombination = false;
 						addMultiply(fridolin, FR);
 					} else {
 						order.add(FR + "");
@@ -170,7 +164,6 @@ public class AiVsAI {
 				}
 				if (ava2 > 0) {
 					if (ava2 > 1) {
-						allCombination = false;
 						addMultiply(ava2, AV2);
 					} else {
 						order.add(AV2 + "");
@@ -197,7 +190,7 @@ public class AiVsAI {
 	}
 
 	private List<String> perm(List<String> list, List<String> digit, String s) {
-		if (s.length() == sum) {
+		if (s.length() == sum && !list.contains(s)) {
 			list.add(s);
 			return list;
 		}
@@ -216,9 +209,9 @@ public class AiVsAI {
 		server = new Server();
 		server.start();
 		System.err.println("\n");
-		System.err.println("Game No. " + number);
+		System.err.println("Game No. " + number + "\t(" + Settings.PORT + " " + config.Settings.TESTBOARD_SEED + ")");
 		System.out.println("\n");
-		System.out.println("Game No. " + number);
+		System.out.println("Game No. " + number + " (" + Settings.PORT + " " + config.Settings.TESTBOARD_SEED + ")");
 		startClients(server);
 	}
 
@@ -247,14 +240,14 @@ public class AiVsAI {
 
 		if (number < count) {
 			if (debug) {
-				config.Settings.TESTBOARD_SEED++;
+				config.Settings.TESTBOARD_SEED += inc;
 			}
 			config.Settings.PORT++;
 			control.Settings.PORT = config.Settings.PORT;
 			start();
 		} else {
 			if (debug) {
-				config.Settings.TESTBOARD_SEED = 0;
+				config.Settings.TESTBOARD_SEED = testseed;
 			}
 			showResults();
 			order.remove(0);
@@ -310,32 +303,42 @@ public class AiVsAI {
 			case H9:
 				System.out.println("Starting HAL9000...");
 				System.out.println(MonoStarter.startHAL9000(config.Settings.PORT));
-				tmp++;
-				map.put(tmp, new PlayerStat(this.HAL9000));
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.HAL9000));
+				}
 				break;
 			case RS:
 				connection = new Connection(this);
 				new Client(new RandomAISimple(connection), connection).start();
-				tmp++;
-				map.put(tmp, new PlayerStat(this.RANDOMSIMPLE));
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.RANDOMSIMPLE));
+				}
 				break;
 			case RA:
 				connection = new Connection(this);
 				new Client(new RandomAIAdvanced(connection), connection).start();
-				tmp++;
-				map.put(tmp, new PlayerStat(this.RANDOMADVANCED));
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.RANDOMADVANCED));
+				}
 				break;
 			case TE:
 				connection = new Connection(this);
 				new Client(new TryAndError(connection), connection).start();
-				tmp++;
-				map.put(tmp, new PlayerStat(this.TRYANDERROR));
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.TRYANDERROR));
+				}
 				break;
 			case AV:
 				connection = new Connection(this);
 				new Client(new Ava(connection), connection).start();
-				tmp++;
-				map.put(tmp, new PlayerStat(this.AVA));
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.AVA));
+				}
 				break;
 			case LA:
 				connection = new Connection(this);
@@ -348,20 +351,26 @@ public class AiVsAI {
 			case MS:
 				connection = new Connection(this);
 				new Client(new MNA_S(connection), connection).start();
-				tmp++;
-				map.put(tmp, new PlayerStat(this.MNA_S));
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.MNA_S));
+				}
 				break;
 			case FR:
 				connection = new Connection(this);
 				new Client(new Fridolin(connection), connection).start();
-				tmp++;
-				map.put(tmp, new PlayerStat(this.FRIDOLIN));
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.FRIDOLIN));
+				}
 				break;
 			case AV2:
 				connection = new Connection(this);
 				new Client(new Ava2(connection), connection).start();
-				tmp++;
-				map.put(tmp, new PlayerStat(this.AVA2));
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.AVA2));
+				}
 				break;
 			}
 			try {

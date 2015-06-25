@@ -1,6 +1,5 @@
 package control.AI.Fridolin;
 
-import tools.WriteIntoFile;
 import model.jaxb.AcceptMessageType;
 import model.jaxb.AwaitMoveMessageType;
 import model.jaxb.CardType;
@@ -21,13 +20,9 @@ public class Fridolin implements Player {
 	private boolean accept = true;
 	private boolean dc = false;
 	public static final String FILEPATH = "src/control/AI/Fridolin/tmp";
-	private WriteIntoFile wif;
-	private WriteIntoFile wif_v2;
 
 	public Fridolin(Connection con) {
 		this.con = con;
-		wif = new WriteIntoFile(FILEPATH + WriteIntoFile.FILEEXTENSION);
-		wif_v2 = new WriteIntoFile(FILEPATH + "_v2"+ WriteIntoFile.FILEEXTENSION);
 	}
 
 	@Override
@@ -37,16 +32,13 @@ public class Fridolin implements Player {
 
 	@Override
 	public void receiveLoginReply(LoginReplyMessageType message) {
-		System.out.println("Fridolin recieve a login reply");
 		this.id = message.getNewID();
 		p = new Pathfinding(id);
 	}
 
 	@Override
 	public void receiveAwaitMoveMessage(AwaitMoveMessageType message) {
-		wif.writeln("Fridolin receives AwaitMoveMessage");
 		PinPosHelp pph;
-		long tmp = System.nanoTime();
 		if (accept) {
 			Board b = new Board(message.getBoard());
 			b.setTreasure(message.getTreasure());
@@ -57,22 +49,12 @@ public class Fridolin implements Player {
 		} else {
 			pph = p.getNewMove();
 		}
-		tmp = ((System.nanoTime() - tmp) / (1000 * 1000 * 1000));
-		wif.writeln(tmp + "");
-		if (tmp > 10) {
-			System.err.println((System.nanoTime() - tmp) / (1000 * 1000 * 1000));
-		}
-		wif.writeln(id + "\n" + pph.getCardHelp().getCard() + " " + pph.getCardHelp().getPos() + pph.getPinPos());
 		sendMoveMessage(id, pph.getCardHelp().getCard(), pph.getCardHelp().getPos(), pph.getPinPos());
 
 	}
 
 	@Override
 	public void receiveDisconnectMessage(DisconnectMessageType message) {
-		System.out.println("Fridolin receives a disconnect Message:");
-		System.out.println(message.getErrorCode());
-		wif.writeln(message.getErrorCode().toString());
-		wif_v2.writeln(message.getErrorCode().toString());
 		con.sendDisconnect(message.getErrorCode(), id);
 		if (message.getErrorCode().equals(ErrorType.TIMEOUT)) {
 			dc = true;
@@ -90,7 +72,6 @@ public class Fridolin implements Player {
 
 	@Override
 	public void receiveAcceptMessage(AcceptMessageType message) {
-		wif.writeln("Fridolin receives: " + message.isAccept());
 		accept = message.isAccept();
 	}
 

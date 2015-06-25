@@ -1,9 +1,6 @@
 package control.AI.Fridolin;
 
-import gui.testClasses.Tmp_testGUI;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +31,6 @@ public class Pathfinding {
 	private Map<Integer, Integer> map_treToGo;
 	private List<TreasureType> list_foundTreasures;
 	private List<PinPosHelp> list_rating;
-
 	private WriteIntoFile wif_v2;
 
 	public Pathfinding(int id) {
@@ -66,10 +62,6 @@ public class Pathfinding {
 			}
 			i++;
 		}
-
-		wif_v2.writeln("setTreToGo");
-		wif_v2.writeln(Arrays.asList(nextPlayer).toString());
-		wif_v2.writeln(map_treToGo.keySet().toString());
 	}
 
 	public void setFoundTreasures(List<TreasureType> foundTreasures) {
@@ -92,7 +84,6 @@ public class Pathfinding {
 	 * @return PinPosHelp with shiftPosition, shiftCard and new PinPos
 	 */
 	private PinPosHelp friDoLin() {
-		wif_v2.writeln("fridolin");
 		list_rating.clear();
 
 		/*
@@ -114,7 +105,6 @@ public class Pathfinding {
 			if (pph != null) {
 				return pph;
 			}
-			System.out.println(null + "");
 		}
 
 		/*
@@ -124,12 +114,9 @@ public class Pathfinding {
 		List<PinPosHelp> l_pph = simpleSolution(tre, id);
 
 		if (l_pph.size() == 0) {
-			wif_v2.writeln("nextStep from FriDoLin " + list_rating.size());
 			reject(11);
-			System.out.println("nextStep");
 			pph = nextStep(tre, id);
 		} else {
-			System.out.println("else");
 			list_rating = l_pph;
 			reject(11);
 			checkLastButOne();
@@ -158,7 +145,6 @@ public class Pathfinding {
 			list_rating.removeAll(remove);
 			// }
 			diff--;
-			wif_v2.writeln("reject " + list_rating.size() + " " + diff + " " + bestRating);
 		}
 	}
 
@@ -168,26 +154,19 @@ public class Pathfinding {
 	 * @return the second best move
 	 */
 	public PinPosHelp getNewMove() {
-		wif_v2.writeln("getNewmove");
 		list_rating.remove(PinPosHelp.getLowestRating(list_rating));
 		return PinPosHelp.getLowestRating(list_rating);
 	}
 
 	private PinPosHelp checkLoop(PinPosHelp pph) {
-		wif_v2.writeln("deadEnd " + (pph != null));
-		wif_v2.write(pph.getTrePos() + "");
-		wif_v2.write(betterBoard.findTreasure(betterBoard.getTreasure()) + "");
-		wif_v2.write(pph.getPinPos() + "");
-		wif_v2.write(betterBoard.getPinPos(id) + "");
-		
-		while (pph.getTrePos() != null && betterBoard.findTreasure(betterBoard.getTreasure()) != null && pph.getTrePos().equals(betterBoard.findTreasure(betterBoard.getTreasure()))
-				&& pph.getPinPos().equals(betterBoard.getPinPos(id))) {
+		while (pph.getTrePos() != null && betterBoard.findTreasure(betterBoard.getTreasure()) != null
+				&& pph.getTrePos().equals(betterBoard.findTreasure(betterBoard.getTreasure())) && pph.getPinPos().equals(betterBoard.getPinPos(id))) {
 			// TODO
-//			pph = deadEnd();
+			// pph = deadEnd();
 			pph = getNewMove();
-			if(pph == null && !seal){
+			if (pph == null && !seal) {
 				fill();
-				for (int i: nextPlayer){
+				for (int i : nextPlayer) {
 					sealEndPos(i);
 				}
 				pph = PinPosHelp.getLowestRating(list_rating);
@@ -195,9 +174,8 @@ public class Pathfinding {
 		}
 		return pph;
 	}
-	
-	private void fill(){
-		wif_v2.writeln("fill");
+
+	private void fill() {
 		seal = true;
 		List<Card> list_c = betterBoard.getShiftCard().getPossibleRotations();
 		for (Card c : list_c) {
@@ -219,7 +197,6 @@ public class Pathfinding {
 	}
 
 	private void checkLastButOne() {
-		wif_v2.writeln("checklastbutone");
 		TreasureType tre = betterBoard.getShiftCard().getTreasure();
 		if (tre != null) {
 			if (map_treToGo.get(id) == 2 && tre.equals(betterBoard.getTreasure())) {
@@ -229,7 +206,6 @@ public class Pathfinding {
 	}
 
 	private void checkOtherPlayer() {
-		wif_v2.writeln("CheckOtherPlayer");
 		if (nextPlayer.length > 0) {
 			for (Integer id : map_treToGo.keySet()) {
 				switch (map_treToGo.get(id)) {
@@ -249,7 +225,6 @@ public class Pathfinding {
 	 * @return
 	 */
 	private void treIsOnShift() {
-		wif_v2.writeln("tre is on shift");
 		TreasureType tt = TreasureType.valueOf("START_0" + id);
 		Position trePos = betterBoard.findTreasure(tt);
 		for (PinPosHelp pph : list_rating) {
@@ -270,7 +245,6 @@ public class Pathfinding {
 	 */
 	private void sealAway() {
 		if (nextPlayer.length > 0) {
-			wif_v2.writeln("sealAway " + list_rating.size());
 			Position pinPos;
 			for (PinPosHelp pph : list_rating) {
 				int min = 0;
@@ -311,7 +285,6 @@ public class Pathfinding {
 	 * @return list of solutions with sealed factor
 	 */
 	private void sealAway(int ID) {
-		wif_v2.writeln("sealaway with id");
 		Position pinPos;
 		for (PinPosHelp pph : list_rating) {
 			Board board = (Board) betterBoard.clone();
@@ -324,7 +297,6 @@ public class Pathfinding {
 	}
 
 	private void sealEndPos(int ID) {
-		wif_v2.writeln("sealendpos");
 		Position endPos = betterBoard.findTreasure(TreasureType.valueOf("START_0" + ID));
 		for (PinPosHelp pph : list_rating) {
 			Board board = (Board) betterBoard.clone();
@@ -343,7 +315,6 @@ public class Pathfinding {
 	 * @return list of solutions with annoying factor
 	 */
 	private void beAnnoying() {
-		wif_v2.writeln("beAnnoying " + list_rating.size());
 		for (PinPosHelp pp : list_rating) {
 			int c = 0;
 			Board b = (Board) betterBoard.clone();
@@ -397,7 +368,7 @@ public class Pathfinding {
 	}
 
 	private List<CardHelp> lastChance() {
-//		wif_v2.writeln("lastChance");
+		wif_v2.writeln("lastChance");
 		int nextPlayer = this.nextPlayer[0];
 		List<Position> l = new ArrayList<>();
 		List<CardHelp> l_sol = new ArrayList<>();
@@ -457,8 +428,9 @@ public class Pathfinding {
 	}
 
 	private PinPosHelp emergencyPlan(List<CardHelp> list, TreasureType tre) {
-//		wif_v2.writeln("emergencyPlan");
-		if (nextPlayer.length == 1) {
+		wif_v2.writeln("emergencyPlan " + map_treToGo.get(id));
+		System.out.println("emergencyPlan " + map_treToGo.get(id));
+		if (nextPlayer.length == 1 && map_treToGo.get(id) == 1) {
 			Position end = betterBoard.findTreasure(TreasureType.valueOf("START_0" + id));
 			Position end1 = end;
 			Position end2 = end;
@@ -479,6 +451,7 @@ public class Pathfinding {
 			}
 			List<Position> l = new ArrayList<>();
 			List<PinPosHelp> list_end = new ArrayList<>();
+			List<PinPosHelp> list_near = new ArrayList<>();
 			for (CardHelp ch : list) {
 				if (ch.getPos().equals(end1) || ch.getPos().equals(end2)) {
 					Board b = (Board) betterBoard.clone();
@@ -486,25 +459,10 @@ public class Pathfinding {
 					l.clear();
 					l = findPossiblePos(b, l, b.getPinPos(id));
 					Position pos = ch.getPos();
-					if (l.contains(ch.getPos())) {
-						Card c = ch.getCard();
-						if (pos.getRow() == end.getRow()) {
-							if (pos.getCol() < end.getCol() && c.getOpenings().isRight()) {
-								list_end.add(new PinPosHelp(ch.getPos(), ch.getPos(), ch));
-							}
-							if (pos.getCol() > end.getCol() && c.getOpenings().isLeft()) {
-								list_end.add(new PinPosHelp(ch.getPos(), ch.getPos(), ch));
-							}
-						}
-
-						if (pos.getCol() == end.getCol()) {
-							if (pos.getRow() < end.getRow() && c.getOpenings().isTop()) {
-								list_end.add(new PinPosHelp(ch.getPos(), ch.getPos(), ch));
-							}
-							if (pos.getRow() > end.getRow() && c.getOpenings().isBottom()) {
-								list_end.add(new PinPosHelp(ch.getPos(), ch.getPos(), ch));
-							}
-						}
+					if (l.contains(pos.getOpposite())) {
+						list_end.add(new PinPosHelp(pos.getOpposite(), pos.getOpposite(), ch));
+					} else {
+						list_near.add(new PinPosHelp(pos.getOpposite(), null, ch));
 					}
 				}
 			}
@@ -519,17 +477,12 @@ public class Pathfinding {
 				return PinPosHelp.getLowestRating(list_rating);
 			} else {
 				// TODO
-				List<PinPosHelp> l_pph = simpleSolution(TreasureType.valueOf("START_0" + id), id);
-				PinPosHelp pph;
-				if (l_pph.size() == 0) {
-					pph = nextStep(tre, id);
-				} else {
-					list_rating = l_pph;
-					checkLastButOne();
-					beAnnoying();
-					sealAway();
-				}
-				pph = PinPosHelp.getLowestRating(list_rating);
+				List<PinPosHelp> l_pph = shortestPathToOpposite(list_near);
+				list_rating = l_pph;
+				checkLastButOne();
+				beAnnoying();
+				sealAway();
+				PinPosHelp pph = PinPosHelp.getLowestRating(list_rating);
 				return pph;
 			}
 		}
@@ -553,7 +506,7 @@ public class Pathfinding {
 	 * @return
 	 */
 	private List<PinPosHelp> nearBy(Position p, List<CardHelp> list_ch) {
-//		wif_v2.writeln("nearBy");
+		wif_v2.writeln("nearBy");
 		List<PinPosHelp> list_pph = new ArrayList<>();
 		int diff = Integer.MAX_VALUE;
 		for (CardHelp ch : list_ch) {
@@ -581,7 +534,7 @@ public class Pathfinding {
 	 * @return
 	 */
 	private Position emergencyTreIsOnShift(List<CardHelp> list) {
-//		wif_v2.writeln("emergencyTreIsOnShift");
+		wif_v2.writeln("emergencyTreIsOnShift " + list.size());
 		TreasureType tre = null;
 		switch (this.nextPlayer[0]) {
 		case 1:
@@ -607,17 +560,17 @@ public class Pathfinding {
 		for (CardHelp ch : list) {
 			Board board = (Board) betterBoard.clone();
 			board.proceedShift(ch.getPos(), new Card(ch.getCard()));
-			simpleSolution(tre, this.nextPlayer[0]);
+			simpleSolution(board, tre, this.nextPlayer[0]);
 			PinPosHelp pph = nextStep(tre, this.nextPlayer[0]);
 			Position pos = pph.getCardHelp().getPos();
 			if (pos.getRow() == 0) {
-				map.put(row0, map.get(row0));
+				map.put(row0, map.get(row0) + 1);
 			} else if (pos.getCol() == 0) {
-				map.put(col0, map.get(col0));
+				map.put(col0, map.get(col0) + 1);
 			} else if (pos.getRow() == 6) {
-				map.put(row6, map.get(row6));
+				map.put(row6, map.get(row6) + 1);
 			} else if (pos.getCol() == 6) {
-				map.put(col6, map.get(col6));
+				map.put(col6, map.get(col6) + 1);
 			}
 		}
 
@@ -735,13 +688,10 @@ public class Pathfinding {
 	 * @return
 	 */
 	private PinPosHelp checkNextTurn(TreasureType tre) {
-		wif_v2.writeln("checkNextTurn " + map_treToGo.get(nextPlayer[0]));
-
 		if (map_treToGo.get(nextPlayer[0]) == 1) {
 			List<CardHelp> list_ch = lastChance();
 			switch (list_ch.size()) {
 			case 0:
-				wif_v2.writeln("Player " + nextPlayer[0] + " will win. I (" + id + ") admit my defeat.");
 				System.out.println("Player " + nextPlayer[0] + " will win. I (" + id + ") admit my defeat.");
 				List<PinPosHelp> l_pph = simpleSolution(tre, id);
 
@@ -777,7 +727,7 @@ public class Pathfinding {
 	}
 
 	private PinPosHelp bestMove() {
-//		wif_v2.writeln("bestMove " + list_rating.size());
+		wif_v2.writeln("bestMove " + list_rating.size());
 		chooseOrientation();
 		reject(8);
 		sealAway();
@@ -792,7 +742,7 @@ public class Pathfinding {
 	 * @return PinPosHelp
 	 */
 	private PinPosHelp nextStep(TreasureType tre, int id) {
-//		wif_v2.writeln("nextStep");
+		wif_v2.writeln("nextStep");
 		bestMove();
 		return PinPosHelp.getLowestRating(list_rating);
 	}
@@ -803,7 +753,7 @@ public class Pathfinding {
 	 * @return
 	 */
 	private PinPosHelp deadEnd() {
-//		wif_v2.writeln("dead end");
+		wif_v2.writeln("dead end");
 		List<Position> l = new ArrayList<>();
 		List<PinPosHelp> l_sol = new ArrayList<>();
 		Map<Double, List<PinPosHelp>> map = new HashMap<>();
@@ -865,7 +815,7 @@ public class Pathfinding {
 		PinPosHelp pph = bestMove();
 		betterBoard.proceedShift(pph.getCardHelp().getPos(), new Card(pph.getCardHelp().getCard()));
 		pph.setPinPos(betterBoard.getPinPos(id));
-//		wif_v2.writeln("Dead End");
+		wif_v2.writeln("Dead End");
 		return pph;
 	}
 
@@ -876,7 +826,7 @@ public class Pathfinding {
 	 * @return
 	 */
 	private void chooseOrientation() {
-//		wif_v2.writeln("chooseOrientaion " + list_rating.size());
+		wif_v2.writeln("chooseOrientaion " + list_rating.size());
 		for (PinPosHelp pph : list_rating) {
 			Position p = pph.getPinPos();
 			Board b = (Board) betterBoard.clone();
@@ -962,7 +912,7 @@ public class Pathfinding {
 	 * @return List<PinPosHelp>
 	 */
 	private List<PinPosHelp> shortestPath(List<CardHelp> list_ch) {
-//		wif_v2.writeln("shortestPath list_ch");
+		wif_v2.writeln("shortestPath list_ch");
 		List<PinPosHelp> l_sol = new ArrayList<>();
 		List<Position> list_pos = new ArrayList<>();
 		Position trePos;
@@ -979,16 +929,57 @@ public class Pathfinding {
 			for (Position p : list_pos) {
 				int diff = diff(p, trePos, b);
 				if (diff < min) {
+					wif_v2.writeNewLine(1);
+					wif_v2.write(" " + p);
 					min = diff;
 					l_sol.clear();
 					l_sol.add(new PinPosHelp(trePos, p, ch));
 				} else {
 					if (diff == min) {
+						wif_v2.write(" " + p);
 						l_sol.add(new PinPosHelp(trePos, p, ch));
 					}
 				}
 			}
 		}
+		wif_v2.writeNewLine(1);
+		return l_sol;
+	}
+
+	/**
+	 * calculate the best pin position for the given PinPosHelp to the given Position, does not check if the position is reachable
+	 * 
+	 * @param list_ch
+	 * @return List<PinPosHelp>
+	 */
+	private List<PinPosHelp> shortestPathToOpposite(List<PinPosHelp> list) {
+		wif_v2.writeln("shortestPath list pinPosHelp");
+		List<PinPosHelp> l_sol = new ArrayList<>();
+		List<Position> list_pos = new ArrayList<>();
+		int min = Integer.MAX_VALUE;
+		for (PinPosHelp pph : list) {
+			CardHelp ch = pph.getCardHelp();
+			Board b = (Board) betterBoard.clone();
+			b.proceedShift(ch.getPos(), new Card(ch.getCard()));
+			list_pos.clear();
+			list_pos = findPossiblePos(b, list_pos, b.getPinPos(id));
+			for (Position p : list_pos) {
+				int diff = diff(p, ch.getPos().getOpposite(), b);
+				if (diff < min) {
+					wif_v2.writeNewLine(1);
+					wif_v2.write(" " + p);
+					min = diff;
+					l_sol.clear();
+					l_sol.add(new PinPosHelp(ch.getPos().getOpposite(), p, ch));
+				} else {
+					if (diff == min) {
+						wif_v2.write(" " + p);
+						l_sol.add(new PinPosHelp(ch.getPos().getOpposite(), p, ch));
+					}
+				}
+			}
+		}
+		wif_v2.writeNewLine(1);
 		return l_sol;
 	}
 
@@ -1009,7 +1000,7 @@ public class Pathfinding {
 	 * @return list of PinPosHelp (include CardHelp, treasurePosition, a position of list, the calculated difference)
 	 */
 	private List<PinPosHelp> shortestPath(List<Position> list, Position trePos, CardHelp ch, Board b) {
-//		wif_v2.writeln("shortestPath lsit list");
+		wif_v2.writeln("shortestPath lsit list");
 		List<PinPosHelp> pos = new ArrayList<>();
 		int diff = X * Y;
 		for (Position p : list) {
@@ -1033,7 +1024,7 @@ public class Pathfinding {
 	 * @return list of all CardHelp who can reach their treasure
 	 */
 	private List<PinPosHelp> simpleSolution(List<CardHelp> list_ch, TreasureType tre, int id) {
-//		wif_v2.writeln("simplesolution list");
+		wif_v2.writeln("simplesolution list");
 		List<Position> l = new ArrayList<>();
 		List<PinPosHelp> l_sol = new ArrayList<>();
 		Board board;
@@ -1064,7 +1055,7 @@ public class Pathfinding {
 	 * @return list with PinPosHelp(trePos, newPinPos, CardHelp)
 	 */
 	private List<PinPosHelp> simpleSolution(TreasureType tre, int id) {
-//		wif_v2.writeln("simpleSolution tre");
+		wif_v2.writeln("simpleSolution tre");
 		boolean already = false;
 		List<Position> l = new ArrayList<>();
 		List<Position> l_rev = new ArrayList<>();
@@ -1112,6 +1103,62 @@ public class Pathfinding {
 		return l_sol;
 	}
 
+	/**
+	 * calculate all CardHelp who can reach the given treasure
+	 * 
+	 * @param tre
+	 * @param id
+	 * @return list with PinPosHelp(trePos, newPinPos, CardHelp)
+	 */
+	private List<PinPosHelp> simpleSolution(Board b, TreasureType tre, int id) {
+		wif_v2.writeln("simpleSolution tre with board");
+		boolean already = false;
+		List<Position> l = new ArrayList<>();
+		List<Position> l_rev = new ArrayList<>();
+		List<PinPosHelp> l_sol = new ArrayList<>();
+		Board board;
+		Position trePos;
+		Position oldPinPos;
+		Position shiftPos;
+		CardHelp ch;
+
+		List<Card> list_c = b.getShiftCard().getPossibleRotations();
+		for (Card c : list_c) {
+			for (int i = 1; i < 6; i += 2) {
+				for (int k = 0; k < 7; k += 6) {
+					for (int j = 0; j < 2; j++) {
+						board = (Board) b.clone();
+						c.setPin(new Pin());
+						shiftPos = new Position(k + (i - k) * j, i + (k - i) * j);
+						if (b.getForbidden() != null && shiftPos.equals(new Position(b.getForbidden()))) {
+							continue;
+						}
+						board.proceedShift(shiftPos, new Card(c));
+						oldPinPos = board.getPinPos(id);
+						trePos = board.findTreasure(tre);
+						if (trePos != null) {
+							l.clear();
+							l = findPossiblePos(board, l, oldPinPos);
+							l.add(oldPinPos);
+							l_rev.clear();
+							l_rev = findPossiblePos(board, l_rev, trePos);
+							l_rev.add(trePos);
+							ch = new CardHelp(c, shiftPos);
+							if (l.contains(trePos)) {
+								already = true;
+								l_sol.add(new PinPosHelp(trePos, trePos, ch));
+							}
+							if (!already) {
+								calcData(oldPinPos, trePos, ch, l, l_rev, board);
+							}
+						}
+					}
+				}
+			}
+		}
+		return l_sol;
+	}
+
 	private void calcData(Position start, Position trePos, CardHelp ch, List<Position> list, List<Position> list_rev, Board b) {
 		int diff;
 		for (Position p : list) {
@@ -1123,7 +1170,7 @@ public class Pathfinding {
 				}
 			}
 			double tmp = diff(p, trePos, b) + diff;
-			// wif_v2.writeln("calcData " + trePos + " " + p + " " + ch.debug() + " " + tmp);
+			wif_v2.writeln("calcData " + trePos + " " + p + " " + ch.debug() + " " + tmp);
 			list_rating.add(new PinPosHelp(trePos, p, ch, tmp));
 		}
 	}
