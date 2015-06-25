@@ -30,7 +30,7 @@ public class AiVsAI {
 	private int randomSimple = 0;
 	private int randomAdvanced = 0;
 	private int tryAndError = 0;
-	private int ava = 2;
+	private int ava = 1;
 	private int lamb = 0;
 	private int mna_s = 0;
 	private int fridolin = 1;
@@ -170,11 +170,6 @@ public class AiVsAI {
 					}
 				}
 				initAllComb(order);
-				try {
-					TimeUnit.SECONDS.sleep(4);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
 				start();
 			}
 
