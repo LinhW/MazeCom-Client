@@ -381,7 +381,7 @@ public class Pathfinding {
 		}
 	}
 
-	private List<CardHelp> lastChance() {
+	public List<CardHelp> lastChance() {
 		wif_v2.writeln("lastChance");
 		int nextPlayer = this.nextPlayer[0];
 		List<Position> l = new ArrayList<>();
@@ -389,7 +389,7 @@ public class Pathfinding {
 		Board board;
 		TreasureType tt = TreasureType.valueOf("START_0" + nextPlayer);
 		Position end = betterBoard.findTreasure(tt);
-
+		wif_v2.writeln(end.toString());
 		List<Card> list_c = betterBoard.getShiftCard().getPossibleRotations();
 		boolean pos = true;
 		for (Card c : list_c) {
@@ -772,11 +772,16 @@ public class Pathfinding {
 	 * @return
 	 */
 	private PinPosHelp checkNextTurn(TreasureType tre) {
+		//TODO nicht aufs startfeld
 		if (map_treToGo.get(nextPlayer[0]) == 1) {
 			List<CardHelp> list_ch = lastChance();
+			wif_v2.writeln("checkNextTurn");
+			wif_v2.writeList(list_ch);
+			wif_v2.writeln("checkNextTurn ende");
 			switch (list_ch.size()) {
 			case 0:
 				System.out.println("Player " + nextPlayer[0] + " will win. I (" + id + ") admit my defeat.");
+				wif_v2.writeln("Player " + nextPlayer[0] + " will win. I (" + id + ") admit my defeat.");
 				List<PinPosHelp> l_pph = simpleSolution(tre, id);
 
 				if (l_pph.size() == 0) {
