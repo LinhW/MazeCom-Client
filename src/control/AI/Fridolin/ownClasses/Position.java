@@ -60,5 +60,9 @@ public class Position extends PositionType {
 			return null;
 		}
 	}
+	
+	public Position clone(){
+		return new Position(this.getRow(), this.getCol());
+	}
 
 }

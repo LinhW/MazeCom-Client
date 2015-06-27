@@ -24,7 +24,7 @@ import control.network.Connection;
 public class AiVsAI {
 	// ================ settings ====================
 	// number of games
-	private final int count = 3;
+	private final int count = 30;
 	// count how many instances the specified ai shall start
 	private int hal9000;
 	private int randomSimple = 0;
@@ -34,7 +34,7 @@ public class AiVsAI {
 	private int lamb = 0;
 	private int mna_s = 0;
 	private int fridolin = 1;
-	private int ava2 = 0;
+	private int ava2 = 1;
 	// name of ai's. Value of the specified string can be changed by oneself
 	private final String RANDOMSIMPLE = "randomSimple";
 	private final String RANDOMADVANCED = "randomAdvanced";
@@ -46,7 +46,7 @@ public class AiVsAI {
 	private final String FRIDOLIN = "Fridolin!";
 	private final String AVA2 = "Ava 2.0";
 	// case true: testseed++ each game. so it is possible to find the game where an error occurred
-	private final boolean debug = true;
+	private final boolean debug = false;
 	// =================== end ======================
 
 	private WriteIntoFile wif;

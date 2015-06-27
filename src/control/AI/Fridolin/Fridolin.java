@@ -8,6 +8,7 @@ import model.jaxb.ErrorType;
 import model.jaxb.LoginReplyMessageType;
 import model.jaxb.PositionType;
 import model.jaxb.WinMessageType;
+import tools.WriteIntoFile;
 import control.AI.Player;
 import control.AI.Fridolin.ownClasses.Board;
 import control.AI.Fridolin.ownClasses.PinPosHelp;
@@ -20,9 +21,11 @@ public class Fridolin implements Player {
 	private boolean accept = true;
 	private boolean dc = false;
 	public static final String FILEPATH = "src/control/AI/Fridolin/tmp";
+	public WriteIntoFile wif;
 
 	public Fridolin(Connection con) {
 		this.con = con;
+		wif = new WriteIntoFile(FILEPATH + "_send" + WriteIntoFile.FILEEXTENSION);
 	}
 
 	@Override
@@ -43,20 +46,22 @@ public class Fridolin implements Player {
 			Board b = new Board(message.getBoard());
 			b.setTreasure(message.getTreasure());
 			p.setBoard(b);
+			wif.writeln(b.getForbidden() + "");
 			p.setTreToGo(message.getTreasuresToGo());
 			p.setFoundTreasures(message.getFoundTreasures());
 			pph = p.start();
 		} else {
+			wif.writeln("getNewMove");
 			pph = p.getNewMove();
 		}
+		wif.writeln(pph + "");
 		sendMoveMessage(id, pph.getCardHelp().getCard(), pph.getCardHelp().getPos(), pph.getPinPos());
-
 	}
 
 	@Override
 	public void receiveDisconnectMessage(DisconnectMessageType message) {
 		con.sendDisconnect(message.getErrorCode(), id);
-		if (message.getErrorCode().equals(ErrorType.TIMEOUT)) {
+		if (message.getErrorCode().equals(ErrorType.TIMEOUT) || message.getErrorCode().equals(ErrorType.TOO_MANY_TRIES)) {
 			dc = true;
 		} else {
 			dc = false;
@@ -73,6 +78,7 @@ public class Fridolin implements Player {
 	@Override
 	public void receiveAcceptMessage(AcceptMessageType message) {
 		accept = message.isAccept();
+		wif.writeln(accept + "");
 	}
 
 	@Override
@@ -81,5 +87,4 @@ public class Fridolin implements Player {
 			con.sendMoveMessage(PlayerID, c, shift, pin);
 		}
 	}
-
 }
