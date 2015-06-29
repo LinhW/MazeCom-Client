@@ -208,4 +208,26 @@ public class MNA_Assist {
 	public static boolean isLastTreasure(TreasureType treasure) {
 		return treasure.name().startsWith("ST");
 	}
+	
+	public static Position getVerticalTreasureNeighbor(Position treasurePosition) {
+		Position neighbor = new Position(treasurePosition);
+		if (neighbor.getRow() == 0) {
+			neighbor.setRow(1);
+		}
+		else if (neighbor.getRow() == 6) {
+			neighbor.setRow(5);
+		}
+		return neighbor;
+	}
+	
+	public static Position getHorizontalTreasureNeighbor(Position treasurePosition) {
+		Position neighbor = new Position(treasurePosition);
+		if (neighbor.getCol() == 0) {
+			neighbor.setCol(1);
+		}
+		else if (neighbor.getCol() == 6) {
+			neighbor.setCol(5);
+		}
+		return neighbor;
+	}
 }

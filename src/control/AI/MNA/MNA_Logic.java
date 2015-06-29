@@ -12,6 +12,7 @@ import model.jaxb.TreasuresToGoType;
 
 public class MNA_Logic {
 	private enum MNA_Points {
+		OWN_START(5000),
 		OWN_TARGET(100),
 		TARGET_MISSING(-10),
 		OTHER_START_OPEN(-700),
@@ -58,27 +59,32 @@ public class MNA_Logic {
 
 		MNA_Move finalMove = calculateMove(mna.getPlayerID(), mna.getBoard(), mna.getTreasure());
 
-		lastPositions.add(finalMove.getMovePosition());
-		if (lastPositions.size() == 3) {
-			if (lastPositions.get(2).equals(lastPositions.get(0))
-					&& lastPositions.get(2).equals(lastPositions.get(1))) {
-				// TODO Break loop
-			}
-			lastPositions.remove(0);
-			lastPositions.trimToSize();
-		}
-
 		return finalMove;
 	}
 
 	private MNA_Move calculateMove(int playerID, Board board, TreasureType treasure) {
 		MNA_Move finalMove = null;
-		int blockID = 0;
-		for (int i = 0; i < 4; i++) {
-			if ((i != playerID - 1) && (remainingTreasures[i] == 1)) {
-				blockID = i + 1;
+		ArrayList<MNA_Move> allMoves = MNA_Assist.getAllBoardMoves(board);
+		
+		if (remainingTreasures[playerID - 1] == 1) {
+			for (MNA_Move move : allMoves) {
+				if (move.getAfterMove().pathPossible(move.getAfterMove().findPlayer(playerID),
+						move.getAfterMove().findTreasure(treasure))) {
+					move.setValue(MNA_Points.OWN_START.value());
+					return move;
+				}
 			}
 		}
+		
+		int blockID = 0, tempID = getNextPlayer(playerID);
+		while (tempID != playerID) {
+			if (remainingTreasures[tempID - 1] == 1) {
+				blockID = tempID;
+				break;
+			}
+			tempID = getNextPlayer(tempID);
+		}
+		
 		if (treasure == null) {
 			ArrayList<TreasureType> notFound = MNA_Assist.getAllTreasures();
 			notFound.removeAll(treasuresFound);
@@ -87,10 +93,10 @@ public class MNA_Logic {
 			Collections.shuffle(notFound);
 			treasure = notFound.get(0);
 		}
+		
 		canFindTreasure[playerID - 1] = false;
 		
-		if (blockID == 0) {
-			ArrayList<MNA_Move> allMoves = MNA_Assist.getAllBoardMoves(board);
+		if (blockID == 0 || recursionDepth == maxRecursionDepth) {
 			for (MNA_Move boardMove : allMoves) {
 				PositionType tPosition = boardMove.getAfterMove().findTreasure(treasure);
 				boardMove.setTreasurePosition(tPosition);
@@ -108,14 +114,64 @@ public class MNA_Logic {
 				}
 				recursionDepth--;
 			}
-			finalMove = Collections.max(allMoves);
-			if (finalMove.getMovePosition().equals(finalMove.getTreasurePosition())) {
-				tempFound.add(treasure);
-			}
 		}
 		else {
-			ArrayList<MNA_Move> allMoves = MNA_Assist.getAllBoardMoves(board);
+			int remainingBackup = remainingTreasures[blockID - 1];
+			remainingTreasures[blockID - 1] = 2;
+			ArrayList<MNA_Move> removeMoves = new ArrayList<MNA_Move>();
+			for (MNA_Move boardMove : allMoves) {
+				int nextPlayer = getNextPlayer(playerID);
+				Board tempBoard = (Board) boardMove.getAfterMove().clone();
+				while (nextPlayer != blockID) {
+					tempBoard = calculateMove(nextPlayer, tempBoard, null).getAfterMove();
+					nextPlayer = getNextPlayer(nextPlayer);
+				}
+				MNA_Move tempMove = calculateMove(blockID, tempBoard, MNA_Assist.getLastTreasure(blockID));
+				if (tempMove.getAfterMove().pathPossible(tempMove.getAfterMove().findPlayer(blockID),
+						tempMove.getAfterMove().findTreasure(MNA_Assist.getLastTreasure(blockID)))) {
+					removeMoves.add(boardMove);
+				}
+			}
+			if (removeMoves.size() == allMoves.size()) {
+				for (int i = 0; i < 4; i++) {
+					remainingTreasures[i] = 2;
+				}
+				return calculateMove(playerID, board, treasure);
+			}
+			remainingTreasures[blockID - 1] = remainingBackup;
+			
+			allMoves.removeAll(removeMoves);
+			
+			Position treasurePosition = new Position(board.findTreasure(MNA_Assist.getLastTreasure(blockID)));
+			Position verticalNeighbor = MNA_Assist.getVerticalTreasureNeighbor(treasurePosition);
+			Position horizontalNeighbor = MNA_Assist.getHorizontalTreasureNeighbor(treasurePosition);
+			
+			if (allMoves.size() > 1) {
+				for (MNA_Move boardMove : allMoves) {
+					boardMove.setValue(calculateBlockValue(blockID, boardMove.getAfterMove(), treasurePosition, verticalNeighbor, horizontalNeighbor));
+				}
+			}
 		}
+		finalMove = Collections.max(allMoves);
+		if (finalMove.getMovePosition().equals(finalMove.getTreasurePosition())) {
+			tempFound.add(treasure);
+		}
+		
+		// Loop breaker
+		if (lastPositions.size() == 2) {
+			if (finalMove.getMovePosition().equals(lastPositions.get(0))
+					&& finalMove.getMovePosition().equals(lastPositions.get(1))
+					&& blockID == 0) {
+				for (MNA_Move move : allMoves) {
+					if (!move.getMovePosition().equals(finalMove.getMovePosition())) {
+						finalMove = move;
+					}
+				}
+			}
+			lastPositions.remove(0);
+		}
+		lastPositions.add(finalMove.getMovePosition());
+		lastPositions.trimToSize();
 		return finalMove;
 	}
 	
@@ -131,6 +187,17 @@ public class MNA_Logic {
 		move.addValue(tempMove.getValue());
 	}
 
+	private int calculateBlockValue(int blockID, Board board, Position treasurePosition, Position verticalNeighbor, Position horizontalNeighbor) {
+		int blockValue = 0;
+		PositionType pinPosition = board.findPlayer(blockID);
+		blockValue += MNA_Assist.getDistance(pinPosition, verticalNeighbor.getOpposite());
+		blockValue += MNA_Assist.getDistance(pinPosition, horizontalNeighbor.getOpposite());
+		blockValue += 2 * MNA_Assist.getDistance(pinPosition, treasurePosition);
+		
+		blockValue += (49 - board.getAllReachablePositions(treasurePosition).size());
+		return blockValue;
+	}
+	
 	private int calculateBoardValue(int playerID, Board board, TreasureType treasure, PositionType tPosition) {
 		int boardValue = 0;
 
