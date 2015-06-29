@@ -1,6 +1,7 @@
 package control.AI.Fridolin;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,11 +32,13 @@ public class Pathfinding {
 	private List<TreasureType> list_foundTreasures;
 	private List<PinPosHelp> list_rating;
 	private WriteIntoFile wif_v2;
+	private WriteIntoFile wif_player;
 
 	public Pathfinding(int id) {
 		this.id = id;
 		list_rating = new ArrayList<>();
 		wif_v2 = new WriteIntoFile(Fridolin.FILEPATH + "_v2" + WriteIntoFile.FILEEXTENSION);
+		wif_player = new WriteIntoFile(Fridolin.FILEPATH + "_player" + WriteIntoFile.FILEEXTENSION);
 	}
 
 	public void setBoard(Board b) {
@@ -61,6 +64,7 @@ public class Pathfinding {
 			}
 			i++;
 		}
+		wif_player.writeln(Arrays.asList(nextPlayer) + "");
 	}
 
 	public void setFoundTreasures(List<TreasureType> foundTreasures) {
@@ -116,7 +120,7 @@ public class Pathfinding {
 			pph = checkLast();
 			if (pph == null) {
 				reject(11);
-				pph = nextStep(tre, id);
+				pph = nextStep(id);
 			} else {
 				return pph;
 			}
@@ -466,6 +470,7 @@ public class Pathfinding {
 		} else {
 			List<PinPosHelp> l_pph = shortestPathToOpposite(list_near);
 			if (l_pph.size() == 0) {
+				deadEnd();
 				list_rating = sealOther_single();
 				beAnnoying();
 				wif_v2.writeln("nach sealOtherSingle " + list_rating.size());
@@ -676,7 +681,7 @@ public class Pathfinding {
 			Board board = (Board) betterBoard.clone();
 			board.proceedShift(ch.getPos(), new Card(ch.getCard()));
 			simpleSolution(board, tre, this.nextPlayer[0]);
-			PinPosHelp pph = nextStep(tre, this.nextPlayer[0]);
+			PinPosHelp pph = nextStep(this.nextPlayer[0]);
 			Position pos = pph.getCardHelp().getPos();
 			if (pos.getRow() == 0) {
 				map.put(row0, map.get(row0) + 1);
@@ -812,10 +817,11 @@ public class Pathfinding {
 			case 0:
 				System.out.println("Player " + nextPlayer[0] + " will win. I (" + id + ") admit my defeat.");
 				wif_v2.writeln("Player " + nextPlayer[0] + " will win. I (" + id + ") admit my defeat.");
+				wif_player.writeln("Player " + nextPlayer[0] + " will win. I (" + id + ") admit my defeat.");
 				List<PinPosHelp> l_pph = simpleSolution(tre, id);
 
 				if (l_pph.size() == 0) {
-					return nextStep(tre, id);
+					return nextStep(id);
 				} else {
 					if (l_pph.size() == 1) {
 						return l_pph.get(0);
@@ -847,7 +853,7 @@ public class Pathfinding {
 
 	private PinPosHelp bestMove() {
 		wif_v2.writeln("bestMove " + list_rating.size());
-		chooseOrientation(false);
+		chooseOrientation((map_treToGo.get(id) == 1));
 		reject(8);
 		sealOther();
 		beAnnoying();
@@ -860,10 +866,9 @@ public class Pathfinding {
 	 * @param treasure
 	 * @return PinPosHelp
 	 */
-	private PinPosHelp nextStep(TreasureType tre, int id) {
-		// TODO
+	private PinPosHelp nextStep(int ID) {
 		wif_v2.writeln("nextStep");
-		chooseOrientation(true);
+		chooseOrientation((map_treToGo.get(ID) == 1));
 		reject(8);
 		sealOther();
 		beAnnoying();
@@ -875,7 +880,7 @@ public class Pathfinding {
 	 * 
 	 * @return
 	 */
-	private PinPosHelp deadEnd() {
+	private void deadEnd() {
 		wif_v2.writeln("dead end");
 		List<Position> l = new ArrayList<>();
 		List<PinPosHelp> l_sol = new ArrayList<>();
@@ -935,11 +940,12 @@ public class Pathfinding {
 		}
 		double min = Collections.min(map.keySet());
 		list_rating = map.get(min);
-		PinPosHelp pph = bestMove();
-		betterBoard.proceedShift(pph.getCardHelp().getPos(), new Card(pph.getCardHelp().getCard()));
-		pph.setPinPos(betterBoard.getPinPos(id));
+		for (PinPosHelp pph : list_rating) {
+			Board b = ((Board) betterBoard.clone());
+			b.proceedShift(pph.getCardHelp());
+			pph.setPinPos(b.getPinPos(id));
+		}
 		wif_v2.writeln("Dead End");
-		return pph;
 	}
 
 	/**
