@@ -15,8 +15,9 @@ import tools.LoggedPrintStream;
 import tools.WriteIntoFile;
 import config.Settings;
 import control.AI.Fridolin.Fridolin;
-import control.AI.MNA_S.MNA_S;
 import control.AI.LAMB.LAMB;
+import control.AI.MNA.MNA;
+import control.AI.MNA_S.MNA_S;
 import control.AI.ava.Ava;
 import control.AI.ava.Ava2;
 import control.network.Connection;
@@ -30,11 +31,12 @@ public class AiVsAI {
 	private int randomSimple = 0;
 	private int randomAdvanced = 0;
 	private int tryAndError = 0;
-	private int ava = 1;
+	private int ava = 0;
 	private int lamb = 0;
 	private int mna_s = 0;
 	private int fridolin = 1;
-	private int ava2 = 1;
+	private int ava2 = 0;
+	private int mna = 1;
 	// name of ai's. Value of the specified string can be changed by oneself
 	private final String RANDOMSIMPLE = "randomSimple";
 	private final String RANDOMADVANCED = "randomAdvanced";
@@ -45,6 +47,7 @@ public class AiVsAI {
 	private final String MNA_S = "MNA_S";
 	private final String FRIDOLIN = "Fridolin!";
 	private final String AVA2 = "Ava 2.0";
+	private final String MNA = "MNA";
 	// case true: testseed++ each game. so it is possible to find the game where an error occurred
 	private final boolean debug = false;
 	// =================== end ======================
@@ -72,6 +75,7 @@ public class AiVsAI {
 	private final int MS = 6;
 	private final int FR = 7;
 	private final int AV2 = 8;
+	private final int MN = 9;
 	/**
 	 * case false: just one constellation. case true: sum of all ai's which should fight factorial multiply with count
 	 */
@@ -167,6 +171,13 @@ public class AiVsAI {
 						addMultiply(ava2, AV2);
 					} else {
 						order.add(AV2 + "");
+					}
+				}
+				if (mna > 0) {
+					if (mna > 1) {
+						addMultiply(mna, MN);
+					} else {
+						order.add(MN + "");
 					}
 				}
 				initAllComb(order);
@@ -365,6 +376,14 @@ public class AiVsAI {
 				if (number == 1) {
 					tmp++;
 					map.put(tmp, new PlayerStat(this.AVA2));
+				}
+				break;
+			case MN:
+				connection = new Connection(this);
+				new Client(new MNA(connection), connection).start();
+				if (number == 1) {
+					tmp++;
+					map.put(tmp, new PlayerStat(this.MNA));
 				}
 				break;
 			}
