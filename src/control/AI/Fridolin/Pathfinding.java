@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import model.jaxb.CardType.Pin;
-import model.jaxb.ErrorType;
 import model.jaxb.TreasureType;
 import model.jaxb.TreasuresToGoType;
 import tools.WriteIntoFile;
@@ -118,7 +117,7 @@ public class Pathfinding {
 			if (pph == null) {
 				reject(11);
 				pph = nextStep(tre, id);
-			}else{
+			} else {
 				return pph;
 			}
 		} else {
@@ -136,6 +135,11 @@ public class Pathfinding {
 		return pph;
 	}
 
+	/**
+	 * check if it is the last treasure and 1vs1 game
+	 * 
+	 * @return null if not else the calculated PinPosHelp
+	 */
 	private PinPosHelp checkLast() {
 		if (map_treToGo.get(id) == 1 && nextPlayer.length == 1) {
 			return strategyLastTreasure();
@@ -249,7 +253,7 @@ public class Pathfinding {
 					}
 				}
 
-				pph.setRating(min / 1.5);
+				pph.setRating(min);
 			}
 		}
 	}
@@ -269,7 +273,7 @@ public class Pathfinding {
 			pinPos = board.getPinPos(ID);
 			List<Position> l = new ArrayList<>();
 			l = findPossiblePos(board, l, pinPos);
-			pph.setRating(-5 + (l.size() + (map_treToGo.size() + ID) % id) / 10);
+			pph.setRating(l.size() + (map_treToGo.size() + ID - id) % map_treToGo.size() + map_treToGo.get(ID));
 		}
 	}
 
@@ -280,7 +284,7 @@ public class Pathfinding {
 			board.proceedShift(pph.getCardHelp());
 			List<Position> l = new ArrayList<>();
 			l = findPossiblePos(board, l, endPos);
-			pph.setRating(-5 + (l.size() / 1.25 * (map_treToGo.size() + ID) % id) / 10);
+			pph.setRating(-5 + l.size() + (map_treToGo.size() + ID - id) % map_treToGo.size());
 		}
 	}
 
@@ -306,7 +310,7 @@ public class Pathfinding {
 				}
 				c += (nextPlayer.length - i + 1);
 			}
-			list_rating.get(list_rating.indexOf(pp)).setRating(6 - c);
+			pp.setRating(10 - c);
 		}
 	}
 
@@ -457,9 +461,7 @@ public class Pathfinding {
 				return list_end.get(0);
 			}
 			list_rating = list_end;
-			for (int i : nextPlayer) {
-				sealEndPos(i);
-			}
+			sealEndPos(nextPlayer[0]);
 			return PinPosHelp.getLowestRating(list_rating);
 		} else {
 			List<PinPosHelp> l_pph = shortestPathToOpposite(list_near);
@@ -476,6 +478,16 @@ public class Pathfinding {
 				PinPosHelp pph = PinPosHelp.getLowestRating(list_rating);
 				return pph;
 			}
+		}
+	}
+
+	private void sealOther() {
+		sealAway();
+		for (int i = 1; i < nextPlayer.length; i++) {
+			if (map_treToGo.get(nextPlayer[i]) == 1) {
+				sealEndPos(nextPlayer[i]);
+			}
+			sealAway(nextPlayer[i]);
 		}
 	}
 
@@ -591,12 +603,11 @@ public class Pathfinding {
 			}
 			return PinPosHelp.getLowestRating(list_rating);
 		} else {
-			// TODO
 			List<PinPosHelp> l_pph = shortestPathToOpposite(list_near);
 			list_rating = l_pph;
 			checkLastButOne();
 			beAnnoying();
-			sealAway();
+			sealOther();
 			PinPosHelp pph = PinPosHelp.getLowestRating(list_rating);
 			return pph;
 		}
@@ -792,7 +803,6 @@ public class Pathfinding {
 	 * @return
 	 */
 	private PinPosHelp checkNextTurn(TreasureType tre) {
-		// TODO nicht aufs startfeld
 		if (map_treToGo.get(nextPlayer[0]) == 1) {
 			List<CardHelp> list_ch = lastChance();
 			wif_v2.writeln("checkNextTurn");
@@ -837,9 +847,9 @@ public class Pathfinding {
 
 	private PinPosHelp bestMove() {
 		wif_v2.writeln("bestMove " + list_rating.size());
-		chooseOrientation();
+		chooseOrientation(false);
 		reject(8);
-		sealAway();
+		sealOther();
 		beAnnoying();
 		return PinPosHelp.getLowestRating(list_rating);
 	}
@@ -851,8 +861,12 @@ public class Pathfinding {
 	 * @return PinPosHelp
 	 */
 	private PinPosHelp nextStep(TreasureType tre, int id) {
+		// TODO
 		wif_v2.writeln("nextStep");
-		bestMove();
+		chooseOrientation(true);
+		reject(8);
+		sealOther();
+		beAnnoying();
 		return PinPosHelp.getLowestRating(list_rating);
 	}
 
@@ -934,7 +948,7 @@ public class Pathfinding {
 	 * @param list
 	 * @return
 	 */
-	private void chooseOrientation() {
+	private void chooseOrientation(boolean lastTreasure) {
 		wif_v2.writeln("chooseOrientaion " + list_rating.size());
 		for (PinPosHelp pph : list_rating) {
 			Position p = pph.getPinPos();
@@ -945,7 +959,10 @@ public class Pathfinding {
 				continue;
 			}
 			int count = chooseOrientation(pph.getTrePos(), p, b);
-			pph.setRating(count);
+			if (lastTreasure) {
+				pph.setRating(-count);
+			}
+			pph.setRating(-count);
 		}
 	}
 
@@ -958,16 +975,7 @@ public class Pathfinding {
 	 * @return
 	 */
 	private int chooseOrientation(Position start, Position end, Board board) {
-		Card cstart;
-		try {
-			cstart = new Card(board.getCard(start));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			wif_v2.writeln("chooseOrientation " + start);
-			System.out.println(e.getMessage());
-
-			cstart = new Card(board.getCard(start));
-		}
+		Card cstart = new Card(board.getCard(start));
 		Card cend = new Card(board.getCard(end));
 		int count = 0;
 		if (start.getRow() == end.getRow()) {
