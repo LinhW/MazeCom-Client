@@ -10,6 +10,7 @@ import control.AI.RandomAISimple;
 import control.AI.TryAndError;
 import control.AI.Fridolin.Fridolin;
 import control.AI.LAMB.LAMB;
+import control.AI.MNA.MNA;
 import control.AI.MNA_S.MNA_S;
 import control.AI.ava.Ava;
 import control.network.Connection;
@@ -47,6 +48,9 @@ public class Main {
 				break;
 			case 6:
 				player = new MNA_S(connection);
+				break;
+			case 7:
+				player = new MNA(connection);
 				break;
 			default:
 				player = new RandomAISimple(connection);
